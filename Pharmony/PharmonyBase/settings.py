@@ -11,9 +11,14 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+import dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables
+dotenv.load_dotenv(BASE_DIR.parent / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
-    
+    'Farmacia',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +129,26 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "http://127.0.0.1:4200",
 ]
+
+# Configuración del Modelo de Usuario
+AUTH_USER_MODEL = 'Farmacia.Usuario'
+
+# Inicialización de Firebase Admin SDK
+import firebase_admin
+from firebase_admin import credentials
+
+FIREBASE_KEYS_PATH = os.getenv('FIREBASE_KEYS_PATH', 'serviceAccountKey.json')
+if FIREBASE_KEYS_PATH:
+    key_path = BASE_DIR.parent / FIREBASE_KEYS_PATH
+    if key_path.exists():
+        try:
+            if not firebase_admin._apps:
+                cred = credentials.Certificate(str(key_path))
+                firebase_admin.initialize_app(cred)
+                print("Firebase Admin SDK inicializado correctamente.")
+        except Exception as e:
+            print(f"Error al inicializar Firebase Admin SDK: {e}")
+    else:
+        print(f"Advertencia: Archivo de credenciales de Firebase no encontrado en {key_path}")
+else:
+    print("Advertencia: FIREBASE_KEYS_PATH no está configurado en el archivo .env")

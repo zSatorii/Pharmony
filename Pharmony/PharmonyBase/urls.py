@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from Farmacia.views import registrar_usuario, iniciar_sesion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', registrar_usuario, name='home'),
+    path('registro/', registrar_usuario, name='registro'),
+    path('login/', iniciar_sesion, name='login'),
 ]
