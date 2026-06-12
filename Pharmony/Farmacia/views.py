@@ -1,10 +1,41 @@
 import json
-from django.shortcuts import render
+import datetime
+import jwt
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.http import JsonResponse
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate
+from django.conf import settings
 from firebase_admin import auth as firebase_auth
 
 Usuario = get_user_model()
+
+def generate_jwt(user):
+    payload = {
+        'user_id': user.id,
+        'email': user.email,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        'iat': datetime.datetime.utcnow()
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+def get_user_from_jwt(request):
+    token = request.COOKIES.get('jwt_token')
+    if not token:
+        # Check Authorization header as fallback
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        return Usuario.objects.get(id=user_id)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, Usuario.DoesNotExist):
+        return None
 
 def registrar_usuario(request):
     if request.method == 'POST':
@@ -94,8 +125,10 @@ def iniciar_sesion(request):
 
             user = authenticate(request, username=email, password=password)
             if user is not None:
-                login(request, user)
-                return JsonResponse({'success': True, 'message': 'Inicio de sesión exitoso.'})
+                token = generate_jwt(user)
+                response = JsonResponse({'success': True, 'token': token, 'message': 'Inicio de sesión exitoso.'})
+                response.set_cookie('jwt_token', token, max_age=86400, httponly=True, samesite='Lax')
+                return response
             else:
                 return JsonResponse({'success': False, 'error': 'Credenciales inválidas.'}, status=401)
 
@@ -104,5 +137,18 @@ def iniciar_sesion(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
 
-    # Si es GET, se renderiza la plantilla HTML
+    user = get_user_from_jwt(request)
+    if user is not None:
+        return redirect('dashboard')
     return render(request, 'Farmacia/PharmonyLogin.html')
+
+def dashboard(request):
+    user = get_user_from_jwt(request)
+    if not user:
+        return redirect('login')
+    return render(request, 'Farmacia/PharmonyDashboard.html', {'user': user})
+
+def cerrar_sesion(request):
+    response = redirect('login')
+    response.delete_cookie('jwt_token')
+    return response
