@@ -18,7 +18,10 @@ import dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Load environment variables
-dotenv.load_dotenv(BASE_DIR.parent / '.env')
+env_path = BASE_DIR / '.env'
+if not env_path.exists():
+    env_path = BASE_DIR.parent / '.env'
+dotenv.load_dotenv(env_path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -139,21 +142,23 @@ AUTH_USER_MODEL = 'Farmacia.Usuario'
 import firebase_admin
 from firebase_admin import credentials
 
-FIREBASE_KEYS_PATH = os.getenv('FIREBASE_KEYS_PATH', 'serviceAccountKey.json')
-if FIREBASE_KEYS_PATH:
-    key_path = BASE_DIR.parent / FIREBASE_KEYS_PATH
+FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH') or os.getenv('FIREBASE_KEYS_PATH') or 'ServiceAccountKey.json'
+
+if FIREBASE_CREDENTIALS_PATH:
+    # Intentar buscar el archivo en BASE_DIR primero, luego en BASE_DIR.parent
+    key_path = BASE_DIR / FIREBASE_CREDENTIALS_PATH
+    if not key_path.exists():
+        key_path = BASE_DIR.parent / FIREBASE_CREDENTIALS_PATH
+        
     if key_path.exists():
         try:
             if not firebase_admin._apps:
                 cred = credentials.Certificate(str(key_path))
                 firebase_admin.initialize_app(cred)
-                print("Firebase Admin SDK inicializado correctamente.")
+                print(f"Firebase Admin SDK inicializado correctamente desde: {key_path}")
         except Exception as e:
             print(f"Error al inicializar Firebase Admin SDK: {e}")
     else:
-        print(f"Advertencia: Archivo de credenciales de Firebase no encontrado en {key_path}")
+        print(f"Advertencia: Archivo de credenciales de Firebase no encontrado en {BASE_DIR / FIREBASE_CREDENTIALS_PATH} ni en {BASE_DIR.parent / FIREBASE_CREDENTIALS_PATH}")
 else:
-    print("Advertencia: FIREBASE_KEYS_PATH no está configurado en el archivo .env")
-
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/api/dashboard-inventario/'
+    print("Advertencia: FIREBASE_CREDENTIALS_PATH no está configurado en el archivo .env")

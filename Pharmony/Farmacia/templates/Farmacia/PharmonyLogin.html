@@ -532,7 +532,10 @@ async function doLogin(){
       });
       const result = await response.json();
       if(result.success){
-            showLoginSuccess(result.redirect_url);
+          localStorage.setItem('jwt_token', result.token);
+          // Guardar en cookie para que esté disponible en las peticiones del servidor
+          document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
+          showLoginSuccess();
       } else {
           setErr(result.error || 'Error al iniciar sesión.');
       }
@@ -578,7 +581,7 @@ function resetBio(){
   document.getElementById('bioErr').textContent='';
 }
 
-function showLoginSuccess(redirectUrl){
+function showLoginSuccess(){
   document.querySelector('.right').innerHTML=`
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--grnp);border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:36px;">✓</div>
@@ -588,7 +591,7 @@ function showLoginSuccess(redirectUrl){
     </div>
     <style>@keyframes pop{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}@keyframes pulse{from{opacity:.3;transform:scale(.8);}to{opacity:1;transform:scale(1);}}</style>
   `;
-  setTimeout(()=>{ window.location.href = redirectUrl || '/api/dashboard-inventario/'; }, 1800);
+  setTimeout(()=>window.location.href = '/dashboard/', 2000);
 }
 </script>
 </body>

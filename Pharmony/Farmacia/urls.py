@@ -1,27 +1,10 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-
-from .views import (
-    MedicamentoViewSet,
-    dashboard_inventario
-)
-
-router = DefaultRouter()
-
-router.register(
-    r'medicamentos',
-    MedicamentoViewSet,
-    basename='medicamentos'
-)
+from . import views
 
 urlpatterns = [
-
-    path(
-        'dashboard-inventario/',
-        dashboard_inventario,
-        name='dashboard_inventario'
-    ),
-
+    path('inventario/', views.dashboard_inventario, name='dashboard_inventario'),
+    path('inventario/crear/', views.crear_medicamento, name='crear_medicamento'),
+    path('inventario/editar/<int:pk>/', views.editar_medicamento, name='editar_medicamento'),
+    path('inventario/eliminar/<int:pk>/', views.eliminar_medicamento, name='eliminar_medicamento'),
 ]
-
-urlpatterns += router.urls

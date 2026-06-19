@@ -35,7 +35,7 @@ class _ProductosScreenState extends State<_ProductosScreen> {
 
   Future<void> fetchProductos() async {
     // ⚠️ REVISA EL TIP DE IP ABAJO ANTES DE PROBAR
-    final url = Uri.parse('http://localhost:8000/api/productos/'); 
+    final url = Uri.parse('http://localhost:8000'); 
     
     try {
       final response = await http.get(url);

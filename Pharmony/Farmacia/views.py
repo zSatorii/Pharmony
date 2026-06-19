@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
-
+import datetime
+import jwt
+import os
 from .models import Medicamento
 from .serializers import MedicamentoSerializer
 
@@ -24,74 +26,23 @@ from rest_framework.response import Response
 from .models import Medicamento
 from .serializers import MedicamentoSerializer
 
-class MedicamentoViewSet(viewsets.ModelViewSet):
-    queryset = Medicamento.objects.all().order_by("nombre_comercial")
-    serializer_class = MedicamentoSerializer
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotAllowed
+from firebase_admin import firestore
+from .models import Medicamento
+from django.views.decorators.cache import never_cache
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-
-        if serializer.is_valid():
-            # 1. Guardamos localmente en la base de datos de Django (SQLite/Postgres)
-            instance = serializer.save() 
-
-            # 2. Extraemos los datos validados listos para enviar en formato JSON a Firebase
-            medicamento_data = serializer.data
-
-            try:
-                # 3. LLAMADA DIRECTA: Inicializamos el cliente usando la dependencia nativa 'firestore'
-                db = firestore.client()
-
-                # 4. Asignamos el ID único del documento (preferiblemente el código del medicamento o su nombre comercial)
-                document_id = str(medicamento_data.get('id')) or medicamento_data.get('nombre_comercial')
-
-                # 5. Enviamos a Firestore (Creará de forma automática la colección si no existe)
-                db.collection('medicamentos').document(document_id).set(medicamento_data)
-                
-                return Response(
-                    {
-                        "mensaje": "Medicamento registrado correctamente en Django y Firebase",
-                        "data": medicamento_data
-                    },
-                    status=status.HTTP_201_CREATED
-                )
-                
-            except Exception as firebase_error:
-                return Response(
-                    {
-                        "error": "El medicamento se validó, pero falló el envío a Firebase",
-                        "detalle": str(firebase_error)
-                    },
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-
-# ==========================
-# Dashboard Inventario
-# ==========================
 
 @login_required
+@never_cache
 def dashboard_inventario(request):
-
-    medicamentos = Medicamento.objects.all()
+    medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
 
     total_medicamentos = medicamentos.count()
-
-    medicamentos_formula = medicamentos.filter(
-        requiere_formula=True
-    ).count()
-
-    medicamentos_libres = medicamentos.filter(
-        requiere_formula=False
-    ).count()
-
-    laboratorios = medicamentos.values(
-        'laboratorio'
-    ).distinct().count()
+    medicamentos_formula = medicamentos.filter(requiere_formula=True).count()
+    medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
+    laboratorios = medicamentos.values('laboratorio').distinct().count()
 
     context = {
         'medicamentos': medicamentos,
@@ -101,15 +52,132 @@ def dashboard_inventario(request):
         'laboratorios': laboratorios
     }
 
-    return render(
-        request,
-        'inventario/DashboardInventario.html',
-        context
-    )
+    return render(request, 'inventario/DashboardInventario.html', context)
 
+
+@login_required
+def crear_medicamento(request):
+    if request.method == 'POST':
+        nombre_comercial = request.POST.get('nombre_comercial')
+        laboratorio = request.POST.get('laboratorio')
+        precio = request.POST.get('precio')
+        stock = request.POST.get('stock')
+        requiere_formula = request.POST.get('requiere_formula') == 'on'
+  
+        medicamento = Medicamento.objects.create(
+            nombre_comercial=nombre_comercial,
+            laboratorio=laboratorio,
+            precio=precio,
+            stock=stock,
+            requiere_formula=requiere_formula
+        )
+
+        try:
+            db = firestore.client()
+            medicamento_data = {
+                "id": medicamento.id,
+                "nombre_comercial": nombre_comercial,
+                "laboratorio": laboratorio,
+                "precio": int(precio) if precio else 0,
+                "stock": int(stock) if stock else 0,
+                "requiere_formula": requiere_formula
+            }
+            db.collection('medicamentos').document(str(medicamento.id)).set(medicamento_data)
+        except Exception as e:
+            print(f"⚠️ Error al sincronizar creación en Firebase: {e}")
+
+        return redirect('dashboard_inventario')
+    
+    return HttpResponseNotAllowed(['POST'])
+
+
+
+@login_required
+def editar_medicamento(request, pk):
+    medicamento = get_object_or_404(Medicamento, pk=pk)
+
+    if request.method == 'POST':
+        medicamento.nombre_comercial = request.POST.get('nombre_comercial')
+        medicamento.laboratorio = request.POST.get('laboratorio')
+        medicamento.precio = request.POST.get('precio')
+        medicamento.stock = request.POST.get('stock')
+        medicamento.requiere_formula = request.POST.get('requiere_formula') == 'on'
+        medicamento.save()
+        
+        try:
+            db = firestore.client()
+            medicamento_data = {
+                "id": medicamento.id,
+                "nombre_comercial": medicamento.nombre_comercial,
+                "laboratorio": medicamento.laboratorio,
+                "precio": int(medicamento.precio) if medicamento.precio else 0,
+                "stock": int(medicamento.stock) if medicamento.stock else 0,
+                "requiere_formula": medicamento.requiere_formula
+            }
+            db.collection('medicamentos').document(str(medicamento.id)).update(medicamento_data)
+        except Exception as e:
+            print(f"⚠️ Error al sincronizar edición en Firebase: {e}")
+
+        return redirect('dashboard_inventario')
+    
+    return HttpResponseNotAllowed(['POST'])
+
+
+
+@login_required
+def eliminar_medicamento(request, pk):
+    medicamento = get_object_or_404(Medicamento, pk=pk)
+    
+    if request.method == 'POST':
+        id_a_eliminar = str(medicamento.id)
+        
+        medicamento.delete()
+
+        try:
+            db = firestore.client()
+            db.collection('medicamentos').document(id_a_eliminar).delete()
+        except Exception as e:
+            print(f"⚠️ Error al sincronizar eliminación en Firebase: {e}")
+
+        return redirect('dashboard_inventario')
+        
+    return HttpResponseNotAllowed(['POST'])
 Usuario = get_user_model()
 
+def generate_jwt(user):
+    payload = {
+        'user_id': user.id,
+        'email': user.email,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1),
+        'iat': datetime.datetime.utcnow()
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm='HS256')
+
+def get_user_from_jwt(request):
+    token = request.COOKIES.get('jwt_token')
+    if not token:
+        # Check Authorization header as fallback
+        auth_header = request.headers.get('Authorization', '')
+        if auth_header.startswith('Bearer '):
+            token = auth_header.split(' ')[1]
+    
+    if not token:
+        return None
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+        user_id = payload.get('user_id')
+        return Usuario.objects.get(id=user_id)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, Usuario.DoesNotExist):
+        return None
+
+@never_cache
 def registrar_usuario(request):
+    # Si ya tiene una sesión iniciada, redirigir al dashboard
+    user = get_user_from_jwt(request)
+    if user is not None:
+        return redirect('dashboard')
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -181,6 +249,32 @@ def registrar_usuario(request):
                         print(f"Error al revertir registro en Firebase para {email}: {delete_err}")
                 return JsonResponse({'success': False, 'error': f'Error en Base de Datos: {str(e)}'}, status=500)
 
+            # 3. Registrar en Firestore de Firebase
+            try:
+                db = firestore.client()
+                db.collection('usuarios').document(fb_uid).set({
+                    'nombre': nombre,
+                    'apellido': apellido,
+                    'email': email,
+                    'telefono': telefono,
+                    'rol': 'cliente',
+                    'created_at': firestore.SERVER_TIMESTAMP,
+                    'face_registered': data.get('face_registered', False)
+                })
+            except Exception as firestore_err:
+                print(f"Error al registrar en Firestore: {firestore_err}")
+                # Revertir base de datos Django y Firebase Auth si falla Firestore para consistencia
+                try:
+                    user.delete()
+                except Exception as db_delete_err:
+                    print(f"Error al revertir registro local para {email}: {db_delete_err}")
+                if fb_uid:
+                    try:
+                        firebase_auth.delete_user(fb_uid)
+                    except Exception as delete_err:
+                        print(f"Error al revertir registro en Firebase Auth para {email}: {delete_err}")
+                return JsonResponse({'success': False, 'error': f'Error al guardar en base de datos Firebase: {str(firestore_err)}'}, status=500)
+
             return JsonResponse({'success': True, 'message': 'Usuario registrado con éxito.'})
 
         except json.JSONDecodeError:
@@ -191,6 +285,7 @@ def registrar_usuario(request):
     # Si es GET, se renderiza la plantilla HTML
     return render(request, 'Farmacia/PharmonyRegistro.html')
 
+@never_cache
 def iniciar_sesion(request):
     if request.method == 'POST':
         try:
@@ -209,13 +304,102 @@ def iniciar_sesion(request):
                         'message': 'Inicio de sesión exitoso.',
                         'redirect_url': reverse('dashboard_inventario')
                     })
+            # 1. Autenticar con la API REST de Firebase Auth
+            api_key = os.getenv('FIREBASE_API_KEY')
+            if not api_key:
+                return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
+
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={api_key}"
+            payload = {
+                "email": email,
+                "password": password,
+                "returnSecureToken": True
+            }
+
+            fb_response = requests.post(url, json=payload)
+            fb_data = fb_response.json()
+
+            if fb_response.status_code == 200:
+                fb_uid = fb_data.get('localId')
+
+                # 2. Buscar o sincronizar/crear el usuario localmente
+                try:
+                    user = Usuario.objects.get(firebase_uid=fb_uid)
+                except Usuario.DoesNotExist:
+                    try:
+                        # Si existe en Firebase Auth pero no en Django local, obtener detalles y crear local
+                        fb_user = firebase_auth.get_user(fb_uid)
+                        display_name = fb_user.display_name or ""
+                        parts = display_name.split(' ', 1)
+                        first_name = parts[0] if len(parts) > 0 else ""
+                        last_name = parts[1] if len(parts) > 1 else ""
+
+                        user = Usuario.objects.create_user(
+                            username=email,
+                            email=email,
+                            password=password,
+                            first_name=first_name,
+                            last_name=last_name,
+                            telefono=fb_user.phone_number or "",
+                            firebase_uid=fb_uid
+                        )
+
+                        # Asegurarse de que esté también en Firestore
+                        try:
+                            db = firestore.client()
+                            user_doc = db.collection('usuarios').document(fb_uid).get()
+                            if not user_doc.exists:
+                                db.collection('usuarios').document(fb_uid).set({
+                                    'nombre': first_name,
+                                    'apellido': last_name,
+                                    'email': email,
+                                    'telefono': fb_user.phone_number or "",
+                                    'rol': 'cliente',
+                                    'created_at': firestore.SERVER_TIMESTAMP,
+                                    'face_registered': False
+                                })
+                        except Exception as firestore_err:
+                            print(f"Error al sincronizar Firestore en login: {firestore_err}")
+
+                    except Exception as sync_err:
+                        return JsonResponse({'success': False, 'error': f'Error al sincronizar usuario: {str(sync_err)}'}, status=500)
+
+                # 3. Generar token JWT local y establecer cookie
+                token = generate_jwt(user)
+                response = JsonResponse({'success': True, 'token': token, 'message': 'Inicio de sesión exitoso.'})
+                response.set_cookie('jwt_token', token, max_age=86400, httponly=True, samesite='Lax')
+                return response
             else:
-                return JsonResponse({'success': False, 'error': 'Credenciales inválidas.'}, status=401)
+                # Manejar errores de Firebase Auth REST API
+                fb_error = fb_data.get('error', {})
+                error_code = fb_error.get('message', '')
+                if error_code in ['INVALID_LOGIN_CREDENTIALS', 'EMAIL_NOT_FOUND', 'INVALID_PASSWORD']:
+                    error_msg = "Correo o contraseña incorrectos."
+                elif error_code == 'USER_DISABLED':
+                    error_msg = "Esta cuenta ha sido deshabilitada."
+                else:
+                    error_msg = f"Error al autenticar con Firebase: {error_code}"
+                return JsonResponse({'success': False, 'error': error_msg}, status=401)
 
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
 
-    # Si es GET, se renderiza la plantilla HTML
+    user = get_user_from_jwt(request)
+    if user is not None:
+        return redirect('dashboard')
     return render(request, 'Farmacia/PharmonyLogin.html')
+
+@never_cache
+def dashboard(request):
+    user = get_user_from_jwt(request)
+    if not user:
+        return redirect('login')
+    return render(request, 'Farmacia/PharmonyDashboard.html', {'user': user})
+
+@never_cache
+def cerrar_sesion(request):
+    response = redirect('login')
+    response.delete_cookie('jwt_token')
+    return response
