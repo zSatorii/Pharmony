@@ -7,11 +7,13 @@ from .serializers import MedicamentoSerializer
 
 import json
 import re
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
 from firebase_admin import auth as firebase_auth
 
 
@@ -43,7 +45,7 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 # ==========================
 # Dashboard Inventario
 # ==========================
-
+@never_cache
 @login_required
 def dashboard_inventario(request):
 
@@ -79,7 +81,11 @@ def dashboard_inventario(request):
 
 Usuario = get_user_model()
 
+@never_cache
 def registrar_usuario(request):
+    if request.method == 'GET' and request.user.is_authenticated:
+        return redirect('dashboard_inventario')
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -161,7 +167,11 @@ def registrar_usuario(request):
     # Si es GET, se renderiza la plantilla HTML
     return render(request, 'Farmacia/PharmonyRegistro.html')
 
+@never_cache
 def iniciar_sesion(request):
+    if request.method == 'GET' and request.user.is_authenticated:
+        return redirect('dashboard_inventario')
+    
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -189,3 +199,9 @@ def iniciar_sesion(request):
 
     # Si es GET, se renderiza la plantilla HTML
     return render(request, 'Farmacia/PharmonyLogin.html')
+
+@never_cache
+@require_GET
+def cerrar_sesion(request):
+    logout(request)
+    return redirect('login')
