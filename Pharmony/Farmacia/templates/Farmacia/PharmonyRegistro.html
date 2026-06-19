@@ -28,12 +28,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
   display:flex;flex-direction:column;justify-content:space-between;
   padding:44px 50px;overflow:hidden;
 }
-.shapes{position:absolute;inset:0;pointer-events:none;}
+.shapes{position:absolute;inset:0;pointer-events:none;z-index:0;}
 .shapes svg{width:100%;height:100%;}
 @keyframes s1{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(5deg);}}
 @keyframes s2{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(-6deg);}}
 @keyframes s3{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(4deg);}}
-.left-top,.left-bottom{position:relative;z-index:2;}
+.left-top,.left-bottom{position:relative;z-index:5;}
 .logo{display:flex;align-items:center;gap:12px;}
 .logo-mark{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;}
 .logo-name{font-family:'Quicksand',sans-serif;font-size:24px;font-weight:300;letter-spacing:3px;color:#fff;}
@@ -240,7 +240,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         <g opacity=".88" style="animation:s1 8s ease-in-out infinite;transform-origin:520px 60px">
           <path d="M520 -30 C580 20 620 90 590 160 C560 225 490 245 430 215 C375 185 360 115 400 70" stroke="url(#g1)" stroke-width="48" fill="none" stroke-linecap="round"/>
         </g>
-        <g opacity=".8" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
+        <g opacity=".2" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
           <path d="M20 310 C75 272 165 268 200 302 C232 332 216 388 170 400 C130 410 68 384 52 348" stroke="url(#g2)" stroke-width="42" fill="none" stroke-linecap="round"/>
           <path d="M45 420 C94 388 168 387 198 416 C224 442 210 488 176 498 C144 507 98 484 82 452" stroke="url(#g1)" stroke-width="35" fill="none" stroke-linecap="round"/>
         </g>
@@ -340,7 +340,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         <div class="row2">
           <div class="field"><label>Contraseña *</label>
             <div class="pw-wrap">
-              <input type="password" id="p1_pw" placeholder="Mínimo 8 caracteres">
+              <input type="password" id="p1_pw" placeholder="Mín. 8 caracteres, mayúscula, número y símbolo">
               <button class="pw-toggle" onclick="tpw('p1_pw',this)" tabindex="-1">👁</button>
             </div>
           </div>
@@ -430,7 +430,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
           <div class="confirm-icon">🎉</div>
           <h2>¡Registro completado!</h2>
           <p id="confirmMsg">Tu cuenta ha sido creada exitosamente con Face ID activado. Ya puedes acceder al panel farmacéutico de Pharmony.</p>
-          <button class="btn-next" style="width:100%;max-width:320px;" onclick="location.reload()">
+          <button class="btn-next" style="width:100%;max-width:320px;" onclick="window.location.href='/login/'">
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2.5H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3.5-3.5L10 4M13.5 7.5H5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Ir al panel
           </button>
@@ -498,7 +498,8 @@ function goStep2(){
   const err=document.getElementById('err1');
   if(!nombre||!apellido){err.textContent='⚠ Ingresa tu nombre completo.';return;}
   if(!email||!email.includes('@')){err.textContent='⚠ Ingresa un correo electrónico válido.';return;}
-  if(pw.length<8){err.textContent='⚠ La contraseña debe tener al menos 8 caracteres.';return;}
+  const pwRegex=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+  if(!pwRegex.test(pw)){err.textContent='⚠ La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.';return;}
   if(pw!==pw2){err.textContent='⚠ Las contraseñas no coinciden.';return;}
   err.textContent='';
   setStep(2);

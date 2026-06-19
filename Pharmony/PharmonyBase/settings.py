@@ -155,3 +155,5 @@ if FIREBASE_KEYS_PATH:
 else:
     print("Advertencia: FIREBASE_KEYS_PATH no está configurado en el archivo .env")
 
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/api/dashboard-inventario/'
