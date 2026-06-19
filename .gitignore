@@ -1,134 +1,71 @@
 # ==========================================
-# Pharmony Workspace Root GitIgnore
-# Configured for:
-# - Django Backend (inside /Pharmony)
-# - Angular Frontend (inside /PharmonyFront)
+# Python / Django
 # ==========================================
+# Archivos compilados
+__pycache__/
+*.py[cod]
+*$py.class
 
-# ------------------------------------------
-# Django Backend (Pharmony/)
-# ------------------------------------------
-# Byte-compiled / optimized / DLL files
-Pharmony/**/*.py[cod]
-Pharmony/**/__pycache__/
-Pharmony/**/*.so
+# Extensiones C
+*.so
 
-# Local environments / secrets
-Pharmony/.env
-Pharmony/ServiceAccountKey.json
-
-# Database
-Pharmony/db.sqlite3
-Pharmony/db.sqlite3-journal
-
-# Environments
-Pharmony/venv/
-Pharmony/.venv/
-Pharmony/env/
-Pharmony/ENV/
-Pharmony/env.bak/
-Pharmony/venv.bak/
-
-# Django media & static files
-Pharmony/media/
-Pharmony/staticfiles/
-
-# Logs
-Pharmony/*.log
-
-# Pytest / Coverage
-Pharmony/.pytest_cache/
-Pharmony/htmlcov/
-Pharmony/.coverage
-Pharmony/.coverage.*
-
-
-# ------------------------------------------
-# Angular Frontend (PharmonyFront/)
-# ------------------------------------------
-# Node modules
-PharmonyFront/node_modules/
-
-# Angular build outputs and cache
-PharmonyFront/dist/
-PharmonyFront/tmp/
-PharmonyFront/out-tsc/
-PharmonyFront/bazel-out/
-PharmonyFront/.angular/
-
-# Logs
-PharmonyFront/npm-debug.log
-PharmonyFront/yarn-error.log
-PharmonyFront/testem.log
-PharmonyFront/libpeerconnection.log
-
-# Miscellaneous Angular items
-PharmonyFront/coverage/
-PharmonyFront/.sass-cache/
-PharmonyFront/connect.lock
-PharmonyFront/typings/
-PharmonyFront/__screenshots__/
-
-
-# ------------------------------------------
-# Global / IDE / System Settings
-# ------------------------------------------
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-.vscode/
-
-# System files
-.DS_Store
-Thumbs.db
-
-# Miscellaneous
-*.class
+# Archivos específicos de Django
 *.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
+# Archivos multimedia y estáticos
+media/
+staticfiles/
+
+# ==========================================
+# Entornos Virtuales
+# ==========================================
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# ==========================================
+# Secretos y Variables de Entorno (¡MUY IMPORTANTE!)
+# ==========================================
+# Nunca subas credenciales, llaves o variables de entorno a GitHub
+.env
+.env.*
+serviceAccountKey.json
+secrets.json
+firebase_credentials.json
+
+# ==========================================
+# Archivos de Editores e IDEs (VS Code, PyCharm, etc)
+# ==========================================
+.vscode/
 .idea/
+*.sublime-workspace
+*.sublime-project
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# ==========================================
+# Archivos del Sistema Operativo
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+[Tt]humbs.db
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# ==========================================
+# Pruebas (Testing / Coverage)
+# ==========================================
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+nosetests.xml
+coverage.xml
