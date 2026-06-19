@@ -69,3 +69,6 @@ htmlcov/
 .tox/
 nosetests.xml
 coverage.xml
+.angular/
+node_modules/
+dist/
