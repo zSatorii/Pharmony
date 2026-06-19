@@ -1,339 +1,510 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Inventario</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Inventario</title>
 
-<style>
-body {
-    margin: 0;
-    background: #f4f7fb;
-    font-family: Arial, sans-serif;
-}
+    <style>
+        body {
+            margin: 0;
+            background: #f4f7fb;
+            font-family: Arial, sans-serif;
+        }
 
-.header {
-    background: #0d47c9;
-    color: white;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .header {
+            background: #0d47c9;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.header h1 {
-    margin: 0;
-}
+        .header h1 {
+            margin: 0;
+        }
 
-.btn-logout {
-    background: #ef4444;
-    color: white;
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 6px;
-    font-weight: bold;
-    transition: background 0.2s;
-}
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
 
-.btn-logout:hover {
-    background: #dc2626;
-}
+        .btn-logout:hover {
+            background: #dc2626;
+        }
 
-.container {
-    padding: 25px;
-}
+        .container {
+            padding: 25px;
+        }
 
-.cards {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    margin-bottom: 30px;
-}
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
 
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
-}
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+        }
 
-.card h3 {
-    margin: 0;
-    color: #666;
-}
+        .card h3 {
+            margin: 0;
+            color: #666;
+        }
 
-.card h2 {
-    margin-top: 10px;
-    color: #0d47c9;
-}
+        .card h2 {
+            margin-top: 10px;
+            color: #0d47c9;
+        }
 
-.table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
 
-.table-container {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,.1);
-}
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+        }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
 
-th {
-    background: #0d47c9;
-    color: white;
-    padding: 12px;
-    text-align: left;
-}
+        th {
+            background: #0d47c9;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
 
-td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-}
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
 
-tr:hover {
-    background: #f5f5f5;
-}
+        tr:hover {
+            background: #f5f5f5;
+        }
 
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: white;
-    font-size: 0.85em;
-}
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 0.85em;
+        }
 
-.formula { background: #ef4444; }
-.libre { background: #22c55e; }
+        .formula {
+            background: #ef4444;
+        }
 
-/* Botones de acción */
-.btn {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-block;
-}
+        .libre {
+            background: #22c55e;
+        }
 
-.btn-add { background: #22c55e; color: white; }
-.btn-add:hover { background: #16a34a; }
+        /* Botones de acción */
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
 
-.btn-edit { background: #eab308; color: white; padding: 5px 10px; font-size: 0.9em; margin-right: 5px;}
-.btn-edit:hover { background: #ca8a04; }
+        .btn-add {
+            background: #22c55e;
+            color: white;
+        }
 
-.btn-delete { background: #ef4444; color: white; padding: 5px 10px; font-size: 0.9em; }
-.btn-delete:hover { background: #dc2626; }
+        .btn-add:hover {
+            background: #16a34a;
+        }
 
-/* Modales */
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    left: 0; top: 0; width: 100%; height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    align-items: center; justify-content: center;
-}
+        .btn-edit {
+            background: #eab308;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
 
-.modal:target, .modal.active { display: flex; }
+        .btn-edit:hover {
+            background: #ca8a04;
+        }
 
-.modal-content {
-    background: white; padding: 25px;
-    border-radius: 12px; width: 450px;
-    box-shadow: 0 5px 15px rgba(0,0,0,.2);
-    position: relative;
-}
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            font-size: 0.9em;
+        }
 
-.close-modal {
-    position: absolute; top: 15px; right: 15px;
-    font-size: 24px; text-decoration: none; color: #666;
-}
+        .btn-delete:hover {
+            background: #dc2626;
+        }
 
-/* Formularios internos */
-.form-group {
-    margin-bottom: 15px;
-}
-.form-group label {
-    display: block; margin-bottom: 5px; font-weight: bold; color: #333;
-}
-.form-group input, .form-group select {
-    width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
-}
-.form-group-checkbox {
-    display: flex; align-items: center; gap: 10px; margin-top: 10px;
-}
-.form-group-checkbox input { width: auto; }
-</style>
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal:target,
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 450px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            text-decoration: none;
+            color: #666;
+        }
+
+        /* Formularios internos */
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        .form-group-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .form-group-checkbox input {
+            width: auto;
+        }
+
+        /* Añade esto a tus estilos para dar soporte a los textarea */
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: inherit;
+            /* Mantiene la misma fuente */
+            resize: vertical;
+            /* Permite estirar hacia abajo pero no hacia los lados */
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="header">
-    <h1>Dashboard de Inventario</h1>
-    <a href="{% url 'cerrar_sesion' %}" class="btn-logout">Cerrar Sesión</a>
-</div>
-
-<div class="container">
-
-    <div class="cards">
-        <div class="card">
-            <h3>Medicamentos</h3>
-            <h2>{{ total_medicamentos }}</h2>
-        </div>
-        <div class="card">
-            <h3>Requieren Fórmula</h3>
-            <h2>{{ medicamentos_formula }}</h2>
-        </div>
-        <div class="card">
-            <h3>Venta Libre</h3>
-            <h2>{{ medicamentos_libres }}</h2>
-        </div>
-        <div class="card">
-            <h3>Laboratorios</h3>
-            <h2>{{ laboratorios }}</h2>
-        </div>
+    <div class="header">
+        <h1>Dashboard de Inventario</h1>
+        <a href="{% url 'cerrar_sesion' %}" class="btn-logout">Cerrar Sesión</a>
     </div>
 
-    <div class="table-container">
-        <div class="table-header">
-            <h2>Listado de Medicamentos</h2>
-            <a href="#modal-crear" class="btn btn-add">+ Agregar Medicamento</a>
+    <div class="container">
+
+        <div class="cards">
+            <div class="card">
+                <h3>Medicamentos</h3>
+                <h2>{{ total_medicamentos }}</h2>
+            </div>
+            <div class="card">
+                <h3>Requieren Fórmula</h3>
+                <h2>{{ medicamentos_formula }}</h2>
+            </div>
+            <div class="card">
+                <h3>Venta Libre</h3>
+                <h2>{{ medicamentos_libres }}</h2>
+            </div>
+            <div class="card">
+                <h3>Laboratorios</h3>
+                <h2>{{ laboratorios }}</h2>
+            </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>CUM</th>
-                    <th>Nombre Comercial</th>
-                    <th>Nombre Genérico</th>
-                    <th>Concentración</th>
-                    <th>Laboratorio</th>
-                    <th>Forma</th>
-                    <th>Fórmula</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for medicamento in medicamentos %}
-                <tr>
-                    <td>{{ medicamento.codigo_cum }}</td>
-                    <td>{{ medicamento.nombre_comercial }}</td>
-                    <td>{{ medicamento.nombre_generico }}</td>
-                    <td>{{ medicamento.concentracion }}</td>
-                    <td>{{ medicamento.laboratorio }}</td>
-                    <td>{{ medicamento.forma_farmaceutica }}</td>
-                    <td>
-                        {% if medicamento.requiere_formula %}
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Listado de Medicamentos</h2>
+                <a href="#modal-crear" class="btn btn-add">+ Agregar Medicamento</a>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>CUM</th>
+                        <th>Nombre Comercial</th>
+                        <th>Nombre Genérico</th>
+                        <th>Concentración</th>
+                        <th>Laboratorio</th>
+                        <th>Forma</th>
+                        <th>Fórmula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for medicamento in medicamentos %}
+                    <tr>
+                        <td>{{ medicamento.codigo_cum }}</td>
+                        <td>{{ medicamento.nombre_comercial }}</td>
+                        <td>{{ medicamento.nombre_generico }}</td>
+                        <td>{{ medicamento.concentracion }}</td>
+                        <td>{{ medicamento.laboratorio }}</td>
+                        <td>{{ medicamento.forma_farmaceutica }}</td>
+                        <td>
+                            {% if medicamento.requiere_formula %}
                             <span class="badge formula">Sí</span>
-                        {% else %}
+                            {% else %}
                             <span class="badge libre">No</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <button class="btn btn-edit" onclick="abrirEditar('{{ medicamento.id }}', '{{ medicamento.nombre_comercial }}', '{{ medicamento.laboratorio }}', '{{ medicamento.requiere_formula|yesno:'true,false' }}')">Editar</button>
-                        
-                        <form action="{% url 'eliminar_medicamento' medicamento.id %}" method="POST" style="display:inline;" onsubmit="return confirmarEliminacion();">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-delete">Borrar</button>
-                        </form>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align: center;">No hay medicamentos registrados</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <button class="btn btn-edit"
+                                onclick="abrirEditar('{{ medicamento.id }}', '{{ medicamento.nombre_comercial }}', '{{ medicamento.laboratorio }}', '{{ medicamento.requiere_formula|yesno:'true,false' }}')">Editar</button>
+
+                            <form action="{% url 'eliminar_medicamento' medicamento.id %}" method="POST"
+                                style="display:inline;" onsubmit="return confirmarEliminacion();">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-delete">Borrar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">No hay medicamentos registrados</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<div id="modal-crear" class="modal">
-    <div class="modal-content">
-        <a href="#" class="close-modal">&times;</a>
-        <h2>Registrar Medicamento</h2>
-        <form action="{% url 'crear_medicamento' %}" method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>Nombre Comercial</label>
-                <input type="text" name="nombre_comercial" required>
-            </div>
-            <div class="form-group">
-                <label>Laboratorio</label>
-                <input type="text" name="laboratorio" required>
-            </div>
-            <div class="form-group-checkbox">
-                <input type="checkbox" name="requiere_formula" id="crear_formula">
-                <label for="crear_formula">¿Requiere Fórmula Médica?</label>
-            </div>
-            <br>
-            <button type="submit" class="btn btn-add" style="width: 100%;">Guardar Registro</button>
-        </form>
+    <div id="modal-crear" class="modal">
+        <div class="modal-content">
+            <a href="#" class="close-modal">&times;</a>
+            <h2>Registrar Medicamento</h2>
+            <form action="{% url 'crear_medicamento' %}" method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="codigo_cum">Código CUM</label>
+                    <input type="text" name="codigo_cum" id="codigo_cum" placeholder="Ej: 19944831-1" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="laboratorio">Laboratorio</label>
+                    <input type="text" name="laboratorio" id="laboratorio" placeholder="Ej: Bayer, Genfar..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre_generico">Nombre Genérico</label>
+                    <input type="text" name="nombre_generico" id="nombre_generico" placeholder="Ej: Acetaminofén"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre_comercial">Nombre Comercial</label>
+                    <input type="text" name="nombre_comercial" id="nombre_comercial" placeholder="Ej: MK Acetaminofén"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="concentracion">Concentración</label>
+                    <input type="text" name="concentracion" id="concentracion" placeholder="Ej: 500 mg, 5 ml" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="forma_farmaceutica">Forma Farmacéutica</label>
+                    <input type="text" name="forma_farmaceutica" id="forma_farmaceutica"
+                        placeholder="Ej: Tableta, Jarabe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion">Descripción Técnica</label>
+                    <textarea name="descripcion" id="descripcion" rows="2"
+                        placeholder="Breve descripción del compuesto..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="uso_indicado">Uso Indicado</label>
+                    <textarea name="uso_indicado" id="uso_indicado" rows="2"
+                        placeholder="¿Para qué sirve este medicamento?" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="efectos_secundarios">Efectos Secundarios</label>
+                    <textarea name="efectos_secundarios" id="efectos_secundarios" rows="2"
+                        placeholder="Reacciones adversas..." required></textarea>
+                </div>
+
+                <div class="form-group-checkbox">
+                    <input type="checkbox" name="requiere_formula" id="requiere_formula">
+                    <label for="requiere_formula">¿Requiere Fórmula Médica?</label>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-guardar">Registrar Medicamento</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div id="modal-editar" class="modal">
-    <div class="modal-content">
-        <a href="#" class="close-modal" onclick="cerrarEditar()">&times;</a>
-        <h2>Editar Medicamento</h2>
-        <form id="form-editar" method="POST" action="">
-            {% csrf_token %}
-            <div class="form-group">
-                <label>Nombre Comercial</label>
-                <input type="text" name="nombre_comercial" id="edit_nombre" required>
-            </div>
-            <div class="form-group">
-                <label>Laboratorio</label>
-                <input type="text" name="edit_laboratorio" id="edit_laboratorio" required>
-            </div>
-            <div class="form-group-checkbox">
-                <input type="checkbox" name="requiere_formula" id="edit_formula">
-                <label for="edit_formula">¿Requiere Fórmula Médica?</label>
-            </div>
-            <br>
-            <button type="submit" class="btn btn-add" style="width: 100%; background: #eab308;">Actualizar Cambios</button>
-        </form>
+    <div id="modal-editar" class="modal">
+        <div class="modal-content">
+            <a href="#" class="close-modal" onclick="cerrarEditar()">&times;</a>
+            <h2>Editar Medicamento</h2>
+            <form id="formEditarMedicamento" method="POST">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="edit_codigo_cum">Código CUM</label>
+                    <input type="text" name="edit_codigo_cum" id="edit_codigo_cum" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_laboratorio">Laboratorio</label>
+                    <input type="text" name="edit_laboratorio" id="edit_laboratorio" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_nombre_generico">Nombre Genérico</label>
+                    <input type="text" name="edit_nombre_generico" id="edit_nombre_generico" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_nombre_comercial">Nombre Comercial</label>
+                    <input type="text" name="edit_nombre_comercial" id="edit_nombre_comercial" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_concentracion">Concentración</label>
+                    <input type="text" name="edit_concentracion" id="edit_concentracion" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_forma_farmaceutica">Forma Farmacéutica</label>
+                    <input type="text" name="edit_forma_farmaceutica" id="edit_forma_farmaceutica" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_descripcion">Descripción Técnica</label>
+                    <textarea name="edit_descripcion" id="edit_descripcion" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_uso_indicado">Uso Indicado</label>
+                    <textarea name="edit_uso_indicado" id="edit_uso_indicado" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit_efectos_secundarios">Efectos Secundarios</label>
+                    <textarea name="edit_efectos_secundarios" id="edit_efectos_secundarios" rows="2"
+                        required></textarea>
+                </div>
+
+                <div class="form-group-checkbox">
+                    <input type="checkbox" name="requiere_formula" id="edit_requiere_formula">
+                    <label for="edit_requiere_formula">¿Requiere Fórmula Médica?</label>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="submit" class="btn-actualizar">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-// Manejo dinámico del modal de edición
-function abrirEditar(id, nombre, laboratorio, requiereFormula) {
-    const modal = document.getElementById('modal-editar');
-    const form = document.getElementById('form-editar');
-    
-    // Seteamos dinámicamente la URL del action con la pk correspondiente
-    form.action = `/inventario/editar/${id}/`;
-    
-    // Rellenamos los inputs con la info actual
-    document.getElementById('edit_nombre').value = nombre;
-    document.getElementById('edit_laboratorio').value = laboratorio;
-    document.getElementById('edit_formula').checked = (requiereFormula === 'true');
-    
-    modal.classList.add('active');
-}
+    <script>
+        // Manejo dinámico del modal de edición
+        function abrirModalEditar(id, cum, generico, comercial, lab, concentracion, forma, desc, uso, efectos, formula) {
+            // Configura la URL destino del formulario dinámicamente
+            document.getElementById('formEditarMedicamento').action = `/api/inventario/editar/${id}/`;
 
-function cerrarEditar() {
-    document.getElementById('modal-editar').classList.remove('active');
-}
+            // Rellena cada campo de texto
+            document.getElementById('edit_codigo_cum').value = cum;
+            document.getElementById('edit_nombre_generico').value = generico;
+            document.getElementById('edit_nombre_comercial').value = comercial;
+            document.getElementById('edit_laboratorio').value = lab;
+            document.getElementById('edit_concentracion').value = concentracion;
+            document.getElementById('edit_forma_farmaceutica').value = forma;
+            document.getElementById('edit_descripcion').value = desc;
+            document.getElementById('edit_uso_indicado').value = uso;
+            document.getElementById('edit_efectos_secundarios').value = efectos;
 
-function confirmarEliminacion() {
-    return confirm("¿Estás completamente seguro de eliminar este medicamento? Esta acción se sincronizará con Firebase.");
-}
+            // Maneja el estado del interruptor/checkbox switch
+            document.getElementById('edit_requiere_formula').checked = (formula === true || formula === 'True');
 
-// ⚠️ CONTROL CRUCIAL DEL HISTORIAL (BOTÓN ATRÁS DEL NAVEGADOR)
-window.addEventListener('pageshow', function (event) {
-    if (event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2)) {
-        window.location.reload();
-    }
-});
-</script>
+            // Abre el modal usando Bootstrap
+            var modal = new bootstrap.Modal(document.getElementById('tuModalEditarID'));
+            modal.show();
+        }
+
+        function cerrarEditar() {
+            document.getElementById('modal-editar').classList.remove('active');
+        }
+
+        function confirmarEliminacion() {
+            return confirm("¿Estás completamente seguro de eliminar este medicamento? Esta acción se sincronizará con Firebase.");
+        }
+
+        // ⚠️ CONTROL CRUCIAL DEL HISTORIAL (BOTÓN ATRÁS DEL NAVEGADOR)
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2)) {
+                window.location.reload();
+            }
+        });
+    </script>
 
 </body>
+
 </html>

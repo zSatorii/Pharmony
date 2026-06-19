@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from Farmacia.views import registrar_usuario, iniciar_sesion, dashboard, cerrar_sesion
+from Farmacia.views import registrar_usuario, iniciar_sesion, cerrar_sesion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,7 +25,6 @@ urlpatterns = [
     path('registro/', registrar_usuario, name='registro'),
     path('login/', iniciar_sesion, name='login'),
     path('api/', include('Farmacia.urls')),
-    path('dashboard/', dashboard, name='dashboard'),
     path('logout/', cerrar_sesion, name='logout'),
 ]
 

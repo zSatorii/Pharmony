@@ -4,9 +4,10 @@ from rest_framework import status
 import datetime
 import jwt
 import os
+from django.conf import settings
 from .models import Medicamento
 from .serializers import MedicamentoSerializer
-
+import requests
 import json
 from django.urls import reverse
 from django.http import JsonResponse
@@ -33,7 +34,6 @@ from firebase_admin import firestore
 from .models import Medicamento
 from django.views.decorators.cache import never_cache
 
-
 @login_required
 @never_cache
 def dashboard_inventario(request):
@@ -58,28 +58,46 @@ def dashboard_inventario(request):
 @login_required
 def crear_medicamento(request):
     if request.method == 'POST':
+        # 1. Capturar absolutamente todos los datos del formulario HTML
+        codigo_cum = request.POST.get('codigo_cum')
+        nombre_generico = request.POST.get('nombre_generico')
         nombre_comercial = request.POST.get('nombre_comercial')
         laboratorio = request.POST.get('laboratorio')
-        precio = request.POST.get('precio')
-        stock = request.POST.get('stock')
+        concentracion = request.POST.get('concentracion')
+        forma_farmaceutica = request.POST.get('forma_farmaceutica')
+        descripcion = request.POST.get('descripcion')
+        uso_indicated = request.POST.get('uso_indicado')
+        efectos_secundarios = request.POST.get('efectos_secundarios')
         requiere_formula = request.POST.get('requiere_formula') == 'on'
   
+        # 2. Registrar localmente en la base de datos de Django (SQLite)
         medicamento = Medicamento.objects.create(
+            codigo_cum=codigo_cum,
+            nombre_generico=nombre_generico,
             nombre_comercial=nombre_comercial,
             laboratorio=laboratorio,
-            precio=precio,
-            stock=stock,
+            concentracion=concentracion,
+            forma_farmaceutica=forma_farmaceutica,
+            descripcion=descripcion,
+            uso_indicado=uso_indicated,
+            efectos_secundarios=efectos_secundarios,
             requiere_formula=requiere_formula
         )
 
+        # 3. Sincronizar la estructura completa en Firebase Firestore
         try:
             db = firestore.client()
             medicamento_data = {
                 "id": medicamento.id,
+                "codigo_cum": codigo_cum,
+                "nombre_generico": nombre_generico,
                 "nombre_comercial": nombre_comercial,
                 "laboratorio": laboratorio,
-                "precio": int(precio) if precio else 0,
-                "stock": int(stock) if stock else 0,
+                "concentracion": concentracion,
+                "forma_farmaceutica": forma_farmaceutica,
+                "descripcion": descripcion,
+                "uso_indicado": uso_indicated,
+                "efectos_secundarios": efectos_secundarios,
                 "requiere_formula": requiere_formula
             }
             db.collection('medicamentos').document(str(medicamento.id)).set(medicamento_data)
@@ -97,21 +115,34 @@ def editar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
 
     if request.method == 'POST':
-        medicamento.nombre_comercial = request.POST.get('nombre_comercial')
-        medicamento.laboratorio = request.POST.get('laboratorio')
-        medicamento.precio = request.POST.get('precio')
-        medicamento.stock = request.POST.get('stock')
+        # 1. Actualizar las propiedades del objeto recuperado
+        medicamento.codigo_cum = request.POST.get('edit_codigo_cum') # Ajustado con prefijo edit_ por orden en modales
+        medicamento.nombre_generico = request.POST.get('edit_nombre_generico')
+        medicamento.nombre_comercial = request.POST.get('edit_nombre_comercial')
+        medicamento.laboratorio = request.POST.get('edit_laboratorio')
+        medicamento.concentracion = request.POST.get('edit_concentracion')
+        medicamento.forma_farmaceutica = request.POST.get('edit_forma_farmaceutica')
+        medicamento.descripcion = request.POST.get('edit_descripcion')
+        medicamento.uso_indicado = request.POST.get('edit_uso_indicado')
+        medicamento.efectos_secundarios = request.POST.get('edit_efectos_secundarios')
         medicamento.requiere_formula = request.POST.get('requiere_formula') == 'on'
+        
         medicamento.save()
         
+        # 2. Replicar los cambios exactos de vuelta a Firestore
         try:
             db = firestore.client()
             medicamento_data = {
                 "id": medicamento.id,
+                "codigo_cum": medicamento.codigo_cum,
+                "nombre_generico": medicamento.nombre_generico,
                 "nombre_comercial": medicamento.nombre_comercial,
                 "laboratorio": medicamento.laboratorio,
-                "precio": int(medicamento.precio) if medicamento.precio else 0,
-                "stock": int(medicamento.stock) if medicamento.stock else 0,
+                "concentracion": medicamento.concentracion,
+                "forma_farmaceutica": medicamento.forma_farmaceutica,
+                "descripcion": medicamento.descripcion,
+                "uso_indicado": medicamento.uso_indicado,
+                "efectos_secundarios": medicamento.efectos_secundarios,
                 "requiere_formula": medicamento.requiere_formula
             }
             db.collection('medicamentos').document(str(medicamento.id)).update(medicamento_data)
@@ -131,8 +162,10 @@ def eliminar_medicamento(request, pk):
     if request.method == 'POST':
         id_a_eliminar = str(medicamento.id)
         
+        # Eliminar localmente primero
         medicamento.delete()
 
+        # Desvincular y limpiar el registro en la nube de Firestore
         try:
             db = firestore.client()
             db.collection('medicamentos').document(id_a_eliminar).delete()
@@ -176,7 +209,7 @@ def registrar_usuario(request):
     # Si ya tiene una sesión iniciada, redirigir al dashboard
     user = get_user_from_jwt(request)
     if user is not None:
-        return redirect('dashboard')
+        return redirect('dashboard_inventario')
 
     if request.method == 'POST':
         try:
@@ -305,7 +338,7 @@ def iniciar_sesion(request):
                         'redirect_url': reverse('dashboard_inventario')
                     })
             # 1. Autenticar con la API REST de Firebase Auth
-            api_key = os.getenv('FIREBASE_API_KEY')
+            api_key = os.getenv('FIREBASE_WEB_API_KEY')
             if not api_key:
                 return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
 
@@ -363,7 +396,8 @@ def iniciar_sesion(request):
 
                     except Exception as sync_err:
                         return JsonResponse({'success': False, 'error': f'Error al sincronizar usuario: {str(sync_err)}'}, status=500)
-
+                    
+                login(request, user)
                 # 3. Generar token JWT local y establecer cookie
                 token = generate_jwt(user)
                 response = JsonResponse({'success': True, 'token': token, 'message': 'Inicio de sesión exitoso.'})
@@ -388,15 +422,9 @@ def iniciar_sesion(request):
 
     user = get_user_from_jwt(request)
     if user is not None:
-        return redirect('dashboard')
+        return redirect('dashboard_inventario')
     return render(request, 'Farmacia/PharmonyLogin.html')
 
-@never_cache
-def dashboard(request):
-    user = get_user_from_jwt(request)
-    if not user:
-        return redirect('login')
-    return render(request, 'Farmacia/PharmonyDashboard.html', {'user': user})
 
 @never_cache
 def cerrar_sesion(request):
