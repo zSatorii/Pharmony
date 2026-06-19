@@ -1,88 +1,71 @@
 # ==========================================
-# Pharmony Workspace Root GitIgnore
-# Configured for:
-# - Django Backend (inside /Pharmony)
-# - Angular Frontend (inside /PharmonyFront)
+# Python / Django
 # ==========================================
+# Archivos compilados
+__pycache__/
+*.py[cod]
+*$py.class
 
-# ------------------------------------------
-# Django Backend (Pharmony/)
-# ------------------------------------------
-# Byte-compiled / optimized / DLL files
-Pharmony/**/*.py[cod]
-Pharmony/**/__pycache__/
-Pharmony/**/*.so
+# Extensiones C
+*.so
 
-# Local environments / secrets
-Pharmony/.env
-Pharmony/ServiceAccountKey.json
+# Archivos específicos de Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
 
-# Database
-Pharmony/db.sqlite3
-Pharmony/db.sqlite3-journal
+# Archivos multimedia y estáticos
+media/
+staticfiles/
 
-# Environments
-Pharmony/venv/
-Pharmony/.venv/
-Pharmony/env/
-Pharmony/ENV/
-Pharmony/env.bak/
-Pharmony/venv.bak/
+# ==========================================
+# Entornos Virtuales
+# ==========================================
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
 
-# Django media & static files
-Pharmony/media/
-Pharmony/staticfiles/
+# ==========================================
+# Secretos y Variables de Entorno (¡MUY IMPORTANTE!)
+# ==========================================
+# Nunca subas credenciales, llaves o variables de entorno a GitHub
+.env
+.env.*
+serviceAccountKey.json
+secrets.json
+firebase_credentials.json
 
-# Logs
-Pharmony/*.log
-
-# Pytest / Coverage
-Pharmony/.pytest_cache/
-Pharmony/htmlcov/
-Pharmony/.coverage
-Pharmony/.coverage.*
-
-
-# ------------------------------------------
-# Angular Frontend (PharmonyFront/)
-# ------------------------------------------
-# Node modules
-PharmonyFront/node_modules/
-
-# Angular build outputs and cache
-PharmonyFront/dist/
-PharmonyFront/tmp/
-PharmonyFront/out-tsc/
-PharmonyFront/bazel-out/
-PharmonyFront/.angular/
-
-# Logs
-PharmonyFront/npm-debug.log
-PharmonyFront/yarn-error.log
-PharmonyFront/testem.log
-PharmonyFront/libpeerconnection.log
-
-# Miscellaneous Angular items
-PharmonyFront/coverage/
-PharmonyFront/.sass-cache/
-PharmonyFront/connect.lock
-PharmonyFront/typings/
-PharmonyFront/__screenshots__/
-
-
-# ------------------------------------------
-# Global / IDE / System Settings
-# ------------------------------------------
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
+# ==========================================
+# Archivos de Editores e IDEs (VS Code, PyCharm, etc)
+# ==========================================
 .vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
 
-# System files
+# ==========================================
+# Archivos del Sistema Operativo
+# ==========================================
 .DS_Store
-Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+ehthumbs_vista.db
+[Tt]humbs.db
+
+# ==========================================
+# Pruebas (Testing / Coverage)
+# ==========================================
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+nosetests.xml
+coverage.xml
