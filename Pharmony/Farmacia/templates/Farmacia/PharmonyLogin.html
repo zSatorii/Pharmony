@@ -36,15 +36,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 }
 
 /* Floating shapes */
-.shapes{position:absolute;inset:0;pointer-events:none;}
+.shapes{position:absolute;inset:0;pointer-events:none;z-index:0;}
 .shapes svg{width:100%;height:100%;}
 
 @keyframes s1{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(5deg);}}
 @keyframes s2{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(-6deg);}}
 @keyframes s3{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(4deg);}}
 
-.left-top{position:relative;z-index:2;}
-.left-bottom{position:relative;z-index:2;}
+.left-top{position:relative;z-index:5;}
+.left-bottom{position:relative;z-index:5;}
 
 /* Logo */
 .logo{display:flex;align-items:center;gap:12px;margin-bottom:0;}
@@ -303,12 +303,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
           <path d="M520 -30 C580 20 620 90 590 160 C560 225 490 245 430 215 C375 185 360 115 400 70" stroke="url(#g1)" stroke-width="48" fill="none" stroke-linecap="round"/>
         </g>
         <!-- Left boomerangs -->
-        <g opacity=".85" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
+        <g opacity=".2" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
           <path d="M20 310 C75 272 165 268 200 302 C232 332 216 388 170 400 C130 410 68 384 52 348" stroke="url(#g2)" stroke-width="42" fill="none" stroke-linecap="round"/>
           <path d="M45 420 C94 388 168 387 198 416 C224 442 210 488 176 498 C144 507 98 484 82 452" stroke="url(#g1)" stroke-width="35" fill="none" stroke-linecap="round"/>
         </g>
         <!-- Right curve -->
-        <g opacity=".6" style="animation:s3 9s ease-in-out infinite 2.5s;transform-origin:740px 230px">
+        <g opacity=".1" style="animation:s3 9s ease-in-out infinite 2.5s;transform-origin:740px 230px">
           <path d="M700 140 C760 100 820 118 826 162 C832 200 798 230 762 220" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
         </g>
         <!-- S bottom left -->
@@ -532,7 +532,7 @@ async function doLogin(){
       });
       const result = await response.json();
       if(result.success){
-          showLoginSuccess();
+            showLoginSuccess(result.redirect_url);
       } else {
           setErr(result.error || 'Error al iniciar sesión.');
       }
@@ -560,7 +560,7 @@ function startScan(){
   setTimeout(()=>{
     ss.className='scan-state';
     document.getElementById('successState').className='success-state visible';
-    setTimeout(showLoginSuccess, 1400);
+    setTimeout(()=>showLoginSuccess('/api/dashboard-inventario/'), 1400);
   },2900);
 }
 
@@ -578,8 +578,7 @@ function resetBio(){
   document.getElementById('bioErr').textContent='';
 }
 
-function showLoginSuccess(){
-  // Simulate redirect — reload for demo
+function showLoginSuccess(redirectUrl){
   document.querySelector('.right').innerHTML=`
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--grnp);border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:36px;">✓</div>
@@ -589,7 +588,7 @@ function showLoginSuccess(){
     </div>
     <style>@keyframes pop{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}@keyframes pulse{from{opacity:.3;transform:scale(.8);}to{opacity:1;transform:scale(1);}}</style>
   `;
-  setTimeout(()=>location.reload(), 3200);
+  setTimeout(()=>{ window.location.href = redirectUrl || '/api/dashboard-inventario/'; }, 1800);
 }
 </script>
 </body>

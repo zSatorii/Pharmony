@@ -6,9 +6,12 @@ from .models import Medicamento
 from .serializers import MedicamentoSerializer
 
 import json
+import re
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from firebase_admin import auth as firebase_auth
 
 
@@ -41,6 +44,7 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 # Dashboard Inventario
 # ==========================
 
+@login_required
 def dashboard_inventario(request):
 
     medicamentos = Medicamento.objects.all()
@@ -86,6 +90,12 @@ def registrar_usuario(request):
             telefono = data.get('telefono', '').strip()
 
             # Validaciones básicas
+            patron_password = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$'
+            if not re.match(patron_password, password):
+                return JsonResponse({
+                    'success': False,
+                    'error': 'La contraseña debe tener mínimo 8 caracteres e incluir mayúscula, minúscula, número y carácter especial.'
+                }, status=400)
             if not nombre or not email or not password:
                 return JsonResponse({'success': False, 'error': 'El nombre, email y contraseña son requeridos.'}, status=400)
 
@@ -164,7 +174,11 @@ def iniciar_sesion(request):
             user = authenticate(request, username=email, password=password)
             if user is not None:
                 login(request, user)
-                return JsonResponse({'success': True, 'message': 'Inicio de sesión exitoso.'})
+                return JsonResponse({
+                        'success': True,
+                        'message': 'Inicio de sesión exitoso.',
+                        'redirect_url': reverse('dashboard_inventario')
+                    })
             else:
                 return JsonResponse({'success': False, 'error': 'Credenciales inválidas.'}, status=401)
 
