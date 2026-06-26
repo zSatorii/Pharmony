@@ -27,5 +27,8 @@ urlpatterns = [
     path('logout/', cerrar_sesion, name='logout'),
     path('api/', include('Farmacia.urls')),
     path('logout/', cerrar_sesion, name='logout'),
+    
+    # Rutas del Administrador
+    path('admin-panel/', include('Admin.urls')),
 ]
 

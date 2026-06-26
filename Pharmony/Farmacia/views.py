@@ -451,8 +451,19 @@ def registrar_usuario(request):
 
 @never_cache
 def iniciar_sesion(request):
-    if request.method == 'GET' and request.user.is_authenticated:
-        return redirect('dashboard_inventario')
+    if request.method == 'GET':
+        # Primero verificamos si hay sesión JWT o por Django tradicional
+        user = get_user_from_jwt(request) or (request.user if request.user.is_authenticated else None)
+        if user is not None:
+            # Si ya está autenticado, lo mandamos a su lugar correspondiente usando la misma lógica de roles
+            if user.rol == 'admin':
+                return redirect('dashboard_admin')  # Reemplaza con el nombre real de tu URL para Admin
+            elif user.rol == 'farmaceutico':
+                return redirect('dashboard_inventario')  # El farmacéutico va al inventario
+            else:
+                return redirect('home')  # El cliente normal va a la vista de la tienda/home
+
+        return render(request, 'Farmacia/PharmonyLogin.html')
     
     if request.method == 'POST':
         try:
@@ -466,14 +477,26 @@ def iniciar_sesion(request):
             print(f"DEBUG LOGIN: Intentando autenticar email='{email}', largo password={len(password)}")
             user = authenticate(request, username=email, password=password)
             print(f"DEBUG LOGIN: authenticate retorno {user}")
+            
+            # --- CASO 1: Autenticación Exitosa Local (Django tradicional) ---
             if user is not None:
                 login(request, user)
+                
+                # Definir redirección según rol
+                if user.rol == 'admin':
+                    redirect_url = reverse('dashboard_admin')
+                elif user.rol == 'farmaceutico':
+                    redirect_url = reverse('dashboard_inventario')
+                else:
+                    redirect_url = reverse('home')  # URL para tus clientes comunes
+
                 return JsonResponse({
-                        'success': True,
-                        'message': 'Inicio de sesión exitoso.',
-                        'redirect_url': reverse('dashboard_inventario')
-                    })
-            # 1. Autenticar con la API REST de Firebase Auth
+                    'success': True,
+                    'message': 'Inicio de sesión exitoso.',
+                    'redirect_url': redirect_url
+                })
+            
+            # --- CASO 2: Intentar con la API REST de Firebase Auth ---
             api_key = os.getenv('FIREBASE_WEB_API_KEY')
             if not api_key:
                 return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
@@ -491,12 +514,10 @@ def iniciar_sesion(request):
             if fb_response.status_code == 200:
                 fb_uid = fb_data.get('localId')
 
-                # 2. Buscar o sincronizar/crear el usuario localmente
                 try:
                     user = Usuario.objects.get(firebase_uid=fb_uid)
                 except Usuario.DoesNotExist:
                     try:
-                        # Si existe en Firebase Auth pero no en Django local, obtener detalles y crear local
                         fb_user = firebase_auth.get_user(fb_uid)
                         display_name = fb_user.display_name or ""
                         parts = display_name.split(' ', 1)
@@ -511,9 +532,10 @@ def iniciar_sesion(request):
                             last_name=last_name,
                             telefono=fb_user.phone_number or "",
                             firebase_uid=fb_uid
+                            # El rol por defecto se asigna como 'cliente' en el modelo
                         )
 
-                        # Asegurarse de que esté también en Firestore
+                        # Sincronización con Firestore
                         try:
                             db = firestore.client()
                             user_doc = db.collection('usuarios').document(fb_uid).get()
@@ -534,11 +556,27 @@ def iniciar_sesion(request):
                         return JsonResponse({'success': False, 'error': f'Error al sincronizar usuario: {str(sync_err)}'}, status=500)
                     
                 login(request, user)
-                # 3. Generar token JWT local y establecer cookie
+                
+                # Generar token JWT local
                 token = generate_jwt(user)
-                response = JsonResponse({'success': True, 'token': token, 'message': 'Inicio de sesión exitoso.'})
+                
+                # Definir redirección según rol para usuarios que entran por Firebase
+                if user.rol == 'admin':
+                    redirect_url = reverse('dashboard_admin')
+                elif user.rol == 'farmaceutico':
+                    redirect_url = reverse('dashboard_inventario')
+                else:
+                    redirect_url = reverse('home')
+
+                response = JsonResponse({
+                    'success': True, 
+                    'token': token, 
+                    'message': 'Inicio de sesión exitoso.',
+                    'redirect_url': redirect_url
+                })
                 response.set_cookie('jwt_token', token, max_age=86400, httponly=True, samesite='Lax')
                 return response
+            
             else:
                 # Manejar errores de Firebase Auth REST API
                 fb_error = fb_data.get('error', {})
@@ -555,12 +593,6 @@ def iniciar_sesion(request):
             return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
-
-    user = get_user_from_jwt(request)
-    if user is not None:
-        return redirect('dashboard_inventario')
-    return render(request, 'Farmacia/PharmonyLogin.html')
-
 @never_cache
 @require_GET
 def cerrar_sesion(request):
