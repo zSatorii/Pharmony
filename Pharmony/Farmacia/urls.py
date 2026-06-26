@@ -10,4 +10,5 @@ urlpatterns = [
     path('inventario/crear/', views.crear_medicamento, name='crear_medicamento'),
     path('inventario/editar/<int:pk>/', views.editar_medicamento, name='editar_medicamento'),
     path('inventario/eliminar/<int:pk>/', views.eliminar_medicamento, name='eliminar_medicamento'),
+    
 ]

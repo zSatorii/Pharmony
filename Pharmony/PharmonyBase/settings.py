@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'Farmacia',
     'home',
+    'epsinventario',
 ]
 
 MIDDLEWARE = [
@@ -163,3 +164,10 @@ if FIREBASE_CREDENTIALS_PATH:
         print(f"Advertencia: Archivo de credenciales de Firebase no encontrado en {BASE_DIR / FIREBASE_CREDENTIALS_PATH} ni en {BASE_DIR.parent / FIREBASE_CREDENTIALS_PATH}")
 else:
     print("Advertencia: FIREBASE_CREDENTIALS_PATH no está configurado en el archivo .env")
+
+
+# Le dice a Django dónde está tu pantalla de login real
+LOGIN_URL = 'login'  
+
+# Le dice a Django dónde redirigir al usuario tras iniciar sesión con éxito
+LOGIN_REDIRECT_URL = 'home'  # O la rut

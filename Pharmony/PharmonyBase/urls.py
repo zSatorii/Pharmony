@@ -27,5 +27,7 @@ urlpatterns = [
     path('logout/', cerrar_sesion, name='logout'),
     path('api/', include('Farmacia.urls')),
     path('logout/', cerrar_sesion, name='logout'),
+    path('', include('epsinventario.urls')),
+
 ]
 
