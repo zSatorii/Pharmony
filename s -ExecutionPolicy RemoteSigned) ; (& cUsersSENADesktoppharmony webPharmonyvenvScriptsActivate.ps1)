@@ -1,0 +1,155 @@
+[33mcommit 64714fc64179fcecdb1504b1eeac5bd730f7a5a1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mdev_integracion[m[33m)[m
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 26 14:41:55 2026 -0500
+
+    Creacion de carpetas para la eps
+
+[33mcommit dc668f0d5b37d9684cb41fcb8f613c315c967ab7[m
+Merge: 67fa54e 5b362ab
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 26 14:26:41 2026 -0500
+
+    Merge remote-tracking branch 'origin/dev_johan' into dev_integracion
+
+[33mcommit 67fa54ec0031194cc2ae90d0bc0c4f46f2121f12[m
+Merge: e57c194 5e3151b
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 26 14:25:17 2026 -0500
+
+    Merge remote-tracking branch 'origin/dev_santiago' into dev_integracion
+
+[33mcommit 5b362ab6b772075123a9bec9227132d3c4b3ec80[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri Jun 26 14:22:54 2026 -0500
+
+    Fix_Se arreglan cambios del firestore y del login
+
+[33mcommit 5e3151b69b4a8aa80c0bac7361b8577ae707bf4e[m
+Author: Santiago-Beltran1 <pedrazasantiago837@gmail.com>
+Date:   Fri Jun 19 17:28:43 2026 -0500
+
+    Feat: CRUD fase 1
+
+[33mcommit e57c1946b7e8c06f04764f9b4b713d558956147a[m
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 19 17:09:30 2026 -0500
+
+    Realizamiento del crud visual, con un problema actual en editar, pero completamente funcional
+
+[33mcommit f3d55af46ae887762ffd6fe32baf140cf287f640[m
+Author: Santiago-Beltran1 <pedrazasantiago837@gmail.com>
+Date:   Fri Jun 19 16:17:25 2026 -0500
+
+    feat: logout y autenticación mejorada
+
+[33mcommit 8f2810769032c97bddaa86e4539fc8f1e84245d0[m
+Merge: 48a3c3c 698ca96
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 19 15:58:19 2026 -0500
+
+    Alta integracion
+
+[33mcommit 48a3c3c7acd4c722bce2a8832b149b64a8a1ee8a[m
+Merge: 953f2f7 dd1de9b
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 19 15:52:19 2026 -0500
+
+    Merge remote-tracking branch 'origin/dev_santiago' into dev_integracion
+
+[33mcommit 953f2f7cddab9ffdff5950d231db90b607eaa4e3[m
+Merge: bfc401f 857c8a0
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 19 15:30:44 2026 -0500
+
+    merge
+
+[33mcommit dd1de9b9fed64d16a39d32af119a0e8a7ec676c7[m
+Author: Santiago-Beltran1 <pedrazasantiago837@gmail.com>
+Date:   Fri Jun 19 15:26:26 2026 -0500
+
+    feat: Redirección de login, desvanecido front, validación
+
+[33mcommit 698ca96827f7b03c7b614410bdaf11774ff43473[m
+Author: Yuu <johanikaros@gmail.com>
+Date:   Fri Jun 19 14:12:35 2026 -0500
+
+    Fix_Se corrigen cambios con el firestore
+
+[33mcommit 857c8a0a6b08420692912a967d6aef7a51e89314[m
+Merge: 367554c 10e06d1
+Author: Santiago-Beltran1 <pedrazasantiago837@gmail.com>
+Date:   Fri Jun 19 13:51:00 2026 -0500
+
+    feat: modificación app Farmacia
+
+[33mcommit bfc401fcad93fba88966bfa174bfc1ce72086eec[m
+Author: PabloMSL <jpablomilitar@gmail.com>
+Date:   Fri Jun 12 16:55:43 2026 -0500
+
+    Conexion realizada entre django y flutter
+
+[33mcommit e73f7ca76a33f0c632972bb4f9f5f922d8d7d688[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri Jun 12 16:16:19 2026 -0500
+
+    Dev_Se agrega el JWT para los tokens
+
+[33mcommit 10e06d1d7f3f183d5c8654b54c7bf1c24b54f218[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri Jun 12 15:04:21 2026 -0500
+
+    Se sube el login y el registro con falta de registro biometrico
+
+[33mcommit 367554c2efd29928f2a0183533c7ba94dd20a69a[m
+Author: Santiago-Beltran1 <pedrazasantiago837@gmail.com>
+Date:   Fri Jun 12 15:00:59 2026 -0500
+
+    feat: Base de datos y modelo de los medicamentos
+
+[33mcommit 56a87779f5353c584a7569c572590e8d920b677e[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m
+Author: Yuu <johanikaros@gmail.com>
+Date:   Fri May 29 19:39:58 2026 -0500
+
+    Fix_Se solucionan errores al unir los proyectos de angular y django
+
+[33mcommit e507d26757d30942adf7646a5b3531e23b93972f[m
+Author: Yuu <johanikaros@gmail.com>
+Date:   Fri May 29 19:19:35 2026 -0500
+
+    Dev_Se modifica settings y se hace un template de README
+
+[33mcommit f0d42a8e1d39cf72eebd845ace90e90ba15d52c2[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri May 29 16:47:38 2026 -0500
+
+    Fix_Se elimina el .env
+
+[33mcommit 846831cd4c7761045314e9afbfdd8f289da793bf[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri May 29 16:16:59 2026 -0500
+
+    Fix_Remover claves privadas
+
+[33mcommit 239a411570d455bd282b77160f13dbd853b07e56[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri May 29 16:15:53 2026 -0500
+
+    Fix_Se agrega el env
+
+[33mcommit 4fd8c347ca2594847983156f5b7bb021503ec531[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri May 29 16:15:01 2026 -0500
+
+    Fix_Se agrega al gitignore el serviceaccountkey
+
+[33mcommit c619b41cf430639f2a5853eb04c93292b329717e[m
+Author: MiguelMartinez32143 <miguelmartinezvaron32143@gmail.com>
+Date:   Fri May 29 16:09:56 2026 -0500
+
+    Dev_Creacion del proyecto
+
+[33mcommit a939cc7835a6fa064c1ffd044f5e1a2af68ac5e1[m
+Author: Yuuki <64563861+zSatorii@users.noreply.github.com>
+Date:   Fri May 29 14:06:42 2026 -0500
+
+    Initial commit
