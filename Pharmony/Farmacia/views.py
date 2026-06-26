@@ -136,6 +136,39 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 @login_required
 @never_cache
 def dashboard_inventario(request):
+    # Sincronizar desde Firestore a la base de datos local SQLite
+    db = get_firestore_db()
+    if db is not None:
+        try:
+            docs = db.collection('medicamentos').stream()
+            firestore_ids = set()
+            for doc in docs:
+                data = doc.to_dict()
+                try:
+                    med_id = int(doc.id)
+                except ValueError:
+                    continue
+                firestore_ids.add(med_id)
+                Medicamento.objects.update_or_create(
+                    id=med_id,
+                    defaults={
+                        'codigo_cum': data.get('codigo_cum', ''),
+                        'nombre_generico': data.get('nombre_generico', ''),
+                        'nombre_comercial': data.get('nombre_comercial', ''),
+                        'laboratorio': data.get('laboratorio', ''),
+                        'concentracion': data.get('concentracion', ''),
+                        'forma_farmaceutica': data.get('forma_farmaceutica', ''),
+                        'descripcion': data.get('descripcion', ''),
+                        'uso_indicado': data.get('uso_indicado', ''),
+                        'efectos_secundarios': data.get('efectos_secundarios', ''),
+                        'requiere_formula': data.get('requiere_formula', False),
+                    }
+                )
+            # Eliminar medicamentos locales que ya no existen en Firestore
+            Medicamento.objects.exclude(id__in=firestore_ids).delete()
+        except Exception as e:
+            print(f"Error al sincronizar desde Firestore: {e}")
+
     medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
 
     total_medicamentos = medicamentos.count()
@@ -314,7 +347,7 @@ def registrar_usuario(request):
             data = json.loads(request.body)
             nombre = data.get('nombre', '').strip()
             apellido = data.get('apellido', '').strip()
-            email = data.get('email', '').strip()
+            email = data.get('email', '').strip().lower()
             password = data.get('password', '')
             telefono = data.get('telefono', '').strip()
 
@@ -424,13 +457,15 @@ def iniciar_sesion(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            email = data.get('email', '').strip()
+            email = data.get('email', '').strip().lower()
             password = data.get('password', '')
 
             if not email or not password:
                 return JsonResponse({'success': False, 'error': 'El correo y la contraseña son requeridos.'}, status=400)
 
+            print(f"DEBUG LOGIN: Intentando autenticar email='{email}', largo password={len(password)}")
             user = authenticate(request, username=email, password=password)
+            print(f"DEBUG LOGIN: authenticate retorno {user}")
             if user is not None:
                 login(request, user)
                 return JsonResponse({
