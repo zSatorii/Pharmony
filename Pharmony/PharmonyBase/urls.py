@@ -21,10 +21,11 @@ from Farmacia.views import registrar_usuario, iniciar_sesion, cerrar_sesion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', registrar_usuario, name='home'),
+    path('', include('home.urls')),
     path('registro/', registrar_usuario, name='registro'),
     path('login/', iniciar_sesion, name='login'),
     path('logout/', cerrar_sesion, name='logout'),
     path('api/', include('Farmacia.urls')),
+    path('logout/', cerrar_sesion, name='logout'),
 ]
 

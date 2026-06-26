@@ -323,7 +323,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
     </div>
 
     <div class="left-top">
-      <div class="logo">
+      <a href="{% url 'home:home' %}" class="logo" style="text-decoration:none;">
         <div class="logo-mark">
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
             <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="white" stroke-width="1.8" fill="none"/>
@@ -331,7 +331,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
           </svg>
         </div>
         <span class="logo-name">Pharmony</span>
-      </div>
+      </a>
     </div>
 
     <div class="hero-text">
@@ -532,7 +532,10 @@ async function doLogin(){
       });
       const result = await response.json();
       if(result.success){
-            showLoginSuccess(result.redirect_url);
+          localStorage.setItem('jwt_token', result.token);
+          // Guardar en cookie para que esté disponible en las peticiones del servidor
+          document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
+          showLoginSuccess();
       } else {
           setErr(result.error || 'Error al iniciar sesión.');
       }
@@ -578,7 +581,7 @@ function resetBio(){
   document.getElementById('bioErr').textContent='';
 }
 
-function showLoginSuccess(redirectUrl){
+function showLoginSuccess(){
   document.querySelector('.right').innerHTML=`
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--grnp);border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:36px;">✓</div>
@@ -588,7 +591,7 @@ function showLoginSuccess(redirectUrl){
     </div>
     <style>@keyframes pop{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}@keyframes pulse{from{opacity:.3;transform:scale(.8);}to{opacity:1;transform:scale(1);}}</style>
   `;
-  setTimeout(()=>{ window.location.href = redirectUrl || '/api/dashboard-inventario/'; }, 1800);
+  setTimeout(()=>window.location.href = '/api/inventario', 2000);
 }
 </script>
 </body>
