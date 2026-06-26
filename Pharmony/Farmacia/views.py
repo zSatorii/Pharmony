@@ -240,9 +240,12 @@ def registrar_usuario(request):
             # 2. Registrar en la Base de Datos de Django
             try:
                 face_encoding_json = None
+                embedding_lista = None # Guardaremos la lista nativa de números para Firestore
+                
                 if face_registered and face_image:
                     try:
                         embedding = get_embedding_from_base64(face_image)
+                        embedding_lista = embedding  # Lista de floats
                         face_encoding_json = json.dumps(embedding)
                     except Exception as e:
                         # Si falla la extracción de características faciales, eliminamos el usuario recién creado en Firebase
@@ -263,6 +266,25 @@ def registrar_usuario(request):
                     firebase_uid=fb_uid,
                     face_encoding=face_encoding_json
                 )
+                
+                # 3. Guardar el perfil y el embedding biométrico en Firestore
+                db = get_firestore_db()
+                if db is not None:
+                    try:
+                        doc_ref = db.collection('usuarios_biometria').document(fb_uid)
+                        doc_ref.set({
+                            'django_id': user.id,
+                            'nombre': nombre,
+                            'apellido': apellido,
+                            'email': email,
+                            'telefono': telefono,
+                            'face_embedding': embedding_lista,  # Lista directa aceptada por Firestore
+                            'is_face_login_enabled': True if embedding_lista else False,
+                            'created_at': firestore.SERVER_TIMESTAMP
+                        })
+                    except Exception as fs_err:
+                        print(f"Error crítico al respaldar perfil en Firestore: {fs_err}")
+
             except Exception as e:
                 # Si falla el registro en la base de datos de Django, borramos el usuario de Firebase para no dejar inconsistencias
                 if fb_uid:
@@ -301,6 +323,7 @@ def validar_rostro(request):
         return JsonResponse({'success': False, 'error': f'Error de validación facial: {str(e)}'}, status=500)
 
 @never_cache
+@never_cache
 def login_face(request):
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
@@ -310,7 +333,7 @@ def login_face(request):
         if not face_image:
             return JsonResponse({'success': False, 'error': 'No se proporcionó imagen de rostro.'}, status=400)
         
-        # Extract query face embedding
+        # 1. Extraer el embedding de la cámara actual
         try:
             query_embedding = get_embedding_from_base64(face_image)
         except ValueError as ve:
@@ -318,23 +341,37 @@ def login_face(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error de análisis de rostro: {str(e)}'}, status=400)
         
-        # Compare with all users that have face_encoding
+        # Variables para rastrear al usuario con el puntaje más alto
         matching_user = None
         best_score = -1.0
         
+        # IMPORTANTE: Subimos el umbral mínimo para el login global sin correo.
+        # SFace por defecto usa 0.363, pero para búsquedas abiertas "1 a N" 
+        # se recomienda subirlo a 0.42 o 0.45 para evitar CUALQUIER falso positivo.
+        UMBRAL_ESTRICTO = 0.43 
+        
+        # 2. Recorrer todos los usuarios locales que tengan rostro registrado
         users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='')
+        
         for user in users_with_face:
             try:
                 db_embedding = json.loads(user.face_encoding)
                 is_match, score = check_match(query_embedding, db_embedding)
-                if is_match and score > best_score:
+                
+                # Registramos en consola para que veas cuánto da tu rostro vs el de tu amigo
+                print(f"DEBUG RECOGNITION: Evaluando {user.email} | Score: {score}")
+                
+                # No solo debe pasar el umbral estricto, sino ganarle al mejor puntaje guardado
+                if score >= UMBRAL_ESTRICTO and score > best_score:
                     best_score = score
                     matching_user = user
             except Exception as e:
                 print(f"Error al procesar coincidencia para {user.email}: {e}")
                 continue
         
+        # 3. Si encontramos un claro ganador que superó el umbral estricto
         if matching_user is not None:
+            print(f"¡ Rostro Reconocido ! Ganador: {matching_user.email} con Score de: {best_score}")
             login(request, matching_user)
             return JsonResponse({
                 'success': True,
@@ -342,9 +379,10 @@ def login_face(request):
                 'redirect_url': reverse('dashboard_inventario')
             })
         else:
+            # Si nadie superó el UMBRAL_ESTRICTO (por ejemplo, tu amigo dando un score de 0.38)
             return JsonResponse({
                 'success': False,
-                'error': 'Rostro no reconocido. Asegúrate de estar registrado y mirar fijamente la cámara.'
+                'error': 'Rostro no reconocido en el sistema. Asegúrate de mirar fijamente la cámara.'
             }, status=401)
             
     except json.JSONDecodeError:

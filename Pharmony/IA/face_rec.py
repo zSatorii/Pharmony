@@ -10,7 +10,7 @@ DETECTOR_PATH = os.path.join(BASE_DIR, "face_detection_yunet_2023mar.onnx")
 RECOGNIZER_PATH = os.path.join(BASE_DIR, "face_recognition_sface_2021dec.onnx")
 
 # Standard threshold for SFace cosine similarity match
-COSINE_THRESHOLD = 0.363
+COSINE_THRESHOLD = 0.42
 
 # Caching instances of detectors/recognizers to avoid reloading files on every request
 _detector_instance = None
