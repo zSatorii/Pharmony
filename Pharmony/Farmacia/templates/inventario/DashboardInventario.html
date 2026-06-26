@@ -437,16 +437,7 @@
         </div>
     </div>
 
-    <!-- Encabezado de la Tabla -->
-    <div class="table-header">
-        <h2>Listado de Medicamentos</h2>
-        <button class="btn-new" onclick="abrirModalCrear()">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M7 2v10M2 7h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            Nuevo medicamento
-        </button>
-    </div>
+    
 
     <!-- Contenedor de la Tabla -->
     <div class="table-container">
@@ -491,10 +482,6 @@
                             <span class="badge libre">No</span>
                         {% endif %}
                     </td>
-                    <td>
-                        <button class="btn-edit" onclick="abrirModalEditar(this)">Editar</button>
-                        <button class="btn-delete" onclick="eliminarMedicamento(this)">Eliminar</button>
-                    </td>
                 </tr>
             {% empty %}
                 <tr>
@@ -508,173 +495,9 @@
     </div>
 </div>
 
-<!-- ── MODAL CREAR / EDITAR REDISEÑADO ── -->
-<div class="modal-overlay" id="modalMedicamento">
-    <div class="modal-box">
-        <h2 id="modalTitulo">Nuevo medicamento</h2>
-        <p style="font-size: 13.5px; color: var(--g400); margin-bottom: 20px;">Ingresa las especificaciones del fármaco para el inventario.</p>
 
-        {% csrf_token %}
-        <input type="hidden" id="m_id">
 
-        <div class="modal-field">
-            <label>Código CUM</label>
-            <input type="text" id="m_codigo_cum" placeholder="Ej. 19942341-1">
-        </div>
 
-        <div class="modal-field">
-            <label>Nombre comercial</label>
-            <input type="text" id="m_nombre_comercial" placeholder="Ej. Acetaminofén MK">
-        </div>
-
-        <div class="modal-field">
-            <label>Nombre genérico</label>
-            <input type="text" id="m_nombre_generico" placeholder="Ej. Paracetamol">
-        </div>
-
-        <div class="modal-field">
-            <label>Laboratorio</label>
-            <input type="text" id="m_laboratorio" placeholder="Ej. MK / Tecnoquímicas">
-        </div>
-
-        <div class="modal-field">
-            <label>Concentración</label>
-            <input type="text" id="m_concentracion" placeholder="Ej. 500 mg">
-        </div>
-
-        <div class="modal-field">
-            <label>Forma farmacéutica</label>
-            <input type="text" id="m_forma_farmaceutica" placeholder="Ej. Tabletas">
-        </div>
-
-        <div class="modal-field">
-            <label>Descripción</label>
-            <textarea id="m_descripcion" placeholder="Detalles del empaque o presentación..."></textarea>
-        </div>
-
-        <div class="modal-field">
-            <label>Uso indicado</label>
-            <textarea id="m_uso_indicado" placeholder="Indicaciones principales..."></textarea>
-        </div>
-
-        <div class="modal-field">
-            <label>Efectos secundarios</label>
-            <textarea id="m_efectos_secundarios" placeholder="Reacciones adversas conocidas..."></textarea>
-        </div>
-
-        <label class="checkbox-wrap">
-            <input type="checkbox" id="m_requiere_formula">
-            Requiere fórmula médica
-        </label>
-
-        <div class="modal-error" id="modalError"></div>
-
-        <div class="modal-actions">
-            <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
-            <button class="btn-new" onclick="guardarMedicamento()">Guardar Cambios</button>
-        </div>
-    </div>
-</div>
-
-<script>
-const API_MEDICAMENTOS = "/api/medicamentos/";
-const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-function abrirModalCrear(){
-    document.getElementById('modalTitulo').textContent = 'Nuevo medicamento';
-    document.getElementById('m_id').value = '';
-    ['codigo_cum','nombre_comercial','nombre_generico','laboratorio','concentracion','forma_farmaceutica','descripcion','uso_indicado','efectos_secundarios'].forEach(campo=>{
-        document.getElementById('m_'+campo).value = '';
-    });
-    document.getElementById('m_requiere_formula').checked = false;
-    document.getElementById('modalError').style.display = 'none';
-    document.getElementById('modalMedicamento').classList.add('active');
-}
-
-function abrirModalEditar(boton){
-    const fila = boton.closest('tr');
-    document.getElementById('modalTitulo').textContent = 'Editar medicamento';
-    document.getElementById('m_id').value = fila.dataset.id;
-    ['codigo_cum','nombre_comercial','nombre_generico','laboratorio','concentracion','forma_farmaceutica','descripcion','uso_indicado','efectos_secundarios'].forEach(campo=>{
-        document.getElementById('m_'+campo).value = fila.dataset[campo] || '';
-    });
-    document.getElementById('m_requiere_formula').checked = (fila.dataset.requiere_formula === 'true');
-    document.getElementById('modalError').style.display = 'none';
-    document.getElementById('modalMedicamento').classList.add('active');
-}
-
-function cerrarModal(){
-    document.getElementById('modalMedicamento').classList.remove('active');
-}
-
-async function guardarMedicamento(){
-    const id = document.getElementById('m_id').value;
-    const errorBox = document.getElementById('modalError');
-
-    const payload = {
-        codigo_cum: document.getElementById('m_codigo_cum').value.trim(),
-        nombre_comercial: document.getElementById('m_nombre_comercial').value.trim(),
-        nombre_generico: document.getElementById('m_nombre_generico').value.trim(),
-        laboratorio: document.getElementById('m_laboratorio').value.trim(),
-        concentracion: document.getElementById('m_concentracion').value.trim(),
-        forma_farmaceutica: document.getElementById('m_forma_farmaceutica').value.trim(),
-        descripcion: document.getElementById('m_descripcion').value.trim(),
-        uso_indicado: document.getElementById('m_uso_indicado').value.trim(),
-        efectos_secundarios: document.getElementById('m_efectos_secundarios').value.trim(),
-        requiere_formula: document.getElementById('m_requiere_formula').checked
-    };
-
-    const url = id ? API_MEDICAMENTOS + id + '/' : API_MEDICAMENTOS;
-    const method = id ? 'PUT' : 'POST';
-
-    try {
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-
-        if(response.ok){
-            location.reload();
-        } else {
-            errorBox.textContent = JSON.stringify(result);
-            errorBox.style.display = 'block';
-        }
-    } catch (error) {
-        errorBox.textContent = 'Error de conexión con el servidor.';
-        errorBox.style.display = 'block';
-    }
-}
-
-async function eliminarMedicamento(boton){
-    const fila = boton.closest('tr');
-    const id = fila.dataset.id;
-
-    if(!confirm('¿Seguro que deseas eliminar este medicamento?')) return;
-
-    try {
-        const response = await fetch(API_MEDICAMENTOS + id + '/', {
-            method: 'DELETE',
-            headers: {
-                'X-CSRFToken': csrftoken
-            }
-        });
-
-        if(response.ok){
-            fila.remove();
-        } else {
-            alert('No se pudo eliminar el medicamento.');
-        }
-    } catch (error) {
-        alert('Error de conexión con el servidor.');
-    }
-}
-</script>
 
 </body>
 </html>
