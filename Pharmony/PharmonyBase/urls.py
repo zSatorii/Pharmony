@@ -24,6 +24,7 @@ urlpatterns = [
     path('', registrar_usuario, name='home'),
     path('registro/', registrar_usuario, name='registro'),
     path('login/', iniciar_sesion, name='login'),
+    path('logout/', cerrar_sesion, name='logout'),
     path('api/', include('Farmacia.urls')),
     path('logout/', cerrar_sesion, name='logout'),
 ]

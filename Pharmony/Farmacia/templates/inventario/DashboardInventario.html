@@ -4,507 +4,677 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Inventario</title>
+    <title>Pharmony — Dashboard Inventario</title>
+    
+    <!-- Fuentes del nuevo estilo -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
+        /* ── VARIABLES Y RESET ── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9; --bmi: #1a5fd4;
+            --bl: #3b82f6; --bs: #93c5fd; --bp: #dbeafe;
+            --w: #fff; --g50: #f8fafc; --g100: #f1f5f9; --g200: #e2e8f0;
+            --g300: #cbd5e1; --g400: #94a3b8; --g600: #475569; --g800: #1e293b;
+            --grn: #22c55e; --grnp: #f0fdf4;
+            --red: #ef4444; --redp: #fef2f2;
+            --amber: #f59e0b; --amberp: #fffbeb;
+        }
+
         body {
-            margin: 0;
-            background: #f4f7fb;
-            font-family: Arial, sans-serif;
+            background: var(--g100);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--g800);
+            min-height: 100vh;
         }
 
+        /* ── HEADER ── */
         .header {
-            background: #0d47c9;
-            color: white;
-            padding: 20px;
+            background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
+            color: var(--w);
+            padding: 16px 32px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.1);
         }
 
-        .header h1 {
-            margin: 0;
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-mark {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            color: var(--w);
         }
 
         .btn-logout {
-            background: #ef4444;
-            color: white;
+            background: rgba(255, 255, 255, 0.12);
+            color: var(--w);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
             padding: 8px 16px;
+            font-size: 13.5px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
             text-decoration: none;
-            border-radius: 6px;
-            font-weight: bold;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
 
         .btn-logout:hover {
-            background: #dc2626;
+            background: var(--red);
+            border-color: var(--red);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
 
+        /* ── CONTENEDOR PRINCIPAL ── */
         .container {
-            padding: 25px;
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
+        /* ── TARJETAS MÉTRICAS ── */
         .cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+            background: var(--w);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--g200);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
         }
 
         .card h3 {
-            margin: 0;
-            color: #666;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--g400);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
         }
 
         .card h2 {
-            margin-top: 10px;
-            color: #0d47c9;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--bdk);
         }
 
+        /* ── SECCIÓN DE TABLA ── */
         .table-header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 20px;
+            font-weight: 500;
+            color: var(--g800);
+        }
+
+        .btn-new {
+            height: 42px;
+            background: var(--bm);
+            color: var(--w);
+            border: none;
+            border-radius: 10px;
+            padding: 0 18px;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.2);
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-new:hover {
+            background: var(--bdk);
+            transform: translateY(-1px);
         }
 
         .table-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, .1);
+            background: var(--w);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--g200);
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
         }
 
         th {
-            background: #0d47c9;
-            color: white;
-            padding: 12px;
+            background: var(--g50);
+            color: var(--g600);
+            font-weight: 500;
+            padding: 14px 16px;
             text-align: left;
+            border-bottom: 1px solid var(--g200);
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--g100);
+            color: var(--g800);
         }
 
-        tr:hover {
-            background: #f5f5f5;
+        tr:last-child td {
+            border-bottom: none;
         }
 
+        tr:hover td {
+            background: var(--g50);
+        }
+
+        /* ── BADGES ── */
         .badge {
-            padding: 5px 10px;
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
             border-radius: 20px;
-            color: white;
-            font-size: 0.85em;
+            font-size: 12px;
+            font-weight: 500;
         }
 
-        .formula {
-            background: #ef4444;
+        .badge.formula {
+            background: var(--redp);
+            color: var(--red);
+            border: 1px solid #fecaca;
         }
 
-        .libre {
-            background: #22c55e;
+        .badge.libre {
+            background: var(--grnp);
+            color: var(--grn);
+            border: 1px solid #bbf7d0;
         }
 
-        /* Botones de acción */
-        .btn {
-            padding: 8px 12px;
+        /* ── ACCIONES EN TABLA ── */
+        .btn-edit, .btn-delete {
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: 'DM Sans', sans-serif;
             cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .btn-add {
-            background: #22c55e;
-            color: white;
-        }
-
-        .btn-add:hover {
-            background: #16a34a;
+            transition: all 0.15s;
         }
 
         .btn-edit {
-            background: #eab308;
-            color: white;
-            padding: 5px 10px;
-            font-size: 0.9em;
-            margin-right: 5px;
+            background: var(--amberp);
+            color: var(--amber);
+            border: 1px solid #fef3c7;
+            margin-right: 4px;
         }
 
         .btn-edit:hover {
-            background: #ca8a04;
+            background: var(--amber);
+            color: var(--w);
         }
 
         .btn-delete {
-            background: #ef4444;
-            color: white;
-            padding: 5px 10px;
-            font-size: 0.9em;
+            background: var(--redp);
+            color: var(--red);
+            border: 1px solid #fecaca;
         }
 
         .btn-delete:hover {
-            background: #dc2626;
+            background: var(--red);
+            color: var(--w);
         }
 
-        /* Modales */
-        .modal {
+        /* ── MODAL REDISEÑADO ── */
+        .modal-overlay {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            inset: 0;
+            background: rgba(10, 58, 140, 0.4);
+            backdrop-filter: blur(4px);
             align-items: center;
             justify-content: center;
+            z-index: 1000;
+            transition: all 0.2s;
         }
 
-        .modal:target,
-        .modal.active {
+        .modal-overlay.active {
             display: flex;
         }
 
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            width: 450px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .2);
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-            text-decoration: none;
-            color: #666;
-        }
-
-        /* Formularios internos */
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select {
+        .modal-box {
+            background: var(--w);
+            border-radius: 16px;
+            padding: 32px;
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            max-width: 540px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border: 1px solid var(--g200);
+        }
+
+        .modal-box h2 {
+            font-size: 22px;
+            font-weight: 500;
+            color: var(--g800);
+            margin-bottom: 8px;
+        }
+
+        .modal-field {
+            margin-bottom: 16px;
+        }
+
+        .modal-field label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--g600);
+            margin-bottom: 6px;
+        }
+
+        .modal-field input[type="text"], 
+        .modal-field textarea {
+            width: 100%;
+            border: 1.5px solid var(--g200);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-family: 'DM Sans', sans-serif;
+            color: var(--g800);
+            background: var(--g50);
+            outline: none;
+            transition: all 0.15s;
             box-sizing: border-box;
         }
 
-        .form-group-checkbox {
+        .modal-field input[type="text"]:focus, 
+        .modal-field textarea:focus {
+            border-color: var(--bl);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: var(--w);
+        }
+
+        .modal-field textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        .checkbox-wrap {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
+            margin-top: 20px;
+            cursor: pointer;
+            font-size: 13.5px;
+            color: var(--g600);
+            font-weight: 500;
         }
 
-        .form-group-checkbox input {
-            width: auto;
-        }
-
-        /* Añade esto a tus estilos para dar soporte a los textarea */
-        .form-group textarea {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
+        .checkbox-wrap input {
+            width: 18px;
+            height: 18px;
             border-radius: 6px;
-            box-sizing: border-box;
-            font-family: inherit;
-            /* Mantiene la misma fuente */
-            resize: vertical;
-            /* Permite estirar hacia abajo pero no hacia los lados */
+            border: 1.5px solid var(--g200);
+            accent-color: var(--bm);
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+            border-top: 1px solid var(--g200);
+            padding-top: 20px;
+        }
+
+        .btn-cancel {
+            background: var(--g100);
+            color: var(--g600);
+            border: none;
+            border-radius: 11px;
+            padding: 0 20px;
+            height: 44px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-cancel:hover {
+            background: var(--g200);
+            color: var(--g800);
+        }
+
+        .modal-error {
+            color: var(--red);
+            background: var(--redp);
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-top: 14px;
+            display: none;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="header">
-        <h1>Dashboard de Inventario</h1>
-        <a href="{% url 'cerrar_sesion' %}" class="btn-logout">Cerrar Sesión</a>
+<div class="header">
+    <div class="logo-wrap">
+        <div class="logo-mark">
+            <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+                <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="white" stroke-width="1.8" fill="none"/>
+                <circle cx="11" cy="8.5" r="2.5" stroke="white" stroke-width="1.6" fill="none"/>
+            </svg>
+        </div>
+        <span class="logo-name">Pharmony</span>
+    </div>
+    <a class="btn-logout" href="{% url 'logout' %}">Salir</a>
+</div>
+
+<div class="container">
+
+    <!-- Tarjetas de Métricas -->
+    <div class="cards">
+        <div class="card">
+            <h3>Medicamentos</h3>
+            <h2>{{ total_medicamentos }}</h2>
+        </div>
+        <div class="card">
+            <h3>Requieren Fórmula</h3>
+            <h2>{{ medicamentos_formula }}</h2>
+        </div>
+        <div class="card">
+            <h3>Venta Libre</h3>
+            <h2>{{ medicamentos_libres }}</h2>
+        </div>
+        <div class="card">
+            <h3>Laboratorios</h3>
+            <h2>{{ laboratorios }}</h2>
+        </div>
     </div>
 
-    <div class="container">
+    <!-- Encabezado de la Tabla -->
+    <div class="table-header">
+        <h2>Listado de Medicamentos</h2>
+        <button class="btn-new" onclick="abrirModalCrear()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 2v10M2 7h10" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Nuevo medicamento
+        </button>
+    </div>
 
-        <div class="cards">
-            <div class="card">
-                <h3>Medicamentos</h3>
-                <h2>{{ total_medicamentos }}</h2>
-            </div>
-            <div class="card">
-                <h3>Requieren Fórmula</h3>
-                <h2>{{ medicamentos_formula }}</h2>
-            </div>
-            <div class="card">
-                <h3>Venta Libre</h3>
-                <h2>{{ medicamentos_libres }}</h2>
-            </div>
-            <div class="card">
-                <h3>Laboratorios</h3>
-                <h2>{{ laboratorios }}</h2>
-            </div>
-        </div>
-
-        <div class="table-container">
-            <div class="table-header">
-                <h2>Listado de Medicamentos</h2>
-                <a href="#modal-crear" class="btn btn-add">+ Agregar Medicamento</a>
-            </div>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>CUM</th>
-                        <th>Nombre Comercial</th>
-                        <th>Nombre Genérico</th>
-                        <th>Concentración</th>
-                        <th>Laboratorio</th>
-                        <th>Forma</th>
-                        <th>Fórmula</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for medicamento in medicamentos %}
-                    <tr>
-                        <td>{{ medicamento.codigo_cum }}</td>
-                        <td>{{ medicamento.nombre_comercial }}</td>
-                        <td>{{ medicamento.nombre_generico }}</td>
-                        <td>{{ medicamento.concentracion }}</td>
-                        <td>{{ medicamento.laboratorio }}</td>
-                        <td>{{ medicamento.forma_farmaceutica }}</td>
-                        <td>
-                            {% if medicamento.requiere_formula %}
+    <!-- Contenedor de la Tabla -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>CUM</th>
+                    <th>Nombre Comercial</th>
+                    <th>Nombre Genérico</th>
+                    <th>Concentración</th>
+                    <th>Laboratorio</th>
+                    <th>Forma</th>
+                    <th>Fórmula</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaMedicamentos">
+            {% for medicamento in medicamentos %}
+                <tr
+                    data-id="{{ medicamento.id }}"
+                    data-codigo_cum="{{ medicamento.codigo_cum }}"
+                    data-nombre_generico="{{ medicamento.nombre_generico }}"
+                    data-nombre_comercial="{{ medicamento.nombre_comercial }}"
+                    data-laboratorio="{{ medicamento.laboratorio }}"
+                    data-concentracion="{{ medicamento.concentracion }}"
+                    data-forma_farmaceutica="{{ medicamento.forma_farmaceutica }}"
+                    data-descripcion="{{ medicamento.descripcion }}"
+                    data-uso_indicado="{{ medicamento.uso_indicado }}"
+                    data-efectos_secundarios="{{ medicamento.efectos_secundarios }}"
+                    data-requiere_formula="{{ medicamento.requiere_formula|yesno:'true,false' }}"
+                >
+                    <td style="font-weight: 500; color: var(--g600);">{{ medicamento.codigo_cum }}</td>
+                    <td style="font-weight: 500;">{{ medicamento.nombre_comercial }}</td>
+                    <td>{{ medicamento.nombre_generico }}</td>
+                    <td>{{ medicamento.concentracion }}</td>
+                    <td>{{ medicamento.laboratorio }}</td>
+                    <td>{{ medicamento.forma_farmaceutica }}</td>
+                    <td>
+                        {% if medicamento.requiere_formula %}
                             <span class="badge formula">Sí</span>
-                            {% else %}
+                        {% else %}
                             <span class="badge libre">No</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <button class="btn btn-edit"
-                                onclick="abrirEditar('{{ medicamento.id }}', '{{ medicamento.nombre_comercial }}', '{{ medicamento.laboratorio }}', '{{ medicamento.requiere_formula|yesno:'true,false' }}')">Editar</button>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn-edit" onclick="abrirModalEditar(this)">Editar</button>
+                        <button class="btn-delete" onclick="eliminarMedicamento(this)">Eliminar</button>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8" style="text-align: center; color: var(--g400); padding: 32px;">
+                        No hay medicamentos registrados
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-                            <form action="{% url 'eliminar_medicamento' medicamento.id %}" method="POST"
-                                style="display:inline;" onsubmit="return confirmarEliminacion();">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-delete">Borrar</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" style="text-align: center;">No hay medicamentos registrados</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<!-- ── MODAL CREAR / EDITAR REDISEÑADO ── -->
+<div class="modal-overlay" id="modalMedicamento">
+    <div class="modal-box">
+        <h2 id="modalTitulo">Nuevo medicamento</h2>
+        <p style="font-size: 13.5px; color: var(--g400); margin-bottom: 20px;">Ingresa las especificaciones del fármaco para el inventario.</p>
+
+        {% csrf_token %}
+        <input type="hidden" id="m_id">
+
+        <div class="modal-field">
+            <label>Código CUM</label>
+            <input type="text" id="m_codigo_cum" placeholder="Ej. 19942341-1">
+        </div>
+
+        <div class="modal-field">
+            <label>Nombre comercial</label>
+            <input type="text" id="m_nombre_comercial" placeholder="Ej. Acetaminofén MK">
+        </div>
+
+        <div class="modal-field">
+            <label>Nombre genérico</label>
+            <input type="text" id="m_nombre_generico" placeholder="Ej. Paracetamol">
+        </div>
+
+        <div class="modal-field">
+            <label>Laboratorio</label>
+            <input type="text" id="m_laboratorio" placeholder="Ej. MK / Tecnoquímicas">
+        </div>
+
+        <div class="modal-field">
+            <label>Concentración</label>
+            <input type="text" id="m_concentracion" placeholder="Ej. 500 mg">
+        </div>
+
+        <div class="modal-field">
+            <label>Forma farmacéutica</label>
+            <input type="text" id="m_forma_farmaceutica" placeholder="Ej. Tabletas">
+        </div>
+
+        <div class="modal-field">
+            <label>Descripción</label>
+            <textarea id="m_descripcion" placeholder="Detalles del empaque o presentación..."></textarea>
+        </div>
+
+        <div class="modal-field">
+            <label>Uso indicado</label>
+            <textarea id="m_uso_indicado" placeholder="Indicaciones principales..."></textarea>
+        </div>
+
+        <div class="modal-field">
+            <label>Efectos secundarios</label>
+            <textarea id="m_efectos_secundarios" placeholder="Reacciones adversas conocidas..."></textarea>
+        </div>
+
+        <label class="checkbox-wrap">
+            <input type="checkbox" id="m_requiere_formula">
+            Requiere fórmula médica
+        </label>
+
+        <div class="modal-error" id="modalError"></div>
+
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-new" onclick="guardarMedicamento()">Guardar Cambios</button>
         </div>
     </div>
+</div>
 
-    <div id="modal-crear" class="modal">
-        <div class="modal-content">
-            <a href="#" class="close-modal">&times;</a>
-            <h2>Registrar Medicamento</h2>
-            <form action="{% url 'crear_medicamento' %}" method="POST">
-                {% csrf_token %}
+<script>
+const API_MEDICAMENTOS = "/api/medicamentos/";
+const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-                <div class="form-group">
-                    <label for="codigo_cum">Código CUM</label>
-                    <input type="text" name="codigo_cum" id="codigo_cum" placeholder="Ej: 19944831-1" required>
-                </div>
+function abrirModalCrear(){
+    document.getElementById('modalTitulo').textContent = 'Nuevo medicamento';
+    document.getElementById('m_id').value = '';
+    ['codigo_cum','nombre_comercial','nombre_generico','laboratorio','concentracion','forma_farmaceutica','descripcion','uso_indicado','efectos_secundarios'].forEach(campo=>{
+        document.getElementById('m_'+campo).value = '';
+    });
+    document.getElementById('m_requiere_formula').checked = false;
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('modalMedicamento').classList.add('active');
+}
 
-                <div class="form-group">
-                    <label for="laboratorio">Laboratorio</label>
-                    <input type="text" name="laboratorio" id="laboratorio" placeholder="Ej: Bayer, Genfar..." required>
-                </div>
+function abrirModalEditar(boton){
+    const fila = boton.closest('tr');
+    document.getElementById('modalTitulo').textContent = 'Editar medicamento';
+    document.getElementById('m_id').value = fila.dataset.id;
+    ['codigo_cum','nombre_comercial','nombre_generico','laboratorio','concentracion','forma_farmaceutica','descripcion','uso_indicado','efectos_secundarios'].forEach(campo=>{
+        document.getElementById('m_'+campo).value = fila.dataset[campo] || '';
+    });
+    document.getElementById('m_requiere_formula').checked = (fila.dataset.requiere_formula === 'true');
+    document.getElementById('modalError').style.display = 'none';
+    document.getElementById('modalMedicamento').classList.add('active');
+}
 
-                <div class="form-group">
-                    <label for="nombre_generico">Nombre Genérico</label>
-                    <input type="text" name="nombre_generico" id="nombre_generico" placeholder="Ej: Acetaminofén"
-                        required>
-                </div>
+function cerrarModal(){
+    document.getElementById('modalMedicamento').classList.remove('active');
+}
 
-                <div class="form-group">
-                    <label for="nombre_comercial">Nombre Comercial</label>
-                    <input type="text" name="nombre_comercial" id="nombre_comercial" placeholder="Ej: MK Acetaminofén"
-                        required>
-                </div>
+async function guardarMedicamento(){
+    const id = document.getElementById('m_id').value;
+    const errorBox = document.getElementById('modalError');
 
-                <div class="form-group">
-                    <label for="concentracion">Concentración</label>
-                    <input type="text" name="concentracion" id="concentracion" placeholder="Ej: 500 mg, 5 ml" required>
-                </div>
+    const payload = {
+        codigo_cum: document.getElementById('m_codigo_cum').value.trim(),
+        nombre_comercial: document.getElementById('m_nombre_comercial').value.trim(),
+        nombre_generico: document.getElementById('m_nombre_generico').value.trim(),
+        laboratorio: document.getElementById('m_laboratorio').value.trim(),
+        concentracion: document.getElementById('m_concentracion').value.trim(),
+        forma_farmaceutica: document.getElementById('m_forma_farmaceutica').value.trim(),
+        descripcion: document.getElementById('m_descripcion').value.trim(),
+        uso_indicado: document.getElementById('m_uso_indicado').value.trim(),
+        efectos_secundarios: document.getElementById('m_efectos_secundarios').value.trim(),
+        requiere_formula: document.getElementById('m_requiere_formula').checked
+    };
 
-                <div class="form-group">
-                    <label for="forma_farmaceutica">Forma Farmacéutica</label>
-                    <input type="text" name="forma_farmaceutica" id="forma_farmaceutica"
-                        placeholder="Ej: Tableta, Jarabe" required>
-                </div>
+    const url = id ? API_MEDICAMENTOS + id + '/' : API_MEDICAMENTOS;
+    const method = id ? 'PUT' : 'POST';
 
-                <div class="form-group">
-                    <label for="descripcion">Descripción Técnica</label>
-                    <textarea name="descripcion" id="descripcion" rows="2"
-                        placeholder="Breve descripción del compuesto..." required></textarea>
-                </div>
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(payload)
+        });
 
-                <div class="form-group">
-                    <label for="uso_indicado">Uso Indicado</label>
-                    <textarea name="uso_indicado" id="uso_indicado" rows="2"
-                        placeholder="¿Para qué sirve este medicamento?" required></textarea>
-                </div>
+        const result = await response.json();
 
-                <div class="form-group">
-                    <label for="efectos_secundarios">Efectos Secundarios</label>
-                    <textarea name="efectos_secundarios" id="efectos_secundarios" rows="2"
-                        placeholder="Reacciones adversas..." required></textarea>
-                </div>
-
-                <div class="form-group-checkbox">
-                    <input type="checkbox" name="requiere_formula" id="requiere_formula">
-                    <label for="requiere_formula">¿Requiere Fórmula Médica?</label>
-                </div>
-
-                <div style="text-align: right; margin-top: 20px;">
-                    <button type="submit" class="btn-guardar">Registrar Medicamento</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="modal-editar" class="modal">
-        <div class="modal-content">
-            <a href="#" class="close-modal" onclick="cerrarEditar()">&times;</a>
-            <h2>Editar Medicamento</h2>
-            <form id="formEditarMedicamento" method="POST">
-                {% csrf_token %}
-
-                <div class="form-group">
-                    <label for="edit_codigo_cum">Código CUM</label>
-                    <input type="text" name="edit_codigo_cum" id="edit_codigo_cum" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_laboratorio">Laboratorio</label>
-                    <input type="text" name="edit_laboratorio" id="edit_laboratorio" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_nombre_generico">Nombre Genérico</label>
-                    <input type="text" name="edit_nombre_generico" id="edit_nombre_generico" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_nombre_comercial">Nombre Comercial</label>
-                    <input type="text" name="edit_nombre_comercial" id="edit_nombre_comercial" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_concentracion">Concentración</label>
-                    <input type="text" name="edit_concentracion" id="edit_concentracion" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_forma_farmaceutica">Forma Farmacéutica</label>
-                    <input type="text" name="edit_forma_farmaceutica" id="edit_forma_farmaceutica" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_descripcion">Descripción Técnica</label>
-                    <textarea name="edit_descripcion" id="edit_descripcion" rows="2" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_uso_indicado">Uso Indicado</label>
-                    <textarea name="edit_uso_indicado" id="edit_uso_indicado" rows="2" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit_efectos_secundarios">Efectos Secundarios</label>
-                    <textarea name="edit_efectos_secundarios" id="edit_efectos_secundarios" rows="2"
-                        required></textarea>
-                </div>
-
-                <div class="form-group-checkbox">
-                    <input type="checkbox" name="requiere_formula" id="edit_requiere_formula">
-                    <label for="edit_requiere_formula">¿Requiere Fórmula Médica?</label>
-                </div>
-
-                <div style="text-align: right; margin-top: 20px;">
-                    <button type="submit" class="btn-actualizar">Guardar Cambios</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Manejo dinámico del modal de edición
-        function abrirModalEditar(id, cum, generico, comercial, lab, concentracion, forma, desc, uso, efectos, formula) {
-            // Configura la URL destino del formulario dinámicamente
-            document.getElementById('formEditarMedicamento').action = `/api/inventario/editar/${id}/`;
-
-            // Rellena cada campo de texto
-            document.getElementById('edit_codigo_cum').value = cum;
-            document.getElementById('edit_nombre_generico').value = generico;
-            document.getElementById('edit_nombre_comercial').value = comercial;
-            document.getElementById('edit_laboratorio').value = lab;
-            document.getElementById('edit_concentracion').value = concentracion;
-            document.getElementById('edit_forma_farmaceutica').value = forma;
-            document.getElementById('edit_descripcion').value = desc;
-            document.getElementById('edit_uso_indicado').value = uso;
-            document.getElementById('edit_efectos_secundarios').value = efectos;
-
-            // Maneja el estado del interruptor/checkbox switch
-            document.getElementById('edit_requiere_formula').checked = (formula === true || formula === 'True');
-
-            // Abre el modal usando Bootstrap
-            var modal = new bootstrap.Modal(document.getElementById('tuModalEditarID'));
-            modal.show();
+        if(response.ok){
+            location.reload();
+        } else {
+            errorBox.textContent = JSON.stringify(result);
+            errorBox.style.display = 'block';
         }
+    } catch (error) {
+        errorBox.textContent = 'Error de conexión con el servidor.';
+        errorBox.style.display = 'block';
+    }
+}
 
-        function cerrarEditar() {
-            document.getElementById('modal-editar').classList.remove('active');
-        }
+async function eliminarMedicamento(boton){
+    const fila = boton.closest('tr');
+    const id = fila.dataset.id;
 
-        function confirmarEliminacion() {
-            return confirm("¿Estás completamente seguro de eliminar este medicamento? Esta acción se sincronizará con Firebase.");
-        }
+    if(!confirm('¿Seguro que deseas eliminar este medicamento?')) return;
 
-        // ⚠️ CONTROL CRUCIAL DEL HISTORIAL (BOTÓN ATRÁS DEL NAVEGADOR)
-        window.addEventListener('pageshow', function (event) {
-            if (event.persisted || (typeof window.performance != "undefined" && window.performance.navigation.type === 2)) {
-                window.location.reload();
+    try {
+        const response = await fetch(API_MEDICAMENTOS + id + '/', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': csrftoken
             }
         });
-    </script>
+
+        if(response.ok){
+            fila.remove();
+        } else {
+            alert('No se pudo eliminar el medicamento.');
+        }
+    } catch (error) {
+        alert('Error de conexión con el servidor.');
+    }
+}
+</script>
 
 </body>
-
 </html>

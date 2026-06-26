@@ -5,6 +5,8 @@ import datetime
 import jwt
 import os
 from django.conf import settings
+from rest_framework.permissions import IsAuthenticated
+
 from .models import Medicamento
 from .serializers import MedicamentoSerializer
 import requests
@@ -13,9 +15,9 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.contrib.auth import get_user_model, authenticate
 import re
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 
@@ -34,6 +36,103 @@ from firebase_admin import firestore
 from .models import Medicamento
 from django.views.decorators.cache import never_cache
 
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
+from firebase_admin import auth as firebase_auth
+from firebase_admin import firestore
+
+def get_firestore_db():
+    try:
+        return firestore.client()
+    except Exception as e:
+        print(f"Firestore no disponible: {e}")
+        return None
+    
+class MedicamentoViewSet(viewsets.ModelViewSet):
+
+    queryset = Medicamento.objects.all().order_by("nombre_comercial")
+    serializer_class = MedicamentoSerializer
+
+    permission_classes = [IsAuthenticated]
+
+    FIRESTORE_COLLECTION = "medicamentos"
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            instance = serializer.save()
+            self._guardar_en_firestore(instance, serializer.data)
+
+            return Response(
+                {
+                    "mensaje": "Medicamento registrado correctamente",
+                    "data": serializer.data
+                },
+                status=status.HTTP_201_CREATED
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+ 
+        if serializer.is_valid():
+            instance = serializer.save()
+            self._guardar_en_firestore(instance, serializer.data)
+ 
+            return Response(
+                {
+                    "mensaje": "Medicamento actualizado correctamente",
+                    "data": serializer.data
+                },
+                status=status.HTTP_200_OK
+            )
+ 
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+ 
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        medicamento_id = instance.id
+        self.perform_destroy(instance)
+        self._eliminar_de_firestore(medicamento_id)
+ 
+        return Response(
+            {"mensaje": "Medicamento eliminado correctamente"},
+            status=status.HTTP_200_OK
+        )
+ 
+    def _guardar_en_firestore(self, instance, data):
+        db = get_firestore_db()
+        if db is None:
+            return
+        try:
+            db.collection(self.FIRESTORE_COLLECTION).document(str(instance.id)).set(dict(data))
+        except Exception as e:
+            print(f"Error al guardar el medicamento {instance.id} en Firestore: {e}")
+ 
+    def _eliminar_de_firestore(self, medicamento_id):
+        db = get_firestore_db()
+        if db is None:
+            return
+        try:
+            db.collection(self.FIRESTORE_COLLECTION).document(str(medicamento_id)).delete()
+        except Exception as e:
+            print(f"Error al eliminar el medicamento {medicamento_id} de Firestore: {e}")
+
+
+# ==========================
+# Dashboard Inventario
+# ==========================
+@never_cache
 @login_required
 @never_cache
 def dashboard_inventario(request):
@@ -204,11 +303,10 @@ def get_user_from_jwt(request):
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, Usuario.DoesNotExist):
         return None
 
+
 @never_cache
 def registrar_usuario(request):
-    # Si ya tiene una sesión iniciada, redirigir al dashboard
-    user = get_user_from_jwt(request)
-    if user is not None:
+    if request.method == 'GET' and request.user.is_authenticated:
         return redirect('dashboard_inventario')
 
     if request.method == 'POST':
@@ -320,6 +418,9 @@ def registrar_usuario(request):
 
 @never_cache
 def iniciar_sesion(request):
+    if request.method == 'GET' and request.user.is_authenticated:
+        return redirect('dashboard_inventario')
+    
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -425,9 +526,8 @@ def iniciar_sesion(request):
         return redirect('dashboard_inventario')
     return render(request, 'Farmacia/PharmonyLogin.html')
 
-
 @never_cache
+@require_GET
 def cerrar_sesion(request):
-    response = redirect('login')
-    response.delete_cookie('jwt_token')
-    return response
+    logout(request)
+    return redirect('login')
