@@ -30,6 +30,7 @@ class Medicamento(models.Model):
 class Usuario(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
     firebase_uid = models.CharField(max_length=255, unique=True, blank=True, null=True, verbose_name="Firebase UID")
+    face_encoding = models.TextField(blank=True, null=True, verbose_name="Face Encoding")
     
     # Ejemplo de un campo de roles
     ROLES = [
