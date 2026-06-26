@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmony — Portal Farmacéutico</title>
+<meta name="description" content="Pharmony es el portal de gestión farmacéutica líder en Colombia. Últimas noticias del sector, control de inventario y más.">
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bmi:#1a5fd4;
+  --bl:#3b82f6;--bs:#93c5fd;--bp:#dbeafe;
+  --w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;
+  --g300:#cbd5e1;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;
+  --grn:#22c55e;--grnp:#f0fdf4;
+  --red:#ef4444;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g800);overflow-x:hidden;}
+
+/* ── NAVBAR ── */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;height:68px;
+  background:rgba(5,32,96,0.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  transition:background .3s;
+}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+.nav-logo-mark{
+  width:38px;height:38px;border-radius:10px;
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-logo-name{
+  font-family:'Quicksand',sans-serif;
+  font-size:22px;font-weight:300;letter-spacing:3px;color:#fff;
+}
+.nav-center{display:flex;gap:32px;}
+.nav-link{
+  font-size:14px;font-weight:400;color:rgba(255,255,255,0.65);
+  text-decoration:none;transition:color .15s;letter-spacing:.3px;
+}
+.nav-link:hover{color:#fff;}
+.nav-link.active{color:#fff;font-weight:500;}
+.nav-actions{display:flex;align-items:center;gap:12px;}
+.btn-login{
+  height:38px;padding:0 18px;
+  background:transparent;border:1.5px solid rgba(255,255,255,0.3);
+  border-radius:10px;color:rgba(255,255,255,.85);
+  font-size:13.5px;font-weight:500;font-family:'DM Sans',sans-serif;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;
+  transition:border-color .15s,color .15s,background .15s;
+}
+.btn-login:hover{border-color:rgba(255,255,255,.7);color:#fff;background:rgba(255,255,255,.06);}
+.btn-join{
+  height:38px;padding:0 20px;
+  background:var(--bl);border:none;border-radius:10px;
+  color:#fff;font-size:13.5px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:6px;
+  box-shadow:0 4px 14px rgba(59,130,246,0.35);
+  transition:background .15s,transform .1s;
+}
+.btn-join:hover{background:#2563eb;transform:translateY(-1px);}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  background:linear-gradient(150deg,var(--bdk) 0%,var(--bm) 55%,var(--bmi) 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  padding:120px 48px 80px;
+  text-align:center;
+}
+.hero-shapes{position:absolute;inset:0;pointer-events:none;z-index:0;}
+.hero-shapes svg{width:100%;height:100%;}
+
+@keyframes s1{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(5deg);}}
+@keyframes s2{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(-6deg);}}
+@keyframes s3{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(4deg);}}
+
+.hero-content{position:relative;z-index:5;max-width:760px;animation:fadeUp .8s ease both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);
+  border-radius:20px;padding:7px 16px;font-size:12.5px;
+  color:rgba(255,255,255,0.75);margin-bottom:28px;letter-spacing:.3px;
+}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--bs);display:inline-block;}
+
+.hero-title{
+  font-family:'Quicksand',sans-serif;
+  font-size:clamp(56px, 8vw, 96px);font-weight:300;
+  letter-spacing:8px;color:#fff;line-height:1.05;
+  margin-bottom:20px;
+}
+.hero-title em{font-style:normal;color:var(--bs);}
+
+.hero-sub{
+  font-size:17px;color:rgba(255,255,255,0.6);
+  line-height:1.7;max-width:540px;margin:0 auto 40px;
+}
+
+.hero-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.btn-hero-primary{
+  height:50px;padding:0 32px;
+  background:rgba(255,255,255,0.15);backdrop-filter:blur(10px);
+  border:1.5px solid rgba(255,255,255,0.35);border-radius:14px;
+  color:#fff;font-size:15px;font-weight:500;font-family:'DM Sans',sans-serif;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;
+  transition:background .15s,border-color .15s,transform .1s;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+}
+.btn-hero-primary:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.6);transform:translateY(-2px);}
+.btn-hero-secondary{
+  height:50px;padding:0 32px;
+  background:var(--bl);border:none;border-radius:14px;
+  color:#fff;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:8px;
+  transition:background .15s,transform .1s;
+  box-shadow:0 6px 20px rgba(59,130,246,0.45);
+}
+.btn-hero-secondary:hover{background:#2563eb;transform:translateY(-2px);}
+
+.hero-stats{
+  display:flex;gap:48px;justify-content:center;
+  margin-top:60px;padding-top:40px;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+.stat{text-align:center;}
+.stat-num{font-size:32px;font-weight:600;color:#fff;font-family:'Quicksand',sans-serif;}
+.stat-lbl{font-size:12.5px;color:rgba(255,255,255,0.45);margin-top:4px;letter-spacing:.3px;}
+
+.hero-scroll{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  color:rgba(255,255,255,0.4);font-size:12px;letter-spacing:.5px;
+}
+.scroll-arrow{animation:scrollBob 2s ease-in-out infinite;}
+@keyframes scrollBob{0%,100%{transform:translateY(0);}50%{transform:translateY(6px);}}
+
+/* ── NEWS SECTION ── */
+.news-section{padding:80px 48px;max-width:1280px;margin:0 auto;}
+.section-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:44px;}
+.section-tag{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--bp);border:1px solid #bfdbfe;
+  border-radius:20px;padding:5px 14px;
+  font-size:12px;color:var(--bm);font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;
+}
+.section-tag-dot{width:5px;height:5px;border-radius:50%;background:var(--bm);}
+.section-title{font-size:28px;font-weight:500;color:var(--g800);}
+.section-subtitle{font-size:14px;color:var(--g400);margin-top:4px;}
+.see-all{
+  font-size:13.5px;color:var(--bl);text-decoration:none;font-weight:500;
+  display:flex;align-items:center;gap:4px;white-space:nowrap;
+  transition:gap .15s;
+}
+.see-all:hover{gap:8px;}
+
+/* Featured news */
+.news-featured{
+  display:grid;grid-template-columns:1fr 380px;
+  gap:24px;margin-bottom:40px;
+}
+.news-card-featured{
+  background:var(--w);border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 24px rgba(0,0,0,.07);border:1px solid var(--g200);
+  display:flex;flex-direction:column;
+  transition:transform .2s,box-shadow .2s;cursor:pointer;
+  position:relative;
+}
+.news-card-featured:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(13,71,201,0.12);}
+.featured-visual{
+  height:240px;
+  background:linear-gradient(135deg,var(--bd) 0%,var(--bm) 60%,var(--bl) 100%);
+  display:flex;align-items:center;justify-content:center;
+  font-size:80px;position:relative;overflow:hidden;
+}
+.featured-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 40%,rgba(255,255,255,0.06) 0%,transparent 60%);
+}
+.featured-body{padding:28px;}
+.news-meta{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.news-cat{
+  font-size:11.5px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--bm);background:var(--bp);border:1px solid #bfdbfe;
+  border-radius:6px;padding:3px 9px;
+}
+.news-date{font-size:12px;color:var(--g400);}
+.news-read{font-size:12px;color:var(--g300);}
+.news-dot{width:3px;height:3px;border-radius:50%;background:var(--g300);}
+.featured-title{font-size:21px;font-weight:600;color:var(--g800);line-height:1.35;margin-bottom:12px;}
+.featured-excerpt{font-size:14px;color:var(--g600);line-height:1.7;}
+.featured-badge{
+  position:absolute;top:18px;left:18px;z-index:2;
+  background:rgba(255,255,255,0.18);backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.2);
+  border-radius:8px;padding:4px 12px;
+  font-size:12px;color:#fff;font-weight:500;
+}
+
+/* Side news stack */
+.news-side-stack{display:flex;flex-direction:column;gap:16px;}
+.news-card-side{
+  background:var(--w);border-radius:16px;padding:20px;
+  border:1px solid var(--g200);box-shadow:0 2px 12px rgba(0,0,0,.05);
+  display:flex;gap:16px;align-items:flex-start;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;
+}
+.news-card-side:hover{transform:translateX(4px);box-shadow:0 6px 24px rgba(13,71,201,0.1);}
+.side-icon{
+  width:52px;height:52px;flex-shrink:0;border-radius:13px;
+  background:linear-gradient(135deg,var(--bp),#eff6ff);
+  border:1px solid #bfdbfe;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+}
+.side-body{flex:1;min-width:0;}
+.side-cat{font-size:11px;font-weight:600;color:var(--bm);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;}
+.side-title{font-size:14px;font-weight:500;color:var(--g800);line-height:1.4;margin-bottom:6px;}
+.side-meta{font-size:12px;color:var(--g400);}
+
+/* News grid */
+.news-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:20px;
+}
+.news-card{
+  background:var(--w);border-radius:18px;overflow:hidden;
+  border:1px solid var(--g200);box-shadow:0 2px 12px rgba(0,0,0,.05);
+  cursor:pointer;transition:transform .2s,box-shadow .2s;
+}
+.news-card:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(13,71,201,0.1);}
+.card-visual{
+  height:120px;display:flex;align-items:center;justify-content:center;font-size:48px;
+  background:linear-gradient(135deg,#f1f5f9 0%,#e2e8f0 100%);
+}
+.card-body{padding:20px;}
+.card-cat{font-size:11px;font-weight:600;color:var(--bm);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;}
+.card-title{font-size:15px;font-weight:500;color:var(--g800);line-height:1.4;margin-bottom:10px;}
+.card-excerpt{font-size:13px;color:var(--g600);line-height:1.6;margin-bottom:14px;}
+.card-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--g400);}
+
+/* ── FOOTER ── */
+.footer{
+  background:var(--bd);padding:48px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:24px;
+}
+.footer-logo{display:flex;align-items:center;gap:10px;}
+.footer-logo-name{font-family:'Quicksand',sans-serif;font-size:20px;font-weight:300;letter-spacing:3px;color:rgba(255,255,255,.7);}
+.footer-text{font-size:13px;color:rgba(255,255,255,0.35);margin-top:6px;}
+.footer-links{display:flex;gap:24px;}
+.footer-link{font-size:13px;color:rgba(255,255,255,0.45);text-decoration:none;transition:color .15s;}
+.footer-link:hover{color:rgba(255,255,255,0.8);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1024px){
+  .news-featured{grid-template-columns:1fr;}
+  .news-side-stack{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .news-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:768px){
+  .navbar{padding:0 24px;}
+  .nav-center{display:none;}
+  .news-section{padding:60px 24px;}
+  .news-grid{grid-template-columns:1fr;}
+  .news-side-stack{grid-template-columns:1fr;}
+  .hero{padding:120px 24px 80px;}
+  .hero-stats{gap:24px;}
+  .section-header{flex-direction:column;align-items:flex-start;gap:12px;}
+  .footer{padding:32px 24px;}
+  .footer-links{flex-wrap:wrap;gap:16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav class="navbar" id="navbar">
+  <a class="nav-logo" href="{% url 'home:home' %}">
+    <div class="nav-logo-mark">
+      <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+        <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="white" stroke-width="1.8" fill="none"/>
+        <circle cx="11" cy="8.5" r="2.5" stroke="white" stroke-width="1.6" fill="none"/>
+      </svg>
+    </div>
+    <span class="nav-logo-name">Pharmony</span>
+  </a>
+
+  <div class="nav-center">
+    <a class="nav-link active" href="{% url 'home:home' %}">Inicio</a>
+    <a class="nav-link" href="#noticias">Noticias</a>
+  </div>
+
+  <div class="nav-actions">
+    <a class="btn-login" href="{% url 'login' %}">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="margin-right:5px"><path d="M6 2.5H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M9 10l3.5-3.5L9 3M12.5 6.5H4.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Iniciar sesión
+    </a>
+    <a class="btn-join" href="{% url 'registro' %}">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+      Unirse
+    </a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="hero" id="inicio">
+  <div class="hero-shapes">
+    <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="g1" cx="40%" cy="30%" r="65%"><stop offset="0%" stop-color="#5ba8ff"/><stop offset="55%" stop-color="#1a5fd4"/><stop offset="100%" stop-color="#062272"/></radialGradient>
+        <radialGradient id="g2" cx="35%" cy="28%" r="60%"><stop offset="0%" stop-color="#7ac0ff"/><stop offset="50%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#051e7a"/></radialGradient>
+        <radialGradient id="g3" cx="45%" cy="32%" r="70%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="45%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1e3a8a"/></radialGradient>
+      </defs>
+      <!-- Top right spiral -->
+      <g opacity=".7" style="animation:s1 8s ease-in-out infinite;transform-origin:1100px 80px">
+        <path d="M1100 -30 C1200 40 1280 160 1220 280 C1170 380 1060 410 980 360 C910 315 900 200 970 130" stroke="url(#g1)" stroke-width="70" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Bottom left curves -->
+      <g opacity=".25" style="animation:s2 10s ease-in-out infinite 1.5s;transform-origin:120px 700px">
+        <path d="M30 580 C140 520 300 520 360 580 C420 640 390 740 310 768 C240 792 120 758 80 690" stroke="url(#g2)" stroke-width="55" fill="none" stroke-linecap="round"/>
+      </g>
+      <!-- Center accent -->
+      <g opacity=".12" style="animation:s3 12s ease-in-out infinite 3s;">
+        <ellipse cx="720" cy="820" rx="300" ry="80" fill="url(#g3)" transform="rotate(-5 720 820)"/>
+      </g>
+      <!-- Small accent top left -->
+      <g opacity=".35" style="animation:s1 9s ease-in-out infinite 2s;transform-origin:180px 180px">
+        <path d="M80 100 C140 60 220 72 240 120 C258 164 224 210 180 210 C138 210 96 174 100 134" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Portal Farmacéutico · Colombia 2026</div>
+    <h1 class="hero-title">
+      Phar<em>mony</em>
+    </h1>
+    <p class="hero-sub">El sistema de gestión farmacéutica que conecta al farmacéutico con su inventario, su equipo y las últimas noticias del sector — todo en un solo lugar.</p>
+    <div class="hero-ctas">
+      <a class="btn-hero-primary" href="#noticias">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M2 4h11M2 7.5h7M2 11h5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Explorar noticias
+      </a>
+      <a class="btn-hero-secondary" href="{% url 'registro' %}">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1v13M1 7.5h13" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+        Crear cuenta gratis
+      </a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">600+</div>
+        <div class="stat-lbl">Medicamentos esenciales</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24/7</div>
+        <div class="stat-lbl">Monitoreo en tiempo real</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-lbl">Seguridad garantizada</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <span>SCROLL</span>
+    <div class="scroll-arrow">
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 7l5 5 5-5" stroke="rgba(255,255,255,0.4)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </div>
+</section>
+
+<!-- ── NEWS SECTION ── -->
+<section class="news-section" id="noticias">
+  <div class="section-header">
+    <div>
+      <div class="section-tag"><span class="section-tag-dot"></span>Noticias del sector</div>
+      <div class="section-title">Últimas noticias farmacéuticas</div>
+      <div class="section-subtitle">Mantente al día con los avances del sector en Colombia y el mundo</div>
+    </div>
+    <a class="see-all" href="#">Ver todas →</a>
+  </div>
+
+  <!-- Noticia Destacada + Lateral -->
+  <div class="news-featured">
+    {% with n=noticia_destacada %}
+    <div class="news-card-featured">
+      <div class="featured-visual">
+        <div class="featured-badge">Destacado</div>
+        {{ n.icono }}
+      </div>
+      <div class="featured-body">
+        <div class="news-meta">
+          <span class="news-cat">{{ n.categoria }}</span>
+          <span class="news-dot"></span>
+          <span class="news-date">{{ n.fecha }}</span>
+          <span class="news-dot"></span>
+          <span class="news-read">{{ n.lectura }}</span>
+        </div>
+        <div class="featured-title">{{ n.titulo }}</div>
+        <div class="featured-excerpt">{{ n.resumen }}</div>
+      </div>
+    </div>
+    {% endwith %}
+
+    <div class="news-side-stack">
+      {% for n in noticias_secundarias|slice:":3" %}
+      <div class="news-card-side">
+        <div class="side-icon">{{ n.icono }}</div>
+        <div class="side-body">
+          <div class="side-cat">{{ n.categoria }}</div>
+          <div class="side-title">{{ n.titulo }}</div>
+          <div class="side-meta">{{ n.fecha }} · {{ n.lectura }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Grid de noticias secundarias -->
+  <div class="news-grid">
+    {% for n in noticias_secundarias|slice:"3:" %}
+    <div class="news-card">
+      <div class="card-visual">{{ n.icono }}</div>
+      <div class="card-body">
+        <div class="card-cat">{{ n.categoria }}</div>
+        <div class="card-title">{{ n.titulo }}</div>
+        <div class="card-excerpt">{{ n.resumen|truncatewords:20 }}</div>
+        <div class="card-meta">
+          <span>{{ n.fecha }}</span>
+          <span>·</span>
+          <span>{{ n.lectura }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div>
+    <div class="footer-logo">
+      <div class="nav-logo-mark" style="background:rgba(255,255,255,0.08);">
+        <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+          <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="rgba(255,255,255,0.6)" stroke-width="1.8" fill="none"/>
+          <circle cx="11" cy="8.5" r="2.5" stroke="rgba(255,255,255,0.6)" stroke-width="1.6" fill="none"/>
+        </svg>
+      </div>
+      <span class="footer-logo-name">Pharmony</span>
+    </div>
+    <div class="footer-text">© 2026 Pharmony. Gestión farmacéutica inteligente.</div>
+  </div>
+  <div class="footer-links">
+    <a class="footer-link" href="{% url 'home:home' %}">Inicio</a>
+    <a class="footer-link" href="#noticias">Noticias</a>
+    <a class="footer-link" href="{% url 'login' %}">Iniciar sesión</a>
+    <a class="footer-link" href="{% url 'registro' %}">Registrarse</a>
+  </div>
+</footer>
+
+<script>
+// Navbar scroll effect
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 40) {
+    navbar.style.background = 'rgba(5,32,96,0.97)';
+    navbar.style.boxShadow = '0 2px 20px rgba(0,0,0,0.3)';
+  } else {
+    navbar.style.background = 'rgba(5,32,96,0.85)';
+    navbar.style.boxShadow = 'none';
+  }
+});
+
+// Animate news cards on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      entry.target.style.opacity = '1';
+      entry.target.style.transform = 'translateY(0)';
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.news-card, .news-card-side, .news-card-featured').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(24px)';
+  el.style.transition = `opacity .5s ease ${i * 0.07}s, transform .5s ease ${i * 0.07}s`;
+  observer.observe(el);
+});
+</script>
+</body>
+</html>
