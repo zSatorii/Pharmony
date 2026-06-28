@@ -114,6 +114,9 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 @never_cache
 @login_required
 def dashboard_inventario(request):
+    if request.user.rol == 'cliente':
+        return redirect('dashboard_cliente')
+
     # Sincronizar desde Firestore a la base de datos local SQLite
     db = get_firestore_db()
     if db is not None:
@@ -177,12 +180,43 @@ def dashboard_inventario(request):
         context
     )
 
+@never_cache
+@login_required
+def dashboard_cliente(request):
+    if request.user.rol in ['farmaceutico', 'admin']:
+        return redirect('dashboard_inventario')
+
+    medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
+    total_medicamentos = medicamentos.count()
+    medicamentos_formula = medicamentos.filter(requiere_formula=True).count()
+    medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
+    laboratorios = medicamentos.values('laboratorio').distinct().count()
+
+    context = {
+        'medicamentos': medicamentos,
+        'total_medicamentos': total_medicamentos,
+        'medicamentos_formula': medicamentos_formula,
+        'medicamentos_libres': medicamentos_libres,
+        'laboratorios': laboratorios,
+        'user_name': f"{request.user.first_name} {request.user.last_name}" if request.user.first_name else request.user.username,
+        'user_initials': (request.user.first_name[0] + request.user.last_name[0]).upper() if request.user.first_name and request.user.last_name else request.user.email[:2].upper()
+    }
+
+    return render(
+        request,
+        'inventario/DashboardCliente.html',
+        context
+    )
+
 Usuario = get_user_model()
 
 @never_cache
 def registrar_usuario(request):
     if request.method == 'GET' and request.user.is_authenticated:
-        return redirect('dashboard_inventario')
+        if request.user.rol == 'cliente':
+            return redirect('dashboard_cliente')
+        else:
+            return redirect('dashboard_inventario')
 
     if request.method == 'POST':
         try:
@@ -373,10 +407,11 @@ def login_face(request):
         if matching_user is not None:
             print(f"¡ Rostro Reconocido ! Ganador: {matching_user.email} con Score de: {best_score}")
             login(request, matching_user)
+            redirect_url = reverse('dashboard_cliente') if matching_user.rol == 'cliente' else reverse('dashboard_inventario')
             return JsonResponse({
                 'success': True,
                 'message': 'Autenticación biométrica exitosa.',
-                'redirect_url': reverse('dashboard_inventario')
+                'redirect_url': redirect_url
             })
         else:
             # Si nadie superó el UMBRAL_ESTRICTO (por ejemplo, tu amigo dando un score de 0.38)
@@ -393,7 +428,10 @@ def login_face(request):
 @never_cache
 def iniciar_sesion(request):
     if request.method == 'GET' and request.user.is_authenticated:
-        return redirect('dashboard_inventario')
+        if request.user.rol == 'cliente':
+            return redirect('dashboard_cliente')
+        else:
+            return redirect('dashboard_inventario')
     
     if request.method == 'POST':
         try:
@@ -409,10 +447,11 @@ def iniciar_sesion(request):
             print(f"DEBUG LOGIN: authenticate retorno {user}")
             if user is not None:
                 login(request, user)
+                redirect_url = reverse('dashboard_cliente') if user.rol == 'cliente' else reverse('dashboard_inventario')
                 return JsonResponse({
                         'success': True,
                         'message': 'Inicio de sesión exitoso.',
-                        'redirect_url': reverse('dashboard_inventario')
+                        'redirect_url': redirect_url
                     })
             else:
                 return JsonResponse({'success': False, 'error': 'Credenciales inválidas.'}, status=401)

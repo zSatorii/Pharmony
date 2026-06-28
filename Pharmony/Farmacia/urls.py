@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (
     MedicamentoViewSet,
-    dashboard_inventario
+    dashboard_inventario,
+    dashboard_cliente
 )
 
 router = DefaultRouter()
@@ -20,6 +21,12 @@ urlpatterns = [
         'dashboard-inventario/',
         dashboard_inventario,
         name='dashboard_inventario'
+    ),
+
+    path(
+        'dashboard-cliente/',
+        dashboard_cliente,
+        name='dashboard_cliente'
     ),
 
 ]
