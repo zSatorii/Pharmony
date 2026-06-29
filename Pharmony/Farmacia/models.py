@@ -39,6 +39,15 @@ class Usuario(AbstractUser):
     ]
     rol = models.CharField(max_length=20, choices=ROLES, default='cliente')
 
+    eps = models.ForeignKey(
+        'epsinventario.Eps',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='personal',
+        verbose_name="EPS asignada"
+    )
+
     def __str__(self):
         return f"{self.username} - {self.get_rol_display()}"
 

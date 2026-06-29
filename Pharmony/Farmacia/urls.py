@@ -3,7 +3,6 @@ from rest_framework.routers import DefaultRouter
 from . import views
 
 urlpatterns = [
-    path('login/', views.iniciar_sesion, name='login'),
 
     path('logout/', views.cerrar_sesion, name='cerrar_sesion'),
     path('inventario/', views.dashboard_inventario, name='dashboard_inventario'),

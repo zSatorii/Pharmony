@@ -187,6 +187,7 @@ def dashboard_inventario(request):
     return render(request, 'inventario/DashboardInventario.html', context)
 
 
+@never_cache
 @login_required
 def crear_medicamento(request):
     if request.method == 'POST':
@@ -241,7 +242,7 @@ def crear_medicamento(request):
     return HttpResponseNotAllowed(['POST'])
 
 
-
+@never_cache
 @login_required
 def editar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
@@ -286,7 +287,7 @@ def editar_medicamento(request, pk):
     return HttpResponseNotAllowed(['POST'])
 
 
-
+@never_cache
 @login_required
 def eliminar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
@@ -452,8 +453,8 @@ def registrar_usuario(request):
 @never_cache
 def iniciar_sesion(request):
     if request.method == 'GET' and request.user.is_authenticated:
-        return redirect('dashboard_inventario')
-    
+        return redirect(_redirect_por_rol(request.user))
+
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -463,16 +464,15 @@ def iniciar_sesion(request):
             if not email or not password:
                 return JsonResponse({'success': False, 'error': 'El correo y la contraseña son requeridos.'}, status=400)
 
-            print(f"DEBUG LOGIN: Intentando autenticar email='{email}', largo password={len(password)}")
             user = authenticate(request, username=email, password=password)
-            print(f"DEBUG LOGIN: authenticate retorno {user}")
             if user is not None:
                 login(request, user)
                 return JsonResponse({
                         'success': True,
                         'message': 'Inicio de sesión exitoso.',
-                        'redirect_url': reverse('dashboard_inventario')
+                        'redirect_url': _redirect_por_rol(user)
                     })
+
             # 1. Autenticar con la API REST de Firebase Auth
             api_key = os.getenv('FIREBASE_WEB_API_KEY')
             if not api_key:
@@ -491,12 +491,10 @@ def iniciar_sesion(request):
             if fb_response.status_code == 200:
                 fb_uid = fb_data.get('localId')
 
-                # 2. Buscar o sincronizar/crear el usuario localmente
                 try:
                     user = Usuario.objects.get(firebase_uid=fb_uid)
                 except Usuario.DoesNotExist:
                     try:
-                        # Si existe en Firebase Auth pero no en Django local, obtener detalles y crear local
                         fb_user = firebase_auth.get_user(fb_uid)
                         display_name = fb_user.display_name or ""
                         parts = display_name.split(' ', 1)
@@ -513,7 +511,6 @@ def iniciar_sesion(request):
                             firebase_uid=fb_uid
                         )
 
-                        # Asegurarse de que esté también en Firestore
                         try:
                             db = firestore.client()
                             user_doc = db.collection('usuarios').document(fb_uid).get()
@@ -532,15 +529,18 @@ def iniciar_sesion(request):
 
                     except Exception as sync_err:
                         return JsonResponse({'success': False, 'error': f'Error al sincronizar usuario: {str(sync_err)}'}, status=500)
-                    
+
                 login(request, user)
-                # 3. Generar token JWT local y establecer cookie
                 token = generate_jwt(user)
-                response = JsonResponse({'success': True, 'token': token, 'message': 'Inicio de sesión exitoso.'})
+                response = JsonResponse({
+                    'success': True,
+                    'token': token,
+                    'message': 'Inicio de sesión exitoso.',
+                    'redirect_url': _redirect_por_rol(user)
+                })
                 response.set_cookie('jwt_token', token, max_age=86400, httponly=True, samesite='Lax')
                 return response
             else:
-                # Manejar errores de Firebase Auth REST API
                 fb_error = fb_data.get('error', {})
                 error_code = fb_error.get('message', '')
                 if error_code in ['INVALID_LOGIN_CREDENTIALS', 'EMAIL_NOT_FOUND', 'INVALID_PASSWORD']:
@@ -558,8 +558,15 @@ def iniciar_sesion(request):
 
     user = get_user_from_jwt(request)
     if user is not None:
-        return redirect('dashboard_inventario')
+        return redirect(_redirect_por_rol(user))
     return render(request, 'Farmacia/PharmonyLogin.html')
+
+
+def _redirect_por_rol(user):
+    """Centraliza a dónde va cada rol después de loguearse, sin tocar el flujo de clientes."""
+    if user.rol in ('admin', 'farmaceutico'):
+        return reverse('dashboard_eps')
+    return reverse('buscar_medicamentos')  # clientes
 
 @never_cache
 @require_GET

@@ -105,8 +105,15 @@
 
         <div class="card">
             <h2 style="font-size:17px; font-weight:600; color:var(--bd); margin-bottom:16px;">Agregar medicamento al stock</h2>
-            <form class="inline-form" method="post" action="{% url 'crear_inventario' sede.id %}">
+
+            <div style="display:flex; gap:10px; margin-bottom:16px;">
+                <button type="button" class="btn-primary" style="background:var(--bm);" onclick="toggleModo('existente')">Medicamento ya existente</button>
+                <button type="button" class="btn-primary" style="background:var(--g400);" onclick="toggleModo('nuevo')">+ Crear medicamento nuevo</button>
+            </div>
+
+            <form id="form-existente" class="inline-form" method="post" action="{% url 'crear_inventario' sede.id %}">
                 {% csrf_token %}
+                <input type="hidden" name="modo" value="existente">
                 <select name="medicamento_id" required>
                     <option value="">-- Selecciona medicamento --</option>
                     {% for m in medicamentos_disponibles %}
@@ -119,7 +126,32 @@
                 <input type="date" name="fecha_vencimiento">
                 <button type="submit" class="btn-primary">+ Agregar al inventario</button>
             </form>
+
+            <form id="form-nuevo" class="inline-form" method="post" action="{% url 'crear_inventario' sede.id %}" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="modo" value="nuevo">
+                <input type="text" name="nombre_comercial" placeholder="Nombre comercial" required>
+                <input type="text" name="nombre_generico" placeholder="Nombre genérico" required>
+                <input type="text" name="codigo_cum" placeholder="Código CUM" required>
+                <input type="text" name="laboratorio" placeholder="Laboratorio">
+                <input type="text" name="concentracion" placeholder="Concentración">
+                <input type="text" name="forma_farmaceutica" placeholder="Forma farmacéutica">
+                <input type="text" name="lote" placeholder="Lote">
+                <input type="number" name="cantidad_disponible" placeholder="Cantidad disponible" min="0" required>
+                <input type="number" name="cantidad_minima" placeholder="Cantidad mínima" min="0">
+                <input type="date" name="fecha_vencimiento">
+                <label style="grid-column: span 2; font-size:13px;"><input type="checkbox" name="requiere_formula" style="width:auto; margin-right:6px;"> Requiere fórmula médica</label>
+                <button type="submit" class="btn-primary">+ Crear y agregar al inventario</button>
+            </form>
         </div>
+
+        <script>
+        function toggleModo(modo) {
+            document.getElementById('form-existente').style.display = modo === 'existente' ? 'grid' : 'none';
+            document.getElementById('form-nuevo').style.display = modo === 'nuevo' ? 'grid' : 'none';
+        }
+        </script>
+
     </div>
 </body>
 </html>

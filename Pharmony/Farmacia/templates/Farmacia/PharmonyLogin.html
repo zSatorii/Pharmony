@@ -519,7 +519,7 @@ async function doLogin(){
   if(!e||!e.includes('@')){setErr('Ingresa un correo electrónico válido.');return;}
   if(p.length<4){setErr('Ingresa tu contraseña.');return;}
   setErr('');
-  
+
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   try {
       const response = await fetch('/login/', {
@@ -532,10 +532,11 @@ async function doLogin(){
       });
       const result = await response.json();
       if(result.success){
-          localStorage.setItem('jwt_token', result.token);
-          // Guardar en cookie para que esté disponible en las peticiones del servidor
-          document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
-          showLoginSuccess();
+          if (result.token) {
+              localStorage.setItem('jwt_token', result.token);
+              document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
+          }
+          showLoginSuccess(result.redirect_url || '/');
       } else {
           setErr(result.error || 'Error al iniciar sesión.');
       }
@@ -544,54 +545,17 @@ async function doLogin(){
   }
 }
 
-function selectBio(type){
-  bioSelected=type;
-  document.getElementById('cardF').className='bio-card'+(type==='face'?' selected':'');
-  document.getElementById('bioErr').textContent='';
-}
-
-function startScan(){
-  if(!bioSelected){document.getElementById('bioErr').textContent='⚠ Selecciona un método biométrico para continuar.';return;}
-  document.getElementById('bioChoice').style.display='none';
-  const ss=document.getElementById('scanState');
-  ss.className='scan-state visible';
-  const em=document.getElementById('scanEmoji');
-  const lb=document.getElementById('scanLabel');
-  const ti=document.getElementById('scanTitle');
-  em.textContent='😊'; ti.textContent='Face ID'; lb.textContent='Mira fijamente a la cámara...';
-  setTimeout(()=>{ lb.textContent='Analizando tu rostro...'; },1300);
-  setTimeout(()=>{
-    ss.className='scan-state';
-    document.getElementById('successState').className='success-state visible';
-    setTimeout(()=>showLoginSuccess('/api/dashboard-inventario/'), 1400);
-  },2900);
-}
-
-function cancelScan(){
-  document.getElementById('scanState').className='scan-state';
-  document.getElementById('bioChoice').style.display='';
-}
-
-function resetBio(){
-  bioSelected=null;
-  document.getElementById('bioChoice').style.display='';
-  document.getElementById('scanState').className='scan-state';
-  document.getElementById('successState').className='success-state';
-  document.getElementById('cardF').className='bio-card';
-  document.getElementById('bioErr').textContent='';
-}
-
-function showLoginSuccess(){
+function showLoginSuccess(redirectUrl){
   document.querySelector('.right').innerHTML=`
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--grnp);border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:36px;">✓</div>
       <div style="font-size:20px;font-weight:500;color:var(--g800);">¡Acceso concedido!</div>
-      <div style="font-size:14px;color:var(--g400);line-height:1.6;">Cargando el panel farmacéutico...</div>
+      <div style="font-size:14px;color:var(--g400);line-height:1.6;">Cargando tu panel...</div>
       <div style="display:flex;gap:5px;margin-top:6px;">${[1,2,3].map(i=>`<div style="width:7px;height:7px;border-radius:50%;background:var(--bm);animation:pulse ${.6+i*.2}s ease-in-out infinite alternate;"></div>`).join('')}</div>
     </div>
     <style>@keyframes pop{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}@keyframes pulse{from{opacity:.3;transform:scale(.8);}to{opacity:1;transform:scale(1);}}</style>
   `;
-  setTimeout(()=>window.location.href = '/api/inventario', 2000);
+  setTimeout(()=>window.location.href = redirectUrl, 2000);
 }
 </script>
 </body>
