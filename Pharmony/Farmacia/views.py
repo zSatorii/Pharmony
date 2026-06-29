@@ -501,6 +501,23 @@ def iniciar_sesion(request):
                         first_name = parts[0] if len(parts) > 0 else ""
                         last_name = parts[1] if len(parts) > 1 else ""
 
+                        # Buscamos en Firestore si esta cuenta ya tiene un rol/EPS asignado
+                        # (por ejemplo, una cuenta EPS creada por un admin desde otra máquina)
+                        rol_asignado = 'cliente'
+                        eps_obj = None
+                        try:
+                            db = firestore.client()
+                            user_doc = db.collection('usuarios').document(fb_uid).get()
+                            if user_doc.exists:
+                                doc_data = user_doc.to_dict()
+                                rol_asignado = doc_data.get('rol', 'cliente')
+                                eps_id = doc_data.get('eps_id')
+                                if eps_id:
+                                    from epsinventario.models import Eps
+                                    eps_obj = Eps.objects.filter(id=eps_id).first()
+                        except Exception as lookup_err:
+                            print(f"Error al consultar rol en Firestore: {lookup_err}")
+
                         user = Usuario.objects.create_user(
                             username=email,
                             email=email,
@@ -508,22 +525,22 @@ def iniciar_sesion(request):
                             first_name=first_name,
                             last_name=last_name,
                             telefono=fb_user.phone_number or "",
-                            firebase_uid=fb_uid
+                            firebase_uid=fb_uid,
+                            rol=rol_asignado,
+                            eps=eps_obj,
                         )
 
                         try:
                             db = firestore.client()
-                            user_doc = db.collection('usuarios').document(fb_uid).get()
-                            if not user_doc.exists:
-                                db.collection('usuarios').document(fb_uid).set({
-                                    'nombre': first_name,
-                                    'apellido': last_name,
-                                    'email': email,
-                                    'telefono': fb_user.phone_number or "",
-                                    'rol': 'cliente',
-                                    'created_at': firestore.SERVER_TIMESTAMP,
-                                    'face_registered': False
-                                })
+                            db.collection('usuarios').document(fb_uid).set({
+                                'nombre': first_name,
+                                'apellido': last_name,
+                                'email': email,
+                                'telefono': fb_user.phone_number or "",
+                                'rol': rol_asignado,
+                                'eps_id': eps_obj.id if eps_obj else None,
+                                'face_registered': False
+                            }, merge=True)
                         except Exception as firestore_err:
                             print(f"Error al sincronizar Firestore en login: {firestore_err}")
 
@@ -564,9 +581,9 @@ def iniciar_sesion(request):
 
 def _redirect_por_rol(user):
     """Centraliza a dónde va cada rol después de loguearse, sin tocar el flujo de clientes."""
-    if user.rol in ('admin', 'farmaceutico'):
+    if user.rol in ('admin', 'eps'):
         return reverse('dashboard_eps')
-    return reverse('buscar_medicamentos')  # clientes
+    return reverse('buscar_medicamentos')  
 
 @never_cache
 @require_GET

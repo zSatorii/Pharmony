@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseNotAllowed, HttpResponseForbidden
 from django.views.decorators.cache import never_cache
+from django.contrib import messages
 
 from .models import Eps, Sede, InventarioSede
 from .serializers import EpsSerializer, SedeSerializer, InventarioSedeSerializer
@@ -16,18 +17,13 @@ from Farmacia.views import get_firestore_db
 # Helpers de permisos
 # ==========================
 def es_personal(user):
-    return user.is_authenticated and user.rol in ('admin', 'farmaceutico')
+    """admin O eps: pueden entrar al dashboard y gestionar sedes/inventario."""
+    return user.is_authenticated and user.rol in ('admin', 'eps')
 
 
 def es_admin(user):
+    """SOLO admin: gestión de la entidad Eps en sí (alta/baja/edición de la EPS)."""
     return user.is_authenticated and user.rol == 'admin'
-
-
-def eps_del_usuario(user):
-    """Devuelve la Eps asignada al usuario, o None si es admin o no tiene EPS asignada."""
-    if user.rol == 'admin':
-        return None  # admin no está restringido a una sola EPS
-    return user.eps
 
 
 def puede_ver_sede(user, sede):
@@ -97,7 +93,8 @@ def _sync_inventario_firestore(instance):
             "eps_id": instance.sede.eps_id, "eps_nombre": instance.sede.eps.nombre,
             "ciudad": instance.sede.ciudad, "medicamento_id": instance.medicamento_id,
             "medicamento_nombre": instance.medicamento.nombre_comercial,
-            "cantidad_disponible": instance.cantidad_disponible, "cantidad_minima": instance.cantidad_minima,
+            "cantidad_disponible": instance.cantidad_disponible,  # <-- CORREGIDO: cantidad_disponible
+            "cantidad_minima": instance.cantidad_minima,          # <-- CORREGIDO: cantidad_minima
             "lote": instance.lote,
             "fecha_vencimiento": str(instance.fecha_vencimiento) if instance.fecha_vencimiento else None,
             "estado_stock": instance.estado_stock,
@@ -118,7 +115,7 @@ def _eliminar_doc_firestore(coleccion, doc_id):
 
 
 # ==========================
-# API (CRUD vía DRF) — respeta el mismo aislamiento por EPS
+# API (DRF) — mismo aislamiento
 # ==========================
 class EpsViewSet(viewsets.ModelViewSet):
     serializer_class = EpsSerializer
@@ -131,14 +128,6 @@ class EpsViewSet(viewsets.ModelViewSet):
         if user.eps_id:
             return Eps.objects.filter(id=user.eps_id)
         return Eps.objects.none()
-
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        _sync_eps_firestore(instance)
-
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        _sync_eps_firestore(instance)
 
 
 class SedeViewSet(viewsets.ModelViewSet):
@@ -159,8 +148,12 @@ class SedeViewSet(viewsets.ModelViewSet):
         return qs
 
     def perform_create(self, serializer):
-        instance = serializer.save()
-        _sync_sede_firestore(instance)
+        user = self.request.user
+        if user.rol != 'admin':
+            serializer.save(eps=user.eps)
+        else:
+            serializer.save()
+        _sync_sede_firestore(serializer.instance)
 
     def perform_update(self, serializer):
         instance = serializer.save()
@@ -203,7 +196,7 @@ class InventarioSedeViewSet(viewsets.ModelViewSet):
 # ==========================
 @never_cache
 @login_required
-@user_passes_test(es_personal, login_url='login')
+@user_passes_test(es_personal, login_url='login')   # admin O eps
 def dashboard_eps(request):
     user = request.user
     is_admin = user.rol == 'admin'
@@ -213,14 +206,9 @@ def dashboard_eps(request):
         sedes = Sede.objects.select_related('eps').all().order_by('ciudad', 'nombre')
     else:
         if not user.eps_id:
-            # Cuenta farmacéutico sin EPS asignada: avisamos y no mostramos nada más
             return render(request, 'epsinventario/DashboardEps.html', {
-                'is_admin': False,
-                'sin_eps': True,
-                'eps_list': [],
-                'sedes': [],
-                'ciudades': [],
-                'mi_eps': None,
+                'is_admin': False, 'sin_eps': True,
+                'eps_list': [], 'sedes': [], 'ciudades': [], 'mi_eps': None,
             })
         eps_list = Eps.objects.filter(id=user.eps_id)
         sedes = Sede.objects.select_related('eps').filter(eps_id=user.eps_id).order_by('ciudad', 'nombre')
@@ -240,7 +228,7 @@ def dashboard_eps(request):
 
 @never_cache
 @login_required
-@user_passes_test(es_personal, login_url='login')
+@user_passes_test(es_personal, login_url='login')   # admin O eps
 def inventario_por_sede(request, sede_id):
     sede = get_object_or_404(Sede, pk=sede_id)
     if not puede_ver_sede(request.user, sede):
@@ -277,24 +265,10 @@ def buscar_medicamentos(request):
     return render(request, 'epsinventario/BuscarMedicamentos.html', {'ciudades': ciudades})
 
 
+# ---- EPS (la entidad) — SOLO admin ----
 @never_cache
 @login_required
-@user_passes_test(es_admin, login_url='login')   # SOLO admin crea EPS nuevas
-def crear_eps(request):
-    if request.method == 'POST':
-        eps = Eps.objects.create(
-            nombre=request.POST.get('nombre'), nit=request.POST.get('nit'),
-            direccion=request.POST.get('direccion'), ciudad=request.POST.get('ciudad'),
-            telefono=request.POST.get('telefono'), email=request.POST.get('email'),
-        )
-        _sync_eps_firestore(eps)
-        return redirect('dashboard_eps')
-    return HttpResponseNotAllowed(['POST'])
-
-
-@never_cache
-@login_required
-@user_passes_test(es_admin, login_url='login')   # SOLO admin edita EPS
+@user_passes_test(es_admin, login_url='login')
 def editar_eps(request, pk):
     eps = get_object_or_404(Eps, pk=pk)
     if request.method == 'POST':
@@ -313,7 +287,7 @@ def editar_eps(request, pk):
 
 @never_cache
 @login_required
-@user_passes_test(es_admin, login_url='login')   # SOLO admin elimina EPS
+@user_passes_test(es_admin, login_url='login')
 def eliminar_eps(request, pk):
     eps = get_object_or_404(Eps, pk=pk)
     if request.method == 'POST':
@@ -324,6 +298,7 @@ def eliminar_eps(request, pk):
     return HttpResponseNotAllowed(['POST'])
 
 
+# ---- SEDE — admin O eps ----
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -335,7 +310,7 @@ def crear_sede(request):
         else:
             if not user.eps_id:
                 return HttpResponseForbidden("Tu cuenta no tiene una EPS asignada.")
-            eps = user.eps  # un farmacéutico SOLO puede crear sedes de su propia EPS
+            eps = user.eps
 
         sede = Sede.objects.create(
             eps=eps, nombre=request.POST.get('nombre'), direccion=request.POST.get('direccion'),
@@ -386,6 +361,7 @@ def eliminar_sede(request, pk):
     return HttpResponseNotAllowed(['POST'])
 
 
+# ---- INVENTARIO / MEDICAMENTOS — admin O eps ----
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -398,8 +374,20 @@ def crear_inventario(request, sede_id):
         modo = request.POST.get('modo', 'existente')
 
         if modo == 'nuevo':
+            codigo_cum = request.POST.get('codigo_cum', '').strip()
+            
+            # --- VALIDACIÓN DE CÓDIGO CUM ---
+            if Medicamento.objects.filter(codigo_cum=codigo_cum).exists():
+                messages.error(
+                    request, 
+                    f"El medicamento con código CUM '{codigo_cum}' ya existe en el sistema global. "
+                    f"Por favor, búscalo y selecciónalo desde la opción de 'Medicamento Existente'."
+                )
+                return redirect('inventario_por_sede', sede_id=sede.id)
+            # ---------------------------------
+
             medicamento = Medicamento.objects.create(
-                codigo_cum=request.POST.get('codigo_cum', ''),
+                codigo_cum=codigo_cum,
                 nombre_generico=request.POST.get('nombre_generico', ''),
                 nombre_comercial=request.POST.get('nombre_comercial', ''),
                 laboratorio=request.POST.get('laboratorio', ''),
@@ -414,15 +402,20 @@ def crear_inventario(request, sede_id):
         else:
             medicamento = get_object_or_404(Medicamento, pk=request.POST.get('medicamento_id'))
 
+        # --- CORRECCIÓN: Usando nombres en español del modelo local ---
         inv = InventarioSede.objects.create(
-            sede=sede, medicamento=medicamento,
+            sede=sede, 
+            medicamento=medicamento,
             cantidad_disponible=request.POST.get('cantidad_disponible') or 0,
             cantidad_minima=request.POST.get('cantidad_minima') or 10,
             lote=request.POST.get('lote', ''),
             fecha_vencimiento=request.POST.get('fecha_vencimiento') or None,
         )
         _sync_inventario_firestore(inv)
+        
+        messages.success(request, "Medicamento e inventario agregados correctamente.")
         return redirect('inventario_por_sede', sede_id=sede.id)
+        
     return HttpResponseNotAllowed(['POST'])
 
 

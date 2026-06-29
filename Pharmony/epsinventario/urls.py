@@ -11,9 +11,11 @@ urlpatterns = [
     path('api/', include(router.urls)),
 
     path('eps/dashboard/', views.dashboard_eps, name='dashboard_eps'),
-    path('eps/crear/', views.crear_eps, name='crear_eps'),
+
+    path('eps/dashboard/', views.dashboard_eps, name='dashboard_eps'),
     path('eps/<int:pk>/editar/', views.editar_eps, name='editar_eps'),
     path('eps/<int:pk>/eliminar/', views.eliminar_eps, name='eliminar_eps'),
+
 
     path('sedes/crear/', views.crear_sede, name='crear_sede'),
     path('sedes/<int:pk>/editar/', views.editar_sede, name='editar_sede'),
