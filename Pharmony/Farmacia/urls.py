@@ -11,3 +11,35 @@ urlpatterns = [
     path('inventario/eliminar/<int:pk>/', views.eliminar_medicamento, name='eliminar_medicamento'),
     
 ]
+
+from .views import (
+    MedicamentoViewSet,
+    dashboard_inventario,
+    dashboard_cliente
+)
+
+router = DefaultRouter()
+
+router.register(
+    r'medicamentos',
+    MedicamentoViewSet,
+    basename='medicamentos'
+)
+
+urlpatterns = [
+
+    path(
+        'dashboard-inventario/',
+        dashboard_inventario,
+        name='dashboard_inventario'
+    ),
+
+    path(
+        'dashboard-cliente/',
+        dashboard_cliente,
+        name='dashboard_cliente'
+    ),
+
+]
+
+urlpatterns += router.urls
