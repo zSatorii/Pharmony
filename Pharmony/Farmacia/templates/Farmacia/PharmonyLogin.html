@@ -284,6 +284,40 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 }
 .form-footer svg{opacity:.4;}
 .form-footer span{font-size:11.5px;color:var(--g300);}
+
+/* Corner guides and overlays for Camera */
+.cam-area{
+  position:relative;border-radius:14px;overflow:hidden;
+  background:#0f172a;border:2px solid var(--g200);
+  margin-bottom:16px;
+  aspect-ratio:4/3;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+}
+#videoEl{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+.cam-idle{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:2;}
+.cam-idle-icon{font-size:48px;opacity:.6;}
+.cam-idle-text{font-size:13px;color:rgba(255,255,255,0.5);text-align:center;}
+
+.face-frame{
+  position:absolute;inset:0;z-index:3;display:none;
+  align-items:center;justify-content:center;
+}
+.face-oval{
+  width:160px;height:200px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,0.5);
+  position:relative;
+  box-shadow:0 0 0 2000px rgba(0,0,0,0.35);
+}
+.face-oval::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
+.face-oval::after{content:'';position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
+.scan-line{
+  position:absolute;left:10%;right:10%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--bs),transparent);
+  border-radius:2px;
+  animation:scanDown 2.2s ease-in-out infinite;
+}
+@keyframes scanDown{0%{top:10%;}100%{top:88%;}}
 </style>
 </head>
 <body>
@@ -450,15 +484,34 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         </div>
 
         <!-- Scanning -->
-        <div class="scan-state" id="scanState">
-          <div class="scan-ring-wrap">
-            <div class="scan-ring-outer"></div>
-            <div class="scan-emoji" id="scanEmoji">🖐</div>
+        <div class="scan-state" id="scanState" style="width:100%; display:none; flex-direction:column; align-items:center; gap:16px;">
+          <!-- Camera Box -->
+          <div class="cam-area" id="camArea" style="width:100%; max-width:320px; aspect-ratio:4/3; position:relative; border-radius:14px; overflow:hidden; background:#0f172a; border:2px solid var(--g200); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; margin-bottom:8px;">
+            <video id="videoEl" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;"></video>
+            <div class="cam-idle" id="camIdle" style="display:flex; flex-direction:column; align-items:center; gap:10px; position:relative; z-index:2;">
+              <div class="cam-idle-icon" style="font-size:48px; opacity:.6;">📷</div>
+              <div class="cam-idle-text" style="font-size:13px; color:rgba(255,255,255,0.5); text-align:center;">Inicializando cámara...</div>
+            </div>
+            <!-- Face overlay scan frame -->
+            <div class="face-frame" id="faceFrame" style="position:absolute; inset:0; z-index:3; display:none; align-items:center; justify-content:center;">
+              <div class="face-oval" style="width:160px; height:200px; border-radius:50%; border:2.5px solid rgba(255,255,255,0.5); position:relative; box-shadow:0 0 0 2000px rgba(0,0,0,0.35);">
+                <div class="scan-line" id="scanLine" style="position:absolute; left:10%; right:10%; height:2px; background:linear-gradient(90deg,transparent,var(--bs),transparent); border-radius:2px; animation:scanDown 2.2s ease-in-out infinite;"></div>
+              </div>
+            </div>
           </div>
-          <div style="text-align:center;">
+          
+          <div style="text-align:center; width:100%;">
             <div style="font-size:15px;font-weight:500;color:var(--g800);margin-bottom:5px;" id="scanTitle">Huella dactilar</div>
             <div class="scan-label" id="scanLabel">Coloca tu dedo en el sensor...</div>
           </div>
+
+          <!-- Cam controls for capture -->
+          <div class="cam-controls" id="camControls" style="display:none; gap:10px; width:100%;">
+            <button class="btn-cta" id="btnCapture" onclick="captureAndVerify()" style="height:42px; font-size:13.5px; box-shadow:none;">
+              Capturar y Iniciar Sesión
+            </button>
+          </div>
+
           <button class="scan-cancel" onclick="cancelScan()">Cancelar verificación</button>
         </div>
 
@@ -485,7 +538,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 </div>
 
 <script>
-let pwVisible=false, bioSelected=null;
+let pwVisible=false, bioSelected=null, camStream=null;
 
 function togglePw(){
   pwVisible=!pwVisible;
@@ -543,6 +596,129 @@ async function doLogin(){
   } catch (error) {
       setErr('Error de conexión con el servidor.');
   }
+}
+
+function selectBio(type){
+  bioSelected=type;
+  document.getElementById('cardF').className='bio-card'+(type==='face'?' selected':'');
+  document.getElementById('bioErr').textContent='';
+}
+
+async function startScan(){
+  if(!bioSelected){document.getElementById('bioErr').textContent='⚠ Selecciona un método biométrico para continuar.';return;}
+  document.getElementById('bioChoice').style.display='none';
+  const ss=document.getElementById('scanState');
+  ss.style.display='flex';
+  
+  const lb=document.getElementById('scanLabel');
+  const ti=document.getElementById('scanTitle');
+  ti.textContent='Face ID'; 
+  lb.textContent='Iniciando cámara...';
+  document.getElementById('bioErr').textContent='';
+  
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720,facingMode:'user'}});
+    const video = document.getElementById('videoEl');
+    video.srcObject = camStream;
+    video.style.display = 'block';
+    document.getElementById('camIdle').style.display = 'none';
+    document.getElementById('faceFrame').style.display = 'flex';
+    document.getElementById('camControls').style.display = 'flex';
+    lb.textContent = 'Posiciona tu rostro en el óvalo y presiona "Capturar y Iniciar Sesión"';
+  } catch(e) {
+    console.error(e);
+    lb.textContent = 'Error al acceder a la cámara.';
+    document.getElementById('bioErr').textContent = '⚠ No se pudo acceder a la cámara. Verifica los permisos del navegador.';
+    cancelScan();
+  }
+}
+
+async function captureAndVerify(){
+  if(!camStream) return;
+  
+  const video = document.getElementById('videoEl');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  const base64Img = canvas.toDataURL('image/jpeg', 0.9);
+  
+  const lb=document.getElementById('scanLabel');
+  lb.textContent='Analizando datos biométricos...';
+  document.getElementById('btnCapture').disabled = true;
+  document.getElementById('btnCapture').style.opacity = '.5';
+  document.getElementById('scanLine').style.animationDuration = '0.7s';
+  document.getElementById('bioErr').textContent = '';
+  
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  try {
+    const response = await fetch('/api/login-face/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({ image: base64Img })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      stopCam();
+      document.getElementById('scanState').style.display='none';
+      document.getElementById('successState').className='success-state visible';
+      setTimeout(() => showLoginSuccess(result.redirect_url), 1000);
+    } else {
+      lb.textContent = 'Autenticación fallida.';
+      document.getElementById('bioErr').textContent = '⚠ ' + (result.error || 'Rostro no reconocido.');
+      document.getElementById('btnCapture').disabled = false;
+      document.getElementById('btnCapture').style.opacity = '1';
+      document.getElementById('scanLine').style.animationDuration='2.2s';
+    }
+  } catch (error) {
+    console.error(error);
+    lb.textContent = 'Error de conexión.';
+    document.getElementById('bioErr').textContent = '⚠ Error de red. Inténtalo de nuevo.';
+    document.getElementById('btnCapture').disabled = false;
+    document.getElementById('btnCapture').style.opacity = '1';
+    document.getElementById('scanLine').style.animationDuration='2.2s';
+  }
+}
+
+function stopCam(){
+  if(camStream){
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream=null;
+  }
+  const video=document.getElementById('videoEl');
+  if(video) video.srcObject=null;
+}
+
+function cancelScan(){
+  stopCam();
+  document.getElementById('scanState').style.display='none';
+  document.getElementById('bioChoice').style.display='';
+  document.getElementById('camIdle').style.display='flex';
+  document.getElementById('videoEl').style.display='none';
+  document.getElementById('faceFrame').style.display='none';
+  document.getElementById('camControls').style.display='none';
+}
+
+function resetBio(){
+  stopCam();
+  bioSelected=null;
+  document.getElementById('bioChoice').style.display='';
+  document.getElementById('scanState').style.display='none';
+  document.getElementById('successState').className='success-state';
+  document.getElementById('cardF').className='bio-card';
+  document.getElementById('bioErr').textContent='';
+  document.getElementById('camIdle').style.display='flex';
+  document.getElementById('videoEl').style.display='none';
+  document.getElementById('faceFrame').style.display='none';
+  document.getElementById('camControls').style.display='none';
 }
 
 function showLoginSuccess(redirectUrl){

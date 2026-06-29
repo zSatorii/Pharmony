@@ -458,7 +458,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 </div>
 
 <script>
-let pwShow={}, faceRegistered=false, camStream=null;
+let pwShow={}, faceRegistered=false, camStream=null, capturedFaceBase64=null;
 
 // ── PW TOGGLE ──
 function tpw(id,btn){
@@ -531,7 +531,8 @@ async function goStep3(){
         email: email,
         password: pw,
         telefono: tel,
-        face_registered: faceRegistered
+        face_registered: faceRegistered,
+        face_image: capturedFaceBase64
       })
     });
     
@@ -587,26 +588,62 @@ async function activateCam(){
   }
 }
 
-function captureface(){
+async function captureface(){
   if(!camStream) return;
-  // Simulate face capture + processing
+  
+  const video = document.getElementById('videoEl');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  capturedFaceBase64 = canvas.toDataURL('image/jpeg', 0.9);
+  
   setCamStatus('Analizando rostro...', false);
-  document.getElementById('btnCapture').disabled=true;
-  document.getElementById('scanLine').style.animationDuration='0.7s';
-
-  setTimeout(()=>{
-    setCamStatus('Verificando datos biométricos...', false);
-  }, 900);
-
-  setTimeout(()=>{
-    stopCam();
-    document.getElementById('faceFrame').classList.remove('visible');
-    document.getElementById('camArea').style.display='none';
-    document.getElementById('camStatus').style.display='none';
-    document.getElementById('camControls').style.display='none';
-    document.getElementById('faceSuccess').classList.add('visible');
-    faceRegistered=true;
-  }, 2200);
+  document.getElementById('btnCapture').disabled = true;
+  document.getElementById('scanLine').style.animationDuration = '0.7s';
+  
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  try {
+    const response = await fetch('/api/validar-rostro/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify({ image: capturedFaceBase64 })
+    });
+    const result = await response.json();
+    
+    if (result.success) {
+      setTimeout(() => {
+        stopCam();
+        document.getElementById('faceFrame').classList.remove('visible');
+        document.getElementById('camArea').style.display = 'none';
+        document.getElementById('camStatus').style.display = 'none';
+        document.getElementById('camControls').style.display = 'none';
+        document.getElementById('faceSuccess').classList.add('visible');
+        faceRegistered = true;
+        document.getElementById('err2').textContent = '';
+      }, 1000);
+    } else {
+      setCamStatus('Posiciona tu rostro dentro del óvalo y haz clic en "Capturar"', false);
+      document.getElementById('btnCapture').disabled = false;
+      document.getElementById('scanLine').style.animationDuration = '2.2s';
+      document.getElementById('err2').textContent = '⚠ ' + (result.error || 'Error al validar el rostro.');
+      capturedFaceBase64 = null;
+      faceRegistered = false;
+    }
+  } catch (error) {
+    setCamStatus('Posiciona tu rostro dentro del óvalo y haz clic en "Capturar"', false);
+    document.getElementById('btnCapture').disabled = false;
+    document.getElementById('scanLine').style.animationDuration = '2.2s';
+    document.getElementById('err2').textContent = '⚠ Error de red. Verifica tu conexión.';
+    capturedFaceBase64 = null;
+    faceRegistered = false;
+  }
 }
 
 function stopCam(){
