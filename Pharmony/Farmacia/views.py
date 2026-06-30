@@ -138,8 +138,8 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
 @login_required
 @never_cache
 def dashboard_inventario(request):
-    if request.user.rol == 'cliente':
-        return redirect('dashboard_cliente')
+    if request.user.rol in ('cliente', 'eps'):
+        return redirect(_redirect_por_rol(request.user))
 
     # Sincronizar desde Firestore a la base de datos local SQLite
     db = get_firestore_db()
@@ -316,8 +316,8 @@ def eliminar_medicamento(request, pk):
 @never_cache
 @login_required
 def dashboard_cliente(request):
-    if request.user.rol in ['farmaceutico', 'admin']:
-        return redirect('dashboard_inventario')
+    if request.user.rol in ('admin', 'eps'):
+        return redirect(_redirect_por_rol(request.user))
 
     medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
     total_medicamentos = medicamentos.count()
@@ -374,10 +374,7 @@ def get_user_from_jwt(request):
 @never_cache
 def registrar_usuario(request):
     if request.method == 'GET' and request.user.is_authenticated:
-        if request.user.rol == 'cliente':
-            return redirect('dashboard_cliente')
-        else:
-            return redirect('dashboard_inventario')
+        return redirect(_redirect_por_rol(request.user))
 
     if request.method == 'POST':
         try:
@@ -594,7 +591,7 @@ def login_face(request):
         if matching_user is not None:
             print(f"¡ Rostro Reconocido ! Ganador: {matching_user.email} con Score de: {best_score}")
             login(request, matching_user)
-            redirect_url = reverse('dashboard_cliente') if matching_user.rol == 'cliente' else reverse('dashboard_inventario')
+            redirect_url = _redirect_por_rol(matching_user)
             return JsonResponse({
                 'success': True,
                 'message': 'Autenticación biométrica exitosa.',
@@ -615,10 +612,7 @@ def login_face(request):
 @never_cache
 def iniciar_sesion(request):
     if request.method == 'GET' and request.user.is_authenticated:
-        if request.user.rol == 'cliente':
-            return redirect('dashboard_cliente')
-        else:
-            return redirect('dashboard_inventario')
+        return redirect(_redirect_por_rol(request.user))
     
     if request.method == 'POST':
         try:
@@ -629,10 +623,11 @@ def iniciar_sesion(request):
             if not email or not password:
                 return JsonResponse({'success': False, 'error': 'El correo y la contraseña son requeridos.'}, status=400)
 
-            user = authenticate(request, username=email, password=password)
+            usuario_local = Usuario.objects.filter(email__iexact=email).first()
+            user = authenticate(request, username=usuario_local.username, password=password) if usuario_local else None
             if user is not None:
                 login(request, user)
-                redirect_url = reverse('dashboard_cliente') if user.rol == 'cliente' else reverse('dashboard_inventario')
+                redirect_url = _redirect_por_rol(user)
                 return JsonResponse({
                         'success': True,
                         'message': 'Inicio de sesión exitoso.',
@@ -739,20 +734,30 @@ def iniciar_sesion(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
 
+    # DESPUÉS
     user = get_user_from_jwt(request)
     if user is not None:
-        return redirect(_redirect_por_rol(user))
+        login(request, user)
+        try:
+            return redirect(_redirect_por_rol(user))
+        except Exception as e:
+            print(f"Error al redirigir por rol: {e}")
     return render(request, 'Farmacia/PharmonyLogin.html')
 
-
+# DESPUÉS
 def _redirect_por_rol(user):
-    """Centraliza a dónde va cada rol después de loguearse, sin tocar el flujo de clientes."""
-    if user.rol in ('admin', 'eps'):
+    """Centraliza a dónde va cada rol después de loguearse."""
+    if user.rol == 'cliente':
+        return reverse('dashboard_cliente')
+    if user.rol == 'eps':
         return reverse('dashboard_eps')
-    return reverse('buscar_medicamentos')  
+    return reverse('dashboard_inventario')
+
 
 @never_cache
 @require_GET
 def cerrar_sesion(request):
     logout(request)
-    return redirect('login')
+    response = redirect('login')
+    response.delete_cookie('jwt_token')
+    return response
