@@ -817,3 +817,343 @@ def cerrar_sesion(request):
     response = redirect('login')
     response.delete_cookie('jwt_token')
     return response
+
+
+@login_required
+def generar_derecho_peticion(request):
+    import io
+    from datetime import datetime
+    from django.http import FileResponse, HttpResponse
+    from django.shortcuts import get_object_or_404
+    from reportlab.lib.pagesizes import letter
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
+
+    if request.method not in ['POST', 'GET']:
+        return HttpResponse("Método no permitido", status=405)
+    
+    # Obtener parámetros
+    data = request.POST if request.method == 'POST' else request.GET
+    
+    med_id = data.get('medicamento_id')
+    if not med_id:
+        return HttpResponse("ID de medicamento requerido", status=400)
+    
+    medicamento = get_object_or_404(Medicamento, id=med_id)
+    
+    user = request.user
+    datos_actualizados = False
+    
+    post_cedula = data.get('numero_documento')
+    if post_cedula and post_cedula != user.cedula:
+        user.cedula = post_cedula
+        datos_actualizados = True
+        
+    post_direccion = data.get('direccion')
+    if post_direccion and post_direccion != user.direccion:
+        user.direccion = post_direccion
+        datos_actualizados = True
+        
+    post_telefono = data.get('telefono')
+    if post_telefono and post_telefono != user.telefono:
+        user.telefono = post_telefono
+        datos_actualizados = True
+
+    post_full_name = data.get('nombre_usuario')
+    if post_full_name and post_full_name != (user.get_full_name() or user.username):
+        partes = post_full_name.split(' ', 1)
+        if len(partes) > 1:
+            user.first_name = partes[0]
+            user.last_name = partes[1]
+        else:
+            user.first_name = post_full_name
+            user.last_name = ''
+        datos_actualizados = True
+        
+    if datos_actualizados:
+        user.save()
+        
+    nombre_usuario = user.get_full_name() or user.username
+    tipo_documento = data.get('tipo_documento') or 'Cédula de Ciudadanía'
+    numero_documento = user.cedula or '_______________'
+    
+    eps_nombre = data.get('eps_nombre')
+    if not eps_nombre and user.eps:
+        eps_nombre = user.eps.nombre
+    if not eps_nombre:
+        eps_nombre = 'ENTIDAD PROMOTORA DE SALUD (EPS)'
+        
+    direccion = user.direccion or '_______________'
+    telefono = user.telefono or '_______________'
+    email = user.email or '_______________'
+    ciudad = data.get('ciudad') or 'Bogotá D.C.'
+    
+    # Formatear la fecha en español
+    fecha_actual = datetime.now()
+    meses = {
+        1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio",
+        7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+    }
+    fecha_str = f"{ciudad}, {fecha_actual.day} de {meses[fecha_actual.month]} de {fecha_actual.year}"
+    
+    # Crear buffer en memoria para el PDF
+    buffer = io.BytesIO()
+    
+    # Configurar el documento PDF
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=letter,
+        rightMargin=72, # 1 pulgada
+        leftMargin=72,
+        topMargin=72,
+        bottomMargin=72
+    )
+    
+    styles = getSampleStyleSheet()
+    
+    # Estilos personalizados
+    style_normal = ParagraphStyle(
+        name='NormalJustify',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=11,
+        leading=15,
+        alignment=TA_JUSTIFY,
+        spaceAfter=10
+    )
+    
+    style_heading = ParagraphStyle(
+        name='HeadingCustom',
+        parent=styles['Heading2'],
+        fontName='Helvetica-Bold',
+        fontSize=11,
+        leading=14,
+        alignment=TA_LEFT,
+        spaceBefore=12,
+        spaceAfter=6
+    )
+    
+    story = []
+    
+    # 1. Fecha y Lugar
+    story.append(Paragraph(fecha_str, style_normal))
+    story.append(Spacer(1, 15))
+    
+    # 2. Destinatario
+    destinatario_text = f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D."
+    story.append(Paragraph(destinatario_text, style_normal))
+    story.append(Spacer(1, 15))
+    
+    # 3. Asunto
+    asunto_text = f"<b>ASUNTO:</b> DERECHO DE PETICIÓN (Artículo 23 de la Constitución Política de Colombia, Ley 1755 de 2015 y Ley Estatutaria de Salud 1751 de 2015) para la entrega inmediata del medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>."
+    story.append(Paragraph(asunto_text, style_normal))
+    story.append(Spacer(1, 15))
+    
+    # 4. Presentación del peticionario
+    presentacion_text = (
+        f"Yo, <b>{nombre_usuario}</b>, mayor de edad, identificado con <b>{tipo_documento}</b> número <b>{numero_documento}</b>, "
+        f"afiliado a la entidad promotora de salud <b>{eps_nombre}</b>, domiciliado en la dirección <b>{direccion}</b>, "
+        f"con número de teléfono <b>{telefono}</b> y correo electrónico <b>{email}</b>, actuando en nombre propio y en ejercicio del "
+        f"derecho constitucional de petición consagrado en el artículo 23 de la Constitución Política de Colombia, en concordancia con "
+        f"la Ley 1755 de 2015 (que regula el derecho de petición) y la Ley Estatutaria de Salud 1751 de 2015, me dirijo ante ustedes de manera "
+        f"respetuosa con el fin de formular la presente solicitud, con fundamento en los siguientes:"
+    )
+    story.append(Paragraph(presentacion_text, style_normal))
+    story.append(Spacer(1, 10))
+    
+    # 5. Hechos
+    story.append(Paragraph("HECHOS", style_heading))
+    
+    hecho1 = (
+        f"1. Se me encuentra prescrito el medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>, "
+        f"concentración <b>{medicamento.concentracion}</b> y forma farmacéutica <b>{medicamento.forma_farmaceutica}</b>, "
+        f"producido por el laboratorio <b>{medicamento.laboratorio}</b>, para el tratamiento de mi estado de salud."
+    )
+    story.append(Paragraph(hecho1, style_normal))
+    
+    hecho2 = (
+        f"2. Al acudir a reclamar dicho medicamento en la red de farmacias Pharmony, se me informó que el medicamento se encuentra actualmente "
+        f"<b>AGOTADO</b> en su totalidad de sedes, impidiendo que inicie o continúe con mi tratamiento en los términos indicados por el profesional de la salud."
+    )
+    story.append(Paragraph(hecho2, style_normal))
+    
+    hecho3 = (
+        "3. La no entrega oportuna de los medicamentos prescritos pone en riesgo mi salud y bienestar, constituyendo una vulneración directa "
+        "al derecho fundamental a la salud consagrado en la legislación colombiana y ampliamente protegido por la jurisprudencia constitucional."
+    )
+    story.append(Paragraph(hecho3, style_normal))
+    story.append(Spacer(1, 10))
+    
+    # 6. Petición
+    story.append(Paragraph("PETICIONES", style_heading))
+    
+    peticion1 = (
+        f"1. Solicito de manera inmediata que la EPS <b>{eps_nombre}</b> gestione, autorice y haga entrega efectiva del medicamento "
+        f"<b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b> en las dosis y cantidades formuladas, en un plazo máximo "
+        f"de cuarenta y ocho (48) horas, conforme a los lineamientos vigentes del Ministerio de Salud y la Superintendencia Nacional de Salud."
+    )
+    story.append(Paragraph(peticion1, style_normal))
+    
+    peticion2 = (
+        "2. En caso de persistir la falta de stock del medicamento en el canal de dispensación habitual, se proceda a suministrar un sustituto "
+        "terapéutico equivalente previa autorización médica, o bien, se gestione la entrega a domicilio del medicamento tan pronto se encuentre disponible "
+        "sin que esto represente costos adicionales o cargas administrativas para mi persona."
+    )
+    story.append(Paragraph(peticion2, style_normal))
+    story.append(Spacer(1, 10))
+    
+    # 7. Fundamentos de Derecho
+    story.append(Paragraph("FUNDAMENTOS DE DERECHO", style_heading))
+    fundamentos = (
+        "Esta solicitud se fundamenta en el artículo 23 de la Constitución Política de Colombia; la Ley 1755 de 2015, por medio de la cual "
+        "se regula el derecho fundamental de petición; la Ley 1751 de 2015 (Ley Estatutaria de Salud) que reconoce la salud como un derecho "
+        "fundamental autónemo e irrenunciable, garantizando la entrega oportuna de tecnologías y medicamentos; y la jurisprudencia de la "
+        "Corte Constitucional (Sentencia T-760 de 2008 y siguientes) que señala que el suministro incompleto o inoportuno de medicamentos "
+        "vulnera el derecho a la salud y a la vida en condiciones dignas."
+    )
+    story.append(Paragraph(fundamentos, style_normal))
+    story.append(Spacer(1, 10))
+    
+    # 8. Notificaciones
+    story.append(Paragraph("NOTIFICACIONES y DIRECCIÓN DE CONTACTO", style_heading))
+    notificaciones_text = (
+        f"Recibiré respuesta a esta petición en los siguientes datos de contacto:<br/>"
+        f"<b>Dirección física:</b> {direccion}<br/>"
+        f"<b>Teléfono:</b> {telefono}<br/>"
+        f"<b>Correo electrónico:</b> {email}"
+    )
+    story.append(Paragraph(notificaciones_text, style_normal))
+    story.append(Spacer(1, 30))
+    
+    # 9. Firma
+    firma_text = (
+        f"Atentamente,<br/><br/><br/>"
+        f"__________________________________________<br/>"
+        f"<b>{nombre_usuario}</b><br/>"
+        f"<b>{tipo_documento}:</b> {numero_documento}"
+    )
+    story.append(Paragraph(firma_text, style_normal))
+    
+    # Construir el PDF
+    doc.build(story)
+    
+    # Volver al inicio del buffer
+    buffer.seek(0)
+    
+    # Retornar como descarga de archivo
+    response = FileResponse(buffer, as_attachment=True, filename=f"Derecho_Peticion_{medicamento.nombre_comercial.replace(' ', '_')}.pdf")
+    return response
+
+
+@login_required
+@never_cache
+def mi_cuenta(request):
+    from epsinventario.models import Eps
+    
+    # Sincronizar EPS de Firebase Firestore a SQLite local
+    db = get_firestore_db()
+    if db:
+        try:
+            eps_ref = db.collection('eps').stream()
+            for doc in eps_ref:
+                data = doc.to_dict()
+                eps_id = data.get('id')
+                if eps_id is not None:
+                    Eps.objects.update_or_create(
+                        id=int(eps_id),
+                        defaults={
+                            'nombre': data.get('nombre', ''),
+                            'nit': data.get('nit', ''),
+                            'direccion': data.get('direccion', ''),
+                            'ciudad': data.get('ciudad', ''),
+                            'telefono': data.get('telefono', ''),
+                            'email': data.get('email', ''),
+                            'estado': data.get('estado', True)
+                        }
+                    )
+        except Exception as sync_err:
+            print(f"Error al sincronizar EPS desde Firestore: {sync_err}")
+            
+    mensaje_exito = None
+    mensaje_error = None
+    epss = Eps.objects.filter(estado=True)
+    
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        apellido = request.POST.get('apellido', '').strip()
+        cedula = request.POST.get('cedula', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        eps_id = request.POST.get('eps_id', '').strip()
+        
+        user = request.user
+        
+        if not nombre or not email:
+            mensaje_error = "El nombre y el correo electrónico son requeridos."
+        else:
+            user.first_name = nombre
+            user.last_name = apellido
+            user.cedula = cedula
+            user.direccion = direccion
+            user.telefono = telefono
+            user.email = email
+            
+            eps_obj = None
+            if eps_id:
+                try:
+                    eps_obj = Eps.objects.get(id=eps_id)
+                    user.eps = eps_obj
+                except Eps.DoesNotExist:
+                    user.eps = None
+            else:
+                user.eps = None
+                
+            user.save()
+            
+            # Sincronizar con Firebase (Firestore y Auth)
+            fb_uid = user.firebase_uid
+            if fb_uid:
+                # Firestore
+                try:
+                    db = get_firestore_db()
+                    if db:
+                        db.collection('usuarios').document(fb_uid).set({
+                            'nombre': user.first_name,
+                            'apellido': user.last_name,
+                            'email': user.email,
+                            'telefono': user.telefono or "",
+                            'cedula': user.cedula or "",
+                            'direccion': user.direccion or "",
+                            'eps_id': eps_obj.id if eps_obj else None
+                        }, merge=True)
+                except Exception as fs_err:
+                    print(f"Error sincronizando perfil en Firestore: {fs_err}")
+                
+                # Firebase Auth
+                try:
+                    firebase_auth.update_user(
+                        fb_uid,
+                        email=user.email
+                    )
+                except Exception as auth_err:
+                    print(f"Error actualizando Firebase Auth: {auth_err}")
+                    
+            return redirect(reverse('mi_cuenta') + '?saved=1')
+            
+    if request.GET.get('saved') == '1':
+        mensaje_exito = "¡Tu información de perfil se ha guardado y sincronizado con Firebase correctamente!"
+        
+    # Calcular iniciales para el avatar
+    user_name = request.user.get_full_name() or request.user.username
+    parts = user_name.split()
+    user_initials = "".join([p[0].upper() for p in parts[:2]]) if parts else "?"
+        
+    return render(request, 'inventario/MiCuenta.html', {
+        'mensaje_exito': mensaje_exito,
+        'mensaje_error': mensaje_error,
+        'epss': epss,
+        'user_name': user_name,
+        'user_initials': user_initials
+    })

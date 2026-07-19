@@ -19,6 +19,8 @@ urlpatterns = [
     path('inventario/crear/', views.crear_medicamento, name='crear_medicamento'),
     path('inventario/editar/<int:pk>/', views.editar_medicamento, name='editar_medicamento'),
     path('inventario/eliminar/<int:pk>/', views.eliminar_medicamento, name='eliminar_medicamento'),
+    path('medicamentos/derecho-peticion/', views.generar_derecho_peticion, name='generar_derecho_peticion'),
+    path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
 ]
 
 urlpatterns += router.urls

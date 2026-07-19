@@ -29,6 +29,8 @@ class Medicamento(models.Model):
     
 class Usuario(AbstractUser):
     telefono = models.CharField(max_length=20, blank=True, null=True, verbose_name="Teléfono")
+    cedula = models.CharField(max_length=20, blank=True, null=True, verbose_name="Cédula/Documento")
+    direccion = models.CharField(max_length=200, blank=True, null=True, verbose_name="Dirección")
     firebase_uid = models.CharField(max_length=255, unique=True, blank=True, null=True, verbose_name="Firebase UID")
     face_encoding = models.TextField(blank=True, null=True, verbose_name="Face Encoding")
     
