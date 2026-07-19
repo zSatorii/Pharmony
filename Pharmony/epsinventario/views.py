@@ -12,6 +12,10 @@ from .serializers import EpsSerializer, SedeSerializer, InventarioSedeSerializer
 from Farmacia.models import Medicamento
 from Farmacia.views import get_firestore_db
 
+import json
+from django.http import JsonResponse
+from .models import SolicitudMedicamento
+
 
 # ==========================
 # Helpers de permisos
@@ -451,3 +455,97 @@ def eliminar_inventario(request, pk):
         _eliminar_doc_firestore("inventario_sedes", inv_id)
         return redirect('inventario_por_sede', sede_id=sede_id)
     return HttpResponseNotAllowed(['POST'])
+
+
+
+
+def _sync_solicitud_firestore(instance):
+    db = get_firestore_db()
+    if db is None:
+        return
+    try:
+        data = {
+            "id": instance.id,
+            "usuario_id": instance.usuario_id,
+            "usuario_email": instance.usuario.email,
+            "medicamento_id": instance.medicamento_id,
+            "medicamento_nombre": instance.medicamento.nombre_comercial,
+            "sede_id": instance.sede_id,
+            "sede_nombre": instance.sede.nombre if instance.sede else None,
+            "estado": instance.estado,
+            "fecha_solicitud": instance.fecha_solicitud.isoformat(),
+        }
+        db.collection("solicitudes_medicamento").document(str(instance.id)).set(data)
+    except Exception as e:
+        print(f"Error al sincronizar solicitud {instance.id} en Firestore: {e}")
+
+
+@never_cache
+@login_required
+def api_medicamento_detalle(request, medicamento_id):
+    """
+    Devuelve info del medicamento + en qué sedes hay stock (filtrado opcionalmente por ciudad).
+    Usado por el modal de "click en medicamento" en el dashboard del cliente.
+    """
+    medicamento = get_object_or_404(Medicamento, pk=medicamento_id)
+    ciudad = request.GET.get('ciudad')
+
+    inventarios = InventarioSede.objects.select_related('sede').filter(medicamento=medicamento)
+    if ciudad:
+        inventarios = inventarios.filter(sede__ciudad__iexact=ciudad)
+
+    sedes_data = [{
+        "sede_id": inv.sede.id,
+        "sede_nombre": inv.sede.nombre,
+        "ciudad": inv.sede.ciudad,
+        "cantidad_disponible": inv.cantidad_disponible,
+        "estado_stock": inv.estado_stock,
+    } for inv in inventarios]
+
+    disponible = any(s["cantidad_disponible"] > 0 for s in sedes_data)
+
+    return JsonResponse({
+        "id": medicamento.id,
+        "nombre_comercial": medicamento.nombre_comercial,
+        "nombre_generico": medicamento.nombre_generico,
+        "laboratorio": medicamento.laboratorio,
+        "concentracion": medicamento.concentracion,
+        "forma_farmaceutica": medicamento.forma_farmaceutica,
+        "descripcion": medicamento.descripcion,
+        "uso_indicado": medicamento.uso_indicado,
+        "efectos_secundarios": medicamento.efectos_secundarios,
+        "requiere_formula": medicamento.requiere_formula,
+        "disponible": disponible,
+        "sedes": sedes_data,
+    })
+
+
+@never_cache
+@login_required
+def solicitar_medicamento(request):
+    """El cliente solicita un medicamento disponible. Crea el registro y lo sincroniza a Firestore."""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    try:
+        data = json.loads(request.body)
+        medicamento_id = data.get('medicamento_id')
+        sede_id = data.get('sede_id')
+    except (json.JSONDecodeError, AttributeError):
+        return JsonResponse({"success": False, "error": "Datos inválidos."}, status=400)
+
+    medicamento = get_object_or_404(Medicamento, pk=medicamento_id)
+    sede = Sede.objects.filter(pk=sede_id).first() if sede_id else None
+
+    solicitud = SolicitudMedicamento.objects.create(
+        usuario=request.user,
+        medicamento=medicamento,
+        sede=sede,
+        estado='pendiente',
+    )
+    _sync_solicitud_firestore(solicitud)
+
+    return JsonResponse({
+        "success": True,
+        "message": f"Tu solicitud de {medicamento.nombre_comercial} fue registrada."
+    })

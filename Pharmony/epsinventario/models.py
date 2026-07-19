@@ -1,5 +1,7 @@
 from django.db import models
+from django.conf import settings
 from Farmacia.models import Medicamento
+from .geo import coords_para_ciudad
 
 
 class Eps(models.Model):
@@ -23,6 +25,19 @@ class Sede(models.Model):
     telefono = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
     estado = models.BooleanField(default=True)
+
+    # NUEVO: coordenadas reales para el mapa. Se calculan solas según `ciudad`
+    # si no se pasan explícitamente, para que el mapa muestre la ubicación real
+    # de la sede en vez de datos de ejemplo.
+    latitud = models.FloatField(null=True, blank=True)
+    longitud = models.FloatField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.latitud is None or self.longitud is None:
+            lat, lng = coords_para_ciudad(self.ciudad)
+            self.latitud = self.latitud if self.latitud is not None else lat
+            self.longitud = self.longitud if self.longitud is not None else lng
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nombre} ({self.ciudad})"
@@ -50,3 +65,21 @@ class InventarioSede(models.Model):
 
     def __str__(self):
         return f"{self.medicamento.nombre_comercial} - {self.sede.nombre}"
+
+
+class SolicitudMedicamento(models.Model):
+    """Cuando un cliente pide un medicamento desde el dashboard, queda registrado aquí."""
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
+        ('atendida', 'Atendida'),
+        ('rechazada', 'Rechazada'),
+    ]
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='solicitudes_medicamento')
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE, related_name='solicitudes')
+    sede = models.ForeignKey(Sede, on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes')
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
+    fecha_solicitud = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.usuario} solicitó {self.medicamento.nombre_comercial} ({self.estado})"

@@ -24,4 +24,7 @@ urlpatterns = [
     path('inventario/<int:pk>/eliminar/', views.eliminar_inventario, name='eliminar_inventario'),
     path('ciudad/<str:ciudad>/medicamentos/', views.medicamentos_por_ciudad, name='medicamentos_por_ciudad'),
     path('medicamentos/buscar/', views.buscar_medicamentos, name='buscar_medicamentos'),
+
+     path('api/medicamentos/<int:medicamento_id>/detalle/', views.api_medicamento_detalle, name='api_medicamento_detalle'),
+    path('medicamentos/solicitar/', views.solicitar_medicamento, name='solicitar_medicamento'),
 ]

@@ -313,11 +313,15 @@ def eliminar_medicamento(request, pk):
         return redirect('dashboard_inventario')
         
     return HttpResponseNotAllowed(['POST'])
+
 @never_cache
 @login_required
 def dashboard_cliente(request):
     if request.user.rol in ('admin', 'eps'):
         return redirect(_redirect_por_rol(request.user))
+
+    from epsinventario.models import Sede, InventarioSede
+    import json as json_lib
 
     medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
     total_medicamentos = medicamentos.count()
@@ -325,12 +329,64 @@ def dashboard_cliente(request):
     medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
     laboratorios = medicamentos.values('laboratorio').distinct().count()
 
+    # Disponibilidad real: agregamos cantidades por medicamento sumando TODAS sus sedes
+    inventarios_qs = InventarioSede.objects.select_related('sede', 'medicamento')
+    disponibilidad_por_medicamento = {}
+    for inv in inventarios_qs:
+        med_id = inv.medicamento_id
+        if med_id not in disponibilidad_por_medicamento:
+            disponibilidad_por_medicamento[med_id] = {
+                'cantidad_total': 0,
+                'sedes_count': 0,
+                'estado': 'agotado',
+            }
+        info = disponibilidad_por_medicamento[med_id]
+        info['cantidad_total'] += inv.cantidad_disponible
+        if inv.cantidad_disponible > 0:
+            info['sedes_count'] += 1
+        if inv.estado_stock == 'disponible':
+            info['estado'] = 'disponible'
+        elif inv.estado_stock == 'stock_bajo' and info['estado'] != 'disponible':
+            info['estado'] = 'stock_bajo'
+
+    for med in medicamentos:
+        med.disponibilidad = disponibilidad_por_medicamento.get(med.id, {
+            'cantidad_total': 0, 'sedes_count': 0, 'estado': 'agotado'
+        })
+
+    medicamentos_agotados = [m for m in medicamentos if m.disponibilidad['cantidad_total'] == 0]
+
+    # Sedes reales con coordenadas reales, para el mapa (no más datos de ejemplo)
+    sedes_reales = Sede.objects.filter(estado=True).select_related('eps')
+    sedes_map_data = []
+    for sede in sedes_reales:
+        inv_sede = InventarioSede.objects.filter(sede=sede)
+        total_meds = inv_sede.aggregate_count = inv_sede.count()
+        unidades = sum(i.cantidad_disponible for i in inv_sede)
+        if unidades == 0:
+            stock_estado = 'out'
+        elif any(i.estado_stock == 'stock_bajo' for i in inv_sede):
+            stock_estado = 'low'
+        else:
+            stock_estado = 'ok'
+
+        sedes_map_data.append({
+            'lat': sede.latitud,
+            'lng': sede.longitud,
+            'nombre': f"{sede.eps.nombre} — {sede.nombre}",
+            'addr': sede.direccion or sede.ciudad,
+            'stock': stock_estado,
+            'meds': unidades,
+        })
+
     context = {
         'medicamentos': medicamentos,
         'total_medicamentos': total_medicamentos,
         'medicamentos_formula': medicamentos_formula,
         'medicamentos_libres': medicamentos_libres,
         'laboratorios': laboratorios,
+        'medicamentos_agotados': medicamentos_agotados,
+        'sedes_map_json': json_lib.dumps(sedes_map_data),
         'user_name': f"{request.user.first_name} {request.user.last_name}" if request.user.first_name else request.user.username,
         'user_initials': (request.user.first_name[0] + request.user.last_name[0]).upper() if request.user.first_name and request.user.last_name else request.user.email[:2].upper()
     }

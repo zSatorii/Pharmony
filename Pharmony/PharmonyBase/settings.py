@@ -171,3 +171,5 @@ LOGIN_URL = 'login'
 
 # Le dice a Django dónde redirigir al usuario tras iniciar sesión con éxito
 LOGIN_REDIRECT_URL = 'home'  # O la rut
+
+CSRF_COOKIE_HTTPONLY = False  # necesario para leerlo desde JS en el fetch

@@ -45,9 +45,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .nav-icon{width:17px;height:17px;flex-shrink:0;opacity:.75;}
 .nav-item.active .nav-icon,.nav-item:hover .nav-icon{opacity:1;}
 .nbadge{margin-left:auto;font-size:10px;font-weight:600;background:var(--red);color:#fff;padding:2px 7px;border-radius:20px;}
-.nbadge.amber{background:var(--amber);}
 
-/* Search destacado en sidebar */
+/* Search en sidebar */
 .sidebar-search{
   margin:12px 10px 6px;
   background:rgba(255,255,255,0.09);
@@ -90,26 +89,16 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 /* HERO SEARCH */
 .hero-search{
   background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-main) 60%,var(--blue-mid) 100%);
-  padding:28px 28px 26px;
-  position:relative;overflow:hidden;
+  padding:28px 28px 26px;position:relative;overflow:hidden;
 }
-.hero-search::after{
-  content:'';position:absolute;right:-60px;top:-60px;
-  width:280px;height:280px;border-radius:50%;
-  background:rgba(255,255,255,0.04);pointer-events:none;
-}
-.hero-search::before{
-  content:'';position:absolute;right:80px;bottom:-80px;
-  width:200px;height:200px;border-radius:50%;
-  background:rgba(255,255,255,0.04);pointer-events:none;
-}
+.hero-search::after{content:'';position:absolute;right:-60px;top:-60px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;}
+.hero-search::before{content:'';position:absolute;right:80px;bottom:-80px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,0.04);pointer-events:none;}
 .hero-title{font-size:20px;font-weight:500;color:#fff;margin-bottom:4px;}
 .hero-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:18px;}
 .search-row{display:flex;gap:10px;max-width:700px;position:relative;z-index:1;}
 .search-big{
   flex:1;height:46px;
-  background:rgba(255,255,255,0.12);
-  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
   border-radius:12px;padding:0 16px 0 42px;
   font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;outline:none;
   transition:background .2s,border .2s;
@@ -118,11 +107,9 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .search-big::placeholder{color:rgba(255,255,255,0.4);}
 .search-icon-wrap{position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none;}
 .btn-search{
-  height:46px;padding:0 22px;
-  background:#fff;color:var(--blue-main);
-  border:none;border-radius:12px;
-  font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0;
+  height:46px;padding:0 22px;background:#fff;color:var(--blue-main);
+  border:none;border-radius:12px;font-size:14px;font-weight:500;
+  font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity .2s;white-space:nowrap;flex-shrink:0;
 }
 .btn-search:hover{opacity:.9;}
 
@@ -183,34 +170,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .pill.out{background:var(--red-pale);color:#b91c1c;}
 .med-sedes{font-size:11px;color:var(--gray-400);}
 
-/* STOCK BAR inline */
+/* STOCK BAR */
 .mini-bar{width:70px;height:4px;background:var(--gray-100);border-radius:2px;overflow:hidden;}
 .mini-fill{height:100%;border-radius:2px;}
 
-/* AGOTADOS LIST */
+/* AGOTADOS */
 .ago-row{
   display:flex;align-items:center;gap:12px;
-  padding:12px 18px;border-bottom:1px solid var(--gray-100);
-  transition:background .15s;
+  padding:12px 18px;border-bottom:1px solid var(--gray-100);transition:background .15s;
 }
 .ago-row:last-child{border-bottom:none;}
 .ago-row:hover{background:var(--gray-50);}
-.ago-num{
-  width:30px;height:30px;border-radius:8px;
-  background:var(--red-pale);color:var(--red);
-  font-size:12px;font-weight:600;
-  display:flex;align-items:center;justify-content:center;flex-shrink:0;
-}
+.ago-num{width:30px;height:30px;border-radius:8px;background:var(--red-pale);color:var(--red);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .ago-main{flex:1;}
 .ago-name{font-size:13px;font-weight:500;color:var(--gray-800);}
 .ago-sub{font-size:11.5px;color:var(--gray-400);margin-top:1px;}
-.ago-action{
-  font-size:11.5px;color:var(--blue-main);cursor:pointer;
-  padding:4px 10px;border-radius:7px;background:var(--blue-pale);
-  border:none;font-family:'DM Sans',sans-serif;font-weight:500;
-  transition:background .2s;white-space:nowrap;
-}
-.ago-action:hover{background:#bfdbfe;}
 
 /* MAP */
 .map-card{background:#fff;border-radius:14px;border:1px solid var(--gray-200);overflow:hidden;display:flex;flex-direction:column;}
@@ -221,9 +195,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .leg{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--gray-600);}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 #map{width:100%;height:340px;}
-
-/* BOTTOM GRID */
-.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
 </style>
 </head>
 <body>
@@ -245,32 +216,32 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
   <nav class="nav">
     <span class="nav-group-label">Consulta</span>
 
-    <a class="nav-item active" href="#">
+    <a class="nav-item active" href="{% url 'dashboard_cliente' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="1.5" y="1.5" width="6" height="6" rx="1.2" fill="currentColor" opacity=".8"/><rect x="10.5" y="1.5" width="6" height="6" rx="1.2" fill="currentColor" opacity=".8"/><rect x="1.5" y="10.5" width="6" height="6" rx="1.2" fill="currentColor" opacity=".8"/><rect x="10.5" y="10.5" width="6" height="6" rx="1.2" fill="currentColor" opacity=".8"/></svg>
       Inicio
     </a>
 
-    <a class="nav-item" href="#">
+    <a class="nav-item" href="{% url 'buscar_medicamentos' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="9" cy="7" r="2.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M4 15c0-2.76 2.24-4 5-4s5 1.24 5 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
       Mi Ubicación
     </a>
 
     <span class="nav-group-label" style="margin-top:6px;">Medicamentos</span>
 
-    <a class="nav-item" href="#">
+    <a class="nav-item" href="{% url 'dashboard_cliente' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><rect x="2" y="4" width="14" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M6 4V3a3 3 0 0 1 6 0v1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6 9h6M9 7v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       Disponibles
     </a>
 
-    <a class="nav-item" href="#">
+    <a class="nav-item" href="{% url 'dashboard_cliente' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><path d="M9 2l7 14H2L9 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none"/><path d="M9 7v4M9 12.5v.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       Agotados
-      <span class="nbadge">3</span>
+      <span class="nbadge">{{ medicamentos_agotados|length }}</span>
     </a>
 
     <span class="nav-group-label" style="margin-top:6px;">Farmacias</span>
 
-    <a class="nav-item" href="#">
+    <a class="nav-item" href="{% url 'buscar_medicamentos' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><path d="M9 2C6.24 2 4 4.24 4 7c0 4 5 9 5 9s5-5 5-9c0-2.76-2.24-5-5-5z" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="9" cy="7" r="2" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
       Mapa de Sedes
     </a>
@@ -302,7 +273,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 <!-- ── MAIN ── -->
 <main class="main">
 
-  <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-title">
       <h1>Disponibilidad de Medicamentos</h1>
@@ -319,7 +289,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
     </div>
   </div>
 
-  <!-- HERO SEARCH -->
   <div class="hero-search">
     <div class="hero-title">¿Qué medicamento necesitas?</div>
     <div class="hero-sub">Consulta disponibilidad en todas las sedes de Pharmony cerca de ti.</div>
@@ -336,7 +305,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 
   <div class="content">
 
-    <!-- STATS -->
     <div class="stats-row">
       <div class="stat-card blue">
         <div class="stat-icon blue">
@@ -383,17 +351,25 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
           <div class="section-head">
             <div class="sh-left">
               <h2>Medicamentos Disponibles</h2>
-              <p>Haz clic para ver en qué sedes hay stock</p>
+              <p>Haz clic para ver info y disponibilidad por sede</p>
             </div>
-            <button class="btn-small">Ver todos</button>
           </div>
           <div class="med-list" id="clientMedList">
-            
             {% for med in medicamentos %}
-            <div class="med-row" onclick="highlightMed('{{ med.nombre_comercial|escapejs }}')" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
-              <div class="med-dot" style="background:{% if med.requiere_formula %}#ef4444{% else %}#22c55e{% endif %};"></div>
+            <div class="med-row"
+                 onclick="abrirDetalle({{ med.id }})"
+                 data-comercial="{{ med.nombre_comercial|lower }}"
+                 data-generico="{{ med.nombre_generico|lower }}"
+                 data-laboratorio="{{ med.laboratorio|lower }}">
+              <div class="med-dot" style="background:
+                {% if med.disponibilidad.estado == 'disponible' %}#22c55e
+                {% elif med.disponibilidad.estado == 'stock_bajo' %}#f59e0b
+                {% else %}#ef4444{% endif %};"></div>
               <div class="med-main">
-                <div class="med-name">{{ med.nombre_comercial }} <span style="font-weight: normal; color: var(--gray-600);">({{ med.nombre_generico }})</span></div>
+                <div class="med-name">
+                  {{ med.nombre_comercial }}
+                  <span style="font-weight:normal;color:var(--gray-600);">({{ med.nombre_generico }})</span>
+                </div>
                 <div class="med-cat">{{ med.laboratorio }} · {{ med.forma_farmaceutica }} · {{ med.concentracion }}</div>
               </div>
               <div class="med-right">
@@ -402,64 +378,49 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
                 {% else %}
                 <span class="pill ok">Libre</span>
                 {% endif %}
-                <div class="med-sedes">{% if med.requiere_formula %}1 sede{% else %}3 sedes{% endif %}</div>
+                <div class="med-sedes">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</div>
               </div>
               <div style="margin-left:8px;">
                 <div class="mini-bar">
-                  <div class="mini-fill" style="width:{% if med.requiere_formula %}25%{% else %}75%{% endif %}; background:{% if med.requiere_formula %}#ef4444{% else %}#22c55e{% endif %};"></div>
+                  <div class="mini-fill" style="
+                    width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}35%{% else %}0%{% endif %};
+                    background:{% if med.disponibilidad.estado == 'disponible' %}#22c55e{% elif med.disponibilidad.estado == 'stock_bajo' %}#f59e0b{% else %}#ef4444{% endif %};">
+                  </div>
                 </div>
               </div>
             </div>
             {% empty %}
-            <div style="padding: 20px; text-align: center; color: var(--gray-400);">No hay medicamentos registrados en el sistema.</div>
+            <div style="padding:20px;text-align:center;color:var(--gray-400);">No hay medicamentos registrados en el sistema.</div>
             {% endfor %}
-
           </div>
         </div>
 
-        <!-- Medicamentos Agotados -->
+        <!-- Medicamentos Agotados — datos reales -->
         <div class="section-card">
           <div class="section-head">
             <div class="sh-left">
               <h2>Medicamentos Agotados</h2>
               <p>Sin stock disponible en ninguna sede actualmente</p>
             </div>
-            <button class="btn-small">Ver todos</button>
           </div>
           <div class="med-list">
-
+            {% for med in medicamentos_agotados %}
             <div class="ago-row">
               <div class="ago-num">!</div>
               <div class="ago-main">
-                <div class="ago-name">Clonazepam 2mg</div>
-                <div class="ago-sub">Agotado en todas las sedes · hace 14 días</div>
+                <div class="ago-name">{{ med.nombre_comercial }}</div>
+                <div class="ago-sub">{{ med.nombre_generico }} · Agotado en todas las sedes</div>
               </div>
-              <button class="ago-action">Notificarme</button>
             </div>
-
-            <div class="ago-row">
-              <div class="ago-num">!</div>
-              <div class="ago-main">
-                <div class="ago-name">Insulina Glargina 100UI</div>
-                <div class="ago-sub">Agotado en todas las sedes · hace 9 días</div>
-              </div>
-              <button class="ago-action">Notificarme</button>
-            </div>
-
-            <div class="ago-row">
-              <div class="ago-num">!</div>
-              <div class="ago-main">
-                <div class="ago-name">Salbutamol Inhalador 100mcg</div>
-                <div class="ago-sub">Agotado en todas las sedes · hace 21 días</div>
-              </div>
-              <button class="ago-action">Notificarme</button>
-            </div>
-
+            {% empty %}
+            <div style="padding:20px;text-align:center;color:var(--gray-400);">No hay medicamentos agotados actualmente.</div>
+            {% endfor %}
           </div>
         </div>
-      </div>
 
-      <!-- MAPA -->
+      </div><!-- fin columna izquierda -->
+
+      <!-- MAPA — coordenadas reales de sedes -->
       <div class="map-card">
         <div class="map-head">
           <h2>Sedes Pharmony</h2>
@@ -473,94 +434,185 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
         <div id="map"></div>
       </div>
 
-    </div>
+    </div><!-- fin main-grid -->
 
-  </div>
+  </div><!-- fin content -->
 </main>
 
 <script>
-// Mapa
-const map = L.map('map',{center:[4.8,-74.0],zoom:5.6,zoomControl:true,scrollWheelZoom:false});
-
+// ── MAPA con coordenadas reales desde Django ──
+const map = L.map('map',{center:[4.8,-74.0],zoom:7,zoomControl:true,scrollWheelZoom:false});
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
   attribution:'© OpenStreetMap © CartoDB',subdomains:'abcd',maxZoom:19
 }).addTo(map);
 
-const sedes = [
-  {lat:4.711,lng:-74.072,nombre:'Pharmony Bogotá Norte',stock:'ok',    meds:340,addr:'Cra 15 #127-50, Bogotá'},
-  {lat:4.598,lng:-74.080,nombre:'Pharmony Bogotá Sur', stock:'low',   meds:42, addr:'Av. 68 #38-25, Bogotá'},
-  {lat:4.630,lng:-74.066,nombre:'Pharmony Chapinero',  stock:'ok',    meds:215,addr:'Cra 7 #52-14, Bogotá'},
-  {lat:6.244,lng:-75.581,nombre:'Pharmony Medellín',   stock:'ok',    meds:190,addr:'Cra 43A #16-50, Medellín'},
-  {lat:6.190,lng:-75.570,nombre:'Pharmony El Poblado', stock:'ok',    meds:260,addr:'Av. El Poblado #14-22'},
-  {lat:3.451,lng:-76.532,nombre:'Pharmony Cali',       stock:'low',   meds:38, addr:'Cra 5 #20-10, Cali'},
-  {lat:10.963,lng:-74.796,nombre:'Pharmony Barranquilla',stock:'ok',  meds:175,addr:'Cra 54 #74-53, Barranquilla'},
-  {lat:7.119,lng:-73.122,nombre:'Pharmony Bucaramanga',stock:'low',   meds:29, addr:'Cra 22 #36-15, Bucaramanga'},
-  {lat:1.213,lng:-77.281,nombre:'Pharmony Pasto',      stock:'out',   meds:0,  addr:'Cra 25 #17-40, Pasto'},
-  {lat:5.068,lng:-75.517,nombre:'Pharmony Manizales',  stock:'out',   meds:0,  addr:'Cra 23 #22-08, Manizales'},
-  {lat:4.153,lng:-73.637,nombre:'Pharmony Villavicencio',stock:'ok',  meds:88, addr:'Cra 35 #42-10, Villavicencio'},
-];
+const sedes = {{ sedes_map_json|safe }};
+const colors = {ok:'#22c55e', low:'#f59e0b', out:'#ef4444'};
+const labels = {ok:'Disponible', low:'Stock Bajo', out:'Agotado'};
 
-const colors={ok:'#22c55e',low:'#f59e0b',out:'#ef4444'};
-const labels={ok:'Disponible',low:'Stock Bajo',out:'Agotado'};
-
-sedes.forEach(s=>{
-  const c=colors[s.stock];
-  const m=L.circleMarker([s.lat,s.lng],{
-    radius:s.stock==='out'?9:11,
-    fillColor:c,color:'#fff',weight:2.5,opacity:1,fillOpacity:0.9
-  }).addTo(map);
-  m.bindPopup(`
-    <div style="font-family:'DM Sans',sans-serif;min-width:180px;padding:2px 0;">
-      <div style="font-weight:500;font-size:13.5px;color:#1e293b;margin-bottom:3px;">${s.nombre}</div>
-      <div style="font-size:12px;color:#64748b;margin-bottom:6px;">${s.addr}</div>
-      ${s.meds>0
-        ?`<div style="font-size:12px;color:#475569;">Stock disponible: <strong style="color:#1e293b;">${s.meds} unid.</strong></div>`
-        :`<div style="font-size:12px;color:#ef4444;font-weight:500;">Sin stock disponible</div>`
-      }
-      <div style="margin-top:6px;">
-        <span style="display:inline-block;padding:2px 9px;border-radius:10px;background:${c}18;color:${c};font-weight:600;font-size:11px;">${labels[s.stock]}</span>
+if (sedes.length > 0) {
+  const bounds = [];
+  sedes.forEach(s => {
+    if (!s.lat || !s.lng) return;
+    const c = colors[s.stock];
+    const m = L.circleMarker([s.lat, s.lng], {
+      radius: s.stock === 'out' ? 9 : 11,
+      fillColor: c, color: '#fff', weight: 2.5, opacity: 1, fillOpacity: 0.9
+    }).addTo(map);
+    m.bindPopup(`
+      <div style="font-family:'DM Sans',sans-serif;min-width:180px;padding:2px 0;">
+        <div style="font-weight:500;font-size:13.5px;color:#1e293b;margin-bottom:3px;">${s.nombre}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:6px;">${s.addr}</div>
+        ${s.meds > 0
+          ? `<div style="font-size:12px;color:#475569;">Stock: <strong style="color:#1e293b;">${s.meds} unid.</strong></div>`
+          : `<div style="font-size:12px;color:#ef4444;font-weight:500;">Sin stock disponible</div>`}
+        <div style="margin-top:6px;">
+          <span style="display:inline-block;padding:2px 9px;border-radius:10px;background:${c}18;color:${c};font-weight:600;font-size:11px;">${labels[s.stock]}</span>
+        </div>
       </div>
-    </div>
-  `);
-});
-
-function highlightMed(name){
-  map.flyTo([4.711,-74.072],6,{duration:1});
+    `);
+    bounds.push([s.lat, s.lng]);
+  });
+  if (bounds.length > 1) map.fitBounds(bounds, {padding:[40,40]});
+  else if (bounds.length === 1) map.setView(bounds[0], 13);
+} else {
+  document.getElementById('map').innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#94a3b8;font-size:13px;padding:20px;text-align:center;">Aún no hay sedes registradas en el sistema.</div>';
 }
 
-// Búsqueda reactiva
+// ── MODAL de detalle del medicamento ──
+async function abrirDetalle(medId) {
+  try {
+    const res = await fetch(`/api/medicamentos/${medId}/detalle/`);
+    if (!res.ok) throw new Error('Error al obtener datos');
+    const data = await res.json();
+    mostrarModal(data);
+  } catch (err) {
+    alert('No se pudo cargar la información del medicamento.');
+  }
+}
+
+function mostrarModal(med) {
+  const existente = document.getElementById('medModalOverlay');
+  if (existente) existente.remove();
+
+  const primeraSedeDisponible = med.sedes.find(s => s.cantidad_disponible > 0);
+
+  const sedesHtml = med.sedes.length > 0
+    ? med.sedes.map(s => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9;font-size:13px;">
+          <span style="color:#1e293b;">${s.sede_nombre} <span style="color:#94a3b8;font-size:12px;">(${s.ciudad})</span></span>
+          <strong style="color:${s.cantidad_disponible > 0 ? '#22c55e' : '#ef4444'};">${s.cantidad_disponible} unid.</strong>
+        </div>`).join('')
+    : '<p style="color:#94a3b8;font-size:13px;padding:8px 0;">No hay stock registrado en ninguna sede.</p>';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'medModalOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;';
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:18px;max-width:440px;width:100%;padding:26px;font-family:'DM Sans',sans-serif;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+        <div>
+          <h2 style="font-size:19px;font-weight:600;color:#1e293b;line-height:1.2;">${med.nombre_comercial}</h2>
+          <p style="font-size:13px;color:#64748b;margin-top:3px;">${med.nombre_generico} · ${med.laboratorio}</p>
+        </div>
+        <button onclick="document.getElementById('medModalOverlay').remove()"
+          style="background:none;border:none;font-size:22px;cursor:pointer;color:#94a3b8;line-height:1;padding:0 4px;margin-top:-2px;">×</button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+        <span style="background:${med.requiere_formula ? '#fef2f2' : '#f0fdf4'};color:${med.requiere_formula ? '#b91c1c' : '#15803d'};padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:600;">
+          ${med.requiere_formula ? 'Requiere fórmula médica' : 'Venta libre'}
+        </span>
+        ${med.concentracion ? `<span style="background:#f1f5f9;color:#475569;padding:3px 10px;border-radius:20px;font-size:11.5px;">${med.concentracion}</span>` : ''}
+        ${med.forma_farmaceutica ? `<span style="background:#f1f5f9;color:#475569;padding:3px 10px;border-radius:20px;font-size:11.5px;">${med.forma_farmaceutica}</span>` : ''}
+      </div>
+
+      ${med.uso_indicado ? `
+        <div style="margin-bottom:12px;">
+          <div style="font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Uso indicado</div>
+          <p style="font-size:13.5px;color:#475569;line-height:1.5;">${med.uso_indicado}</p>
+        </div>` : ''}
+
+      ${med.descripcion ? `
+        <div style="margin-bottom:14px;">
+          <div style="font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Descripción</div>
+          <p style="font-size:13.5px;color:#475569;line-height:1.5;">${med.descripcion}</p>
+        </div>` : ''}
+
+      <div style="margin-bottom:16px;">
+        <div style="font-size:12px;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Disponibilidad por sede</div>
+        ${sedesHtml}
+      </div>
+
+      ${med.disponible
+        ? `<button onclick="solicitarMedicamento(${med.id}, ${primeraSedeDisponible?.sede_id ?? 'null'})"
+             style="width:100%;background:#0d47c9;color:#fff;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:opacity .2s;"
+             onmouseover="this.style.opacity='.9'" onmouseout="this.style.opacity='1'">
+             Solicitar medicamento
+           </button>`
+        : `<button disabled
+             style="width:100%;background:#e2e8f0;color:#94a3b8;border:none;border-radius:11px;padding:13px;font-size:14.5px;font-weight:600;cursor:not-allowed;font-family:'DM Sans',sans-serif;">
+             No disponible actualmente
+           </button>`
+      }
+      <div id="solicitudMsg" style="margin-top:10px;font-size:13px;text-align:center;min-height:18px;"></div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+async function solicitarMedicamento(medicamentoId, sedeId) {
+  const msgEl = document.getElementById('solicitudMsg');
+  msgEl.textContent = 'Enviando solicitud...';
+  msgEl.style.color = '#94a3b8';
+  try {
+    const csrfToken = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+    const res = await fetch('/medicamentos/solicitar/', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','X-CSRFToken':csrfToken},
+      body: JSON.stringify({medicamento_id: medicamentoId, sede_id: sedeId})
+    });
+    const data = await res.json();
+    if (data.success) {
+      msgEl.style.color = '#22c55e';
+      msgEl.textContent = '✓ ' + data.message;
+    } else {
+      msgEl.style.color = '#ef4444';
+      msgEl.textContent = data.error || 'Ocurrió un error al solicitar.';
+    }
+  } catch (err) {
+    msgEl.style.color = '#ef4444';
+    msgEl.textContent = 'Error de conexión con el servidor.';
+  }
+}
+
+// ── BÚSQUEDA reactiva ──
 function filterMeds(query) {
   const q = query.toLowerCase().trim();
-  const rows = document.querySelectorAll('.med-row');
-  rows.forEach(row => {
-    const comercial = row.dataset.comercial || '';
-    const generico = row.dataset.generico || '';
-    const laboratorio = row.dataset.laboratorio || '';
-    if (comercial.includes(q) || generico.includes(q) || laboratorio.includes(q)) {
-      row.style.display = 'flex';
-    } else {
-      row.style.display = 'none';
-    }
+  document.querySelectorAll('.med-row').forEach(row => {
+    const match = (row.dataset.comercial || '').includes(q)
+                || (row.dataset.generico || '').includes(q)
+                || (row.dataset.laboratorio || '').includes(q);
+    row.style.display = match ? 'flex' : 'none';
   });
 }
 
-document.getElementById('sidebarSearchInput')?.addEventListener('input', (e) => {
-  const query = e.target.value;
-  filterMeds(query);
-  const heroSearch = document.getElementById('heroSearchInput');
-  if (heroSearch) heroSearch.value = query;
+document.getElementById('sidebarSearchInput')?.addEventListener('input', e => {
+  filterMeds(e.target.value);
+  const h = document.getElementById('heroSearchInput');
+  if (h) h.value = e.target.value;
 });
 
-document.getElementById('heroSearchInput')?.addEventListener('input', (e) => {
-  const query = e.target.value;
-  filterMeds(query);
-  const sidebarSearch = document.getElementById('sidebarSearchInput');
-  if (sidebarSearch) sidebarSearch.value = query;
+document.getElementById('heroSearchInput')?.addEventListener('input', e => {
+  filterMeds(e.target.value);
+  const s = document.getElementById('sidebarSearchInput');
+  if (s) s.value = e.target.value;
 });
 
 function ejecutarBusqueda() {
-  const query = document.getElementById('heroSearchInput')?.value || '';
-  filterMeds(query);
+  filterMeds(document.getElementById('heroSearchInput')?.value || '');
 }
 </script>
 </body>
