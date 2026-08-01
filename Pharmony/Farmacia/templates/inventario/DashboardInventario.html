@@ -5,26 +5,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharmony — Dashboard Inventario</title>
-    
-    <!-- Fuentes del nuevo estilo -->
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
 
     <style>
-        /* ── VARIABLES Y RESET ── */
-        *, *::before, *::after {
+        
+        *,
+        *::before,
+        *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
         :root {
-            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9; --bmi: #1a5fd4;
-            --bl: #3b82f6; --bs: #93c5fd; --bp: #dbeafe;
-            --w: #fff; --g50: #f8fafc; --g100: #f1f5f9; --g200: #e2e8f0;
-            --g300: #cbd5e1; --g400: #94a3b8; --g600: #475569; --g800: #1e293b;
-            --grn: #22c55e; --grnp: #f0fdf4;
-            --red: #ef4444; --redp: #fef2f2;
-            --amber: #f59e0b; --amberp: #fffbeb;
+            --bd: #052060;
+            --bdk: #0a3a8c;
+            --bm: #0d47c9;
+            --bmi: #1a5fd4;
+            --bl: #3b82f6;
+            --bs: #93c5fd;
+            --bp: #dbeafe;
+            --w: #fff;
+            --g50: #f8fafc;
+            --g100: #f1f5f9;
+            --g200: #e2e8f0;
+            --g300: #cbd5e1;
+            --g400: #94a3b8;
+            --g600: #475569;
+            --g800: #1e293b;
+            --grn: #22c55e;
+            --grnp: #f0fdf4;
+            --red: #ef4444;
+            --redp: #fef2f2;
+            --amber: #f59e0b;
+            --amberp: #fffbeb;
         }
 
         body {
@@ -34,7 +50,7 @@
             min-height: 100vh;
         }
 
-        /* ── HEADER ── */
+        
         .header {
             background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
             color: var(--w);
@@ -90,14 +106,14 @@
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
         }
 
-        /* ── CONTENEDOR PRINCIPAL ── */
+        
         .container {
             padding: 32px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* ── TARJETAS MÉTRICAS ── */
+        
         .cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -134,7 +150,7 @@
             color: var(--bdk);
         }
 
-        /* ── SECCIÓN DE TABLA ── */
+        
         .table-header {
             display: flex;
             align-items: center;
@@ -209,7 +225,7 @@
             background: var(--g50);
         }
 
-        /* ── BADGES ── */
+        
         .badge {
             display: inline-flex;
             align-items: center;
@@ -231,8 +247,9 @@
             border: 1px solid #bbf7d0;
         }
 
-        /* ── ACCIONES EN TABLA ── */
-        .btn-edit, .btn-delete {
+        
+        .btn-edit,
+        .btn-delete {
             border: none;
             border-radius: 8px;
             padding: 6px 12px;
@@ -266,7 +283,7 @@
             color: var(--w);
         }
 
-        /* ── MODAL REDISEÑADO ── */
+        
         .modal-overlay {
             display: none;
             position: fixed;
@@ -314,7 +331,7 @@
             margin-bottom: 6px;
         }
 
-        .modal-field input[type="text"], 
+        .modal-field input[type="text"],
         .modal-field textarea {
             width: 100%;
             border: 1.5px solid var(--g200);
@@ -329,7 +346,7 @@
             box-sizing: border-box;
         }
 
-        .modal-field input[type="text"]:focus, 
+        .modal-field input[type="text"]:focus,
         .modal-field textarea:focus {
             border-color: var(--bl);
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -402,102 +419,93 @@
 
 <body>
 
-<div class="header">
-    <div class="logo-wrap">
-        <div class="logo-mark">
-            <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
-                <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="white" stroke-width="1.8" fill="none"/>
-                <circle cx="11" cy="8.5" r="2.5" stroke="white" stroke-width="1.6" fill="none"/>
-            </svg>
+    <div class="header">
+        <div class="logo-wrap">
+            <div class="logo-mark">
+                <svg width="18" height="18" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z"
+                        stroke="white" stroke-width="1.8" fill="none" />
+                    <circle cx="11" cy="8.5" r="2.5" stroke="white" stroke-width="1.6" fill="none" />
+                </svg>
+            </div>
+            <span class="logo-name">Pharmony</span>
         </div>
-        <span class="logo-name">Pharmony</span>
-    </div>
-    <a class="btn-logout" href="{% url 'logout' %}">Salir</a>
-</div>
-
-<div class="container">
-
-    <!-- Tarjetas de Métricas -->
-    <div class="cards">
-        <div class="card">
-            <h3>Medicamentos</h3>
-            <h2>{{ total_medicamentos }}</h2>
-        </div>
-        <div class="card">
-            <h3>Requieren Fórmula</h3>
-            <h2>{{ medicamentos_formula }}</h2>
-        </div>
-        <div class="card">
-            <h3>Venta Libre</h3>
-            <h2>{{ medicamentos_libres }}</h2>
-        </div>
-        <div class="card">
-            <h3>Laboratorios</h3>
-            <h2>{{ laboratorios }}</h2>
-        </div>
+        <a class="btn-logout" href="{% url 'logout' %}">Salir</a>
     </div>
 
-    
+    <div class="container">
 
-    <!-- Contenedor de la Tabla -->
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>CUM</th>
-                    <th>Nombre Comercial</th>
-                    <th>Nombre Genérico</th>
-                    <th>Concentración</th>
-                    <th>Laboratorio</th>
-                    <th>Forma</th>
-                    <th>Fórmula</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaMedicamentos">
-            {% for medicamento in medicamentos %}
-                <tr
-                    data-id="{{ medicamento.id }}"
-                    data-codigo_cum="{{ medicamento.codigo_cum }}"
-                    data-nombre_generico="{{ medicamento.nombre_generico }}"
-                    data-nombre_comercial="{{ medicamento.nombre_comercial }}"
-                    data-laboratorio="{{ medicamento.laboratorio }}"
-                    data-concentracion="{{ medicamento.concentracion }}"
-                    data-forma_farmaceutica="{{ medicamento.forma_farmaceutica }}"
-                    data-descripcion="{{ medicamento.descripcion }}"
-                    data-uso_indicado="{{ medicamento.uso_indicado }}"
-                    data-efectos_secundarios="{{ medicamento.efectos_secundarios }}"
-                    data-requiere_formula="{{ medicamento.requiere_formula|yesno:'true,false' }}"
-                >
-                    <td style="font-weight: 500; color: var(--g600);">{{ medicamento.codigo_cum }}</td>
-                    <td style="font-weight: 500;">{{ medicamento.nombre_comercial }}</td>
-                    <td>{{ medicamento.nombre_generico }}</td>
-                    <td>{{ medicamento.concentracion }}</td>
-                    <td>{{ medicamento.laboratorio }}</td>
-                    <td>{{ medicamento.forma_farmaceutica }}</td>
-                    <td>
-                        {% if medicamento.requiere_formula %}
+        <div class="cards">
+            <div class="card">
+                <h3>Medicamentos</h3>
+                <h2>{{ total_medicamentos }}</h2>
+            </div>
+            <div class="card">
+                <h3>Requieren Fórmula</h3>
+                <h2>{{ medicamentos_formula }}</h2>
+            </div>
+            <div class="card">
+                <h3>Venta Libre</h3>
+                <h2>{{ medicamentos_libres }}</h2>
+            </div>
+            <div class="card">
+                <h3>Laboratorios</h3>
+                <h2>{{ laboratorios }}</h2>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>CUM</th>
+                        <th>Nombre Comercial</th>
+                        <th>Nombre Genérico</th>
+                        <th>Concentración</th>
+                        <th>Laboratorio</th>
+                        <th>Forma</th>
+                        <th>Fórmula</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaMedicamentos">
+                    {% for medicamento in medicamentos %}
+                    <tr data-id="{{ medicamento.id }}" data-codigo_cum="{{ medicamento.codigo_cum }}"
+                        data-nombre_generico="{{ medicamento.nombre_generico }}"
+                        data-nombre_comercial="{{ medicamento.nombre_comercial }}"
+                        data-laboratorio="{{ medicamento.laboratorio }}"
+                        data-concentracion="{{ medicamento.concentracion }}"
+                        data-forma_farmaceutica="{{ medicamento.forma_farmaceutica }}"
+                        data-descripcion="{{ medicamento.descripcion }}"
+                        data-uso_indicado="{{ medicamento.uso_indicado }}"
+                        data-efectos_secundarios="{{ medicamento.efectos_secundarios }}"
+                        data-requiere_formula="{{ medicamento.requiere_formula|yesno:'true,false' }}">
+                        <td style="font-weight: 500; color: var(--g600);">{{ medicamento.codigo_cum }}</td>
+                        <td style="font-weight: 500;">{{ medicamento.nombre_comercial }}</td>
+                        <td>{{ medicamento.nombre_generico }}</td>
+                        <td>{{ medicamento.concentracion }}</td>
+                        <td>{{ medicamento.laboratorio }}</td>
+                        <td>{{ medicamento.forma_farmaceutica }}</td>
+                        <td>
+                            {% if medicamento.requiere_formula %}
                             <span class="badge formula">Sí</span>
-                        {% else %}
+                            {% else %}
                             <span class="badge libre">No</span>
-                        {% endif %}
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align: center; color: var(--g400); padding: 32px;">
-                        No hay medicamentos registrados
-                    </td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; color: var(--g400); padding: 32px;">
+                            No hay medicamentos registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-
-
-
-
 
 </body>
+
 </html>

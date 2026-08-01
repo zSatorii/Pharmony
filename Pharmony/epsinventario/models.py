@@ -3,7 +3,6 @@ from django.conf import settings
 from Farmacia.models import Medicamento
 from .geo import coords_para_ciudad
 
-
 class Eps(models.Model):
     nombre = models.CharField(max_length=150)
     nit = models.CharField(max_length=20, unique=True)
@@ -16,7 +15,6 @@ class Eps(models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Sede(models.Model):
     eps = models.ForeignKey(Eps, on_delete=models.CASCADE, related_name='sedes')
     nombre = models.CharField(max_length=150)
@@ -26,9 +24,6 @@ class Sede(models.Model):
     email = models.EmailField(blank=True)
     estado = models.BooleanField(default=True)
 
-    # NUEVO: coordenadas reales para el mapa. Se calculan solas según `ciudad`
-    # si no se pasan explícitamente, para que el mapa muestre la ubicación real
-    # de la sede en vez de datos de ejemplo.
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
 
@@ -41,7 +36,6 @@ class Sede(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.ciudad})"
-
 
 class InventarioSede(models.Model):
     sede = models.ForeignKey(Sede, on_delete=models.CASCADE, related_name='inventarios')
@@ -65,7 +59,6 @@ class InventarioSede(models.Model):
 
     def __str__(self):
         return f"{self.medicamento.nombre_comercial} - {self.sede.nombre}"
-
 
 class SolicitudMedicamento(models.Model):
     """Cuando un cliente pide un medicamento desde el dashboard, queda registrado aquí."""

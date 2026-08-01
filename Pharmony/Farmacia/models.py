@@ -34,7 +34,6 @@ class Usuario(AbstractUser):
     firebase_uid = models.CharField(max_length=255, unique=True, blank=True, null=True, verbose_name="Firebase UID")
     face_encoding = models.TextField(blank=True, null=True, verbose_name="Face Encoding")
     
-    # Ejemplo de un campo de roles
     ROLES = [
         ('admin', 'Administrador'),
         ('cliente', 'Cliente'),
@@ -53,4 +52,3 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return f"{self.username} - {self.get_rol_display()}"
-

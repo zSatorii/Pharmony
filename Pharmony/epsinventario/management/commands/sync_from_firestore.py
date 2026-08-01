@@ -3,7 +3,6 @@ from Farmacia.views import get_firestore_db
 from Farmacia.models import Medicamento
 from epsinventario.models import Eps, Sede, InventarioSede
 
-
 class Command(BaseCommand):
     help = "Trae EPS, Sedes, Medicamentos e Inventario desde Firestore a la base de datos local (SQLite)."
 
@@ -13,7 +12,6 @@ class Command(BaseCommand):
             self.stderr.write("No se pudo conectar a Firestore. Revisa tu ServiceAccountKey.json.")
             return
 
-        # 1. EPS
         count = 0
         for doc in db.collection('eps').stream():
             d = doc.to_dict()
@@ -32,7 +30,6 @@ class Command(BaseCommand):
             count += 1
         self.stdout.write(f"✓ {count} EPS sincronizadas.")
 
-        # 2. Medicamentos (catálogo)
         count = 0
         for doc in db.collection('medicamentos').stream():
             d = doc.to_dict()
@@ -56,7 +53,6 @@ class Command(BaseCommand):
             count += 1
         self.stdout.write(f"✓ {count} medicamentos sincronizados.")
 
-        # 3. Sedes (dependen de que su EPS ya exista localmente)
         count = 0
         for doc in db.collection('sedes').stream():
             d = doc.to_dict()
@@ -78,7 +74,6 @@ class Command(BaseCommand):
             count += 1
         self.stdout.write(f"✓ {count} sedes sincronizadas.")
 
-        # 4. Inventario (depende de Sede y Medicamento ya existentes localmente)
         count = 0
         for doc in db.collection('inventario_sedes').stream():
             d = doc.to_dict()

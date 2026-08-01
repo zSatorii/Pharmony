@@ -1,58 +1,48 @@
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseNotAllowed, HttpResponseForbidden
-from django.views.decorators.cache import never_cache
-from django.contrib import messages
+import json
 
-from .models import Eps, Sede, InventarioSede
-from .serializers import EpsSerializer, SedeSerializer, InventarioSedeSerializer
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.cache import never_cache
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 from Farmacia.models import Medicamento
 from Farmacia.views import get_firestore_db
+from .models import Eps, InventarioSede, Sede, SolicitudMedicamento
+from .serializers import EpsSerializer, InventarioSedeSerializer, SedeSerializer
 
-import json
-from django.http import JsonResponse
-from .models import SolicitudMedicamento
-
-
-# ==========================
-# Helpers de permisos
-# ==========================
 def es_personal(user):
-    """admin O eps: pueden entrar al dashboard y gestionar sedes/inventario."""
     return user.is_authenticated and user.rol in ('admin', 'eps')
 
-
 def es_admin(user):
-    """SOLO admin: gestión de la entidad Eps en sí (alta/baja/edición de la EPS)."""
     return user.is_authenticated and user.rol == 'admin'
-
 
 def puede_ver_sede(user, sede):
     if user.rol == 'admin':
         return True
     return user.eps_id is not None and sede.eps_id == user.eps_id
 
-
-# ==========================
-# Helpers de sincronización con Firestore
-# ==========================
 def _sync_eps_firestore(instance):
     db = get_firestore_db()
     if db is None:
         return
     try:
         data = {
-            "id": instance.id, "nombre": instance.nombre, "nit": instance.nit,
-            "direccion": instance.direccion, "ciudad": instance.ciudad,
-            "telefono": instance.telefono, "email": instance.email, "estado": instance.estado,
+            "id": instance.id,
+            "nombre": instance.nombre,
+            "nit": instance.nit,
+            "direccion": instance.direccion,
+            "ciudad": instance.ciudad,
+            "telefono": instance.telefono,
+            "email": instance.email,
+            "estado": instance.estado,
         }
         db.collection("eps").document(str(instance.id)).set(data)
-    except Exception as e:
-        print(f"Error al sincronizar EPS {instance.id} en Firestore: {e}")
-
+    except Exception:
+        pass
 
 def _sync_sede_firestore(instance):
     db = get_firestore_db()
@@ -60,14 +50,19 @@ def _sync_sede_firestore(instance):
         return
     try:
         data = {
-            "id": instance.id, "eps_id": instance.eps_id, "eps_nombre": instance.eps.nombre,
-            "nombre": instance.nombre, "direccion": instance.direccion, "ciudad": instance.ciudad,
-            "telefono": instance.telefono, "email": instance.email, "estado": instance.estado,
+            "id": instance.id,
+            "eps_id": instance.eps_id,
+            "eps_nombre": instance.eps.nombre,
+            "nombre": instance.nombre,
+            "direccion": instance.direccion,
+            "ciudad": instance.ciudad,
+            "telefono": instance.telefono,
+            "email": instance.email,
+            "estado": instance.estado,
         }
         db.collection("sedes").document(str(instance.id)).set(data)
-    except Exception as e:
-        print(f"Error al sincronizar Sede {instance.id} en Firestore: {e}")
-
+    except Exception:
+        pass
 
 def _sync_medicamento_firestore(instance):
     db = get_firestore_db()
@@ -75,17 +70,21 @@ def _sync_medicamento_firestore(instance):
         return
     try:
         data = {
-            "id": instance.id, "codigo_cum": instance.codigo_cum,
-            "nombre_generico": instance.nombre_generico, "nombre_comercial": instance.nombre_comercial,
-            "laboratorio": instance.laboratorio, "concentracion": instance.concentracion,
-            "forma_farmaceutica": instance.forma_farmaceutica, "descripcion": instance.descripcion,
-            "uso_indicado": instance.uso_indicado, "efectos_secundarios": instance.efectos_secundarios,
+            "id": instance.id,
+            "codigo_cum": instance.codigo_cum,
+            "nombre_generico": instance.nombre_generico,
+            "nombre_comercial": instance.nombre_comercial,
+            "laboratorio": instance.laboratorio,
+            "concentracion": instance.concentracion,
+            "forma_farmaceutica": instance.forma_farmaceutica,
+            "descripcion": instance.descripcion,
+            "uso_indicado": instance.uso_indicado,
+            "efectos_secundarios": instance.efectos_secundarios,
             "requiere_formula": instance.requiere_formula,
         }
         db.collection("medicamentos").document(instance.codigo_cum or str(instance.id)).set(data)
-    except Exception as e:
-        print(f"Error al sincronizar medicamento {instance.id} en Firestore: {e}")
-
+    except Exception:
+        pass
 
 def _sync_inventario_firestore(instance):
     db = get_firestore_db()
@@ -93,20 +92,23 @@ def _sync_inventario_firestore(instance):
         return
     try:
         data = {
-            "id": instance.id, "sede_id": instance.sede_id, "sede_nombre": instance.sede.nombre,
-            "eps_id": instance.sede.eps_id, "eps_nombre": instance.sede.eps.nombre,
-            "ciudad": instance.sede.ciudad, "medicamento_id": instance.medicamento_id,
+            "id": instance.id,
+            "sede_id": instance.sede_id,
+            "sede_nombre": instance.sede.nombre,
+            "eps_id": instance.sede.eps_id,
+            "eps_nombre": instance.sede.eps.nombre,
+            "ciudad": instance.sede.ciudad,
+            "medicamento_id": instance.medicamento_id,
             "medicamento_nombre": instance.medicamento.nombre_comercial,
-            "cantidad_disponible": instance.cantidad_disponible,  # <-- CORREGIDO: cantidad_disponible
-            "cantidad_minima": instance.cantidad_minima,          # <-- CORREGIDO: cantidad_minima
+            "cantidad_disponible": instance.cantidad_disponible,
+            "cantidad_minima": instance.cantidad_minima,
             "lote": instance.lote,
             "fecha_vencimiento": str(instance.fecha_vencimiento) if instance.fecha_vencimiento else None,
             "estado_stock": instance.estado_stock,
         }
         db.collection("inventario_sedes").document(str(instance.id)).set(data)
-    except Exception as e:
-        print(f"Error al sincronizar inventario {instance.id} en Firestore: {e}")
-
+    except Exception:
+        pass
 
 def _eliminar_doc_firestore(coleccion, doc_id):
     db = get_firestore_db()
@@ -114,13 +116,9 @@ def _eliminar_doc_firestore(coleccion, doc_id):
         return
     try:
         db.collection(coleccion).document(str(doc_id)).delete()
-    except Exception as e:
-        print(f"Error al eliminar {doc_id} de {coleccion} en Firestore: {e}")
+    except Exception:
+        pass
 
-
-# ==========================
-# API (DRF) — mismo aislamiento
-# ==========================
 class EpsViewSet(viewsets.ModelViewSet):
     serializer_class = EpsSerializer
     permission_classes = [IsAuthenticated]
@@ -132,7 +130,6 @@ class EpsViewSet(viewsets.ModelViewSet):
         if user.eps_id:
             return Eps.objects.filter(id=user.eps_id)
         return Eps.objects.none()
-
 
 class SedeViewSet(viewsets.ModelViewSet):
     serializer_class = SedeSerializer
@@ -162,7 +159,6 @@ class SedeViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         instance = serializer.save()
         _sync_sede_firestore(instance)
-
 
 class InventarioSedeViewSet(viewsets.ModelViewSet):
     serializer_class = InventarioSedeSerializer
@@ -194,13 +190,9 @@ class InventarioSedeViewSet(viewsets.ModelViewSet):
         instance.delete()
         _eliminar_doc_firestore("inventario_sedes", inv_id)
 
-
-# ==========================
-# Vistas con templates
-# ==========================
 @never_cache
 @login_required
-@user_passes_test(es_personal, login_url='login')   # admin O eps
+@user_passes_test(es_personal, login_url='login')
 def dashboard_eps(request):
     user = request.user
     is_admin = user.rol == 'admin'
@@ -229,10 +221,9 @@ def dashboard_eps(request):
     }
     return render(request, 'epsinventario/DashboardEps.html', context)
 
-
 @never_cache
 @login_required
-@user_passes_test(es_personal, login_url='login')   # admin O eps
+@user_passes_test(es_personal, login_url='login')
 def inventario_por_sede(request, sede_id):
     sede = get_object_or_404(Sede, pk=sede_id)
     if not puede_ver_sede(request.user, sede):
@@ -248,7 +239,6 @@ def inventario_por_sede(request, sede_id):
     }
     return render(request, 'epsinventario/InventarioSede.html', context)
 
-
 @never_cache
 @login_required
 def medicamentos_por_ciudad(request, ciudad):
@@ -261,15 +251,12 @@ def medicamentos_por_ciudad(request, ciudad):
     context = {'ciudad': ciudad, 'sedes': sedes, 'inventarios': inventarios}
     return render(request, 'epsinventario/MedicamentosPorCiudad.html', context)
 
-
 @never_cache
 @login_required
 def buscar_medicamentos(request):
     ciudades = Sede.objects.values_list('ciudad', flat=True).distinct().order_by('ciudad')
     return render(request, 'epsinventario/BuscarMedicamentos.html', {'ciudades': ciudades})
 
-
-# ---- EPS (la entidad) — SOLO admin ----
 @never_cache
 @login_required
 @user_passes_test(es_admin, login_url='login')
@@ -288,7 +275,6 @@ def editar_eps(request, pk):
         return redirect('dashboard_eps')
     return HttpResponseNotAllowed(['POST'])
 
-
 @never_cache
 @login_required
 @user_passes_test(es_admin, login_url='login')
@@ -301,8 +287,6 @@ def eliminar_eps(request, pk):
         return redirect('dashboard_eps')
     return HttpResponseNotAllowed(['POST'])
 
-
-# ---- SEDE — admin O eps ----
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -317,14 +301,16 @@ def crear_sede(request):
             eps = user.eps
 
         sede = Sede.objects.create(
-            eps=eps, nombre=request.POST.get('nombre'), direccion=request.POST.get('direccion'),
-            ciudad=request.POST.get('ciudad'), telefono=request.POST.get('telefono'),
+            eps=eps,
+            nombre=request.POST.get('nombre'),
+            direccion=request.POST.get('direccion'),
+            ciudad=request.POST.get('ciudad'),
+            telefono=request.POST.get('telefono'),
             email=request.POST.get('email'),
         )
         _sync_sede_firestore(sede)
         return redirect('dashboard_eps')
     return HttpResponseNotAllowed(['POST'])
-
 
 @never_cache
 @login_required
@@ -349,7 +335,6 @@ def editar_sede(request, pk):
         return redirect('dashboard_eps')
     return HttpResponseNotAllowed(['POST'])
 
-
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -364,8 +349,6 @@ def eliminar_sede(request, pk):
         return redirect('dashboard_eps')
     return HttpResponseNotAllowed(['POST'])
 
-
-# ---- INVENTARIO / MEDICAMENTOS — admin O eps ----
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -379,8 +362,6 @@ def crear_inventario(request, sede_id):
 
         if modo == 'nuevo':
             codigo_cum = request.POST.get('codigo_cum', '').strip()
-            
-            # --- VALIDACIÓN DE CÓDIGO CUM ---
             if Medicamento.objects.filter(codigo_cum=codigo_cum).exists():
                 messages.error(
                     request, 
@@ -388,7 +369,6 @@ def crear_inventario(request, sede_id):
                     f"Por favor, búscalo y selecciónalo desde la opción de 'Medicamento Existente'."
                 )
                 return redirect('inventario_por_sede', sede_id=sede.id)
-            # ---------------------------------
 
             medicamento = Medicamento.objects.create(
                 codigo_cum=codigo_cum,
@@ -406,7 +386,6 @@ def crear_inventario(request, sede_id):
         else:
             medicamento = get_object_or_404(Medicamento, pk=request.POST.get('medicamento_id'))
 
-        # --- CORRECCIÓN: Usando nombres en español del modelo local ---
         inv = InventarioSede.objects.create(
             sede=sede, 
             medicamento=medicamento,
@@ -421,7 +400,6 @@ def crear_inventario(request, sede_id):
         return redirect('inventario_por_sede', sede_id=sede.id)
         
     return HttpResponseNotAllowed(['POST'])
-
 
 @never_cache
 @login_required
@@ -440,7 +418,6 @@ def editar_inventario(request, pk):
         return redirect('inventario_por_sede', sede_id=inv.sede.id)
     return HttpResponseNotAllowed(['POST'])
 
-
 @never_cache
 @login_required
 @user_passes_test(es_personal, login_url='login')
@@ -455,9 +432,6 @@ def eliminar_inventario(request, pk):
         _eliminar_doc_firestore("inventario_sedes", inv_id)
         return redirect('inventario_por_sede', sede_id=sede_id)
     return HttpResponseNotAllowed(['POST'])
-
-
-
 
 def _sync_solicitud_firestore(instance):
     db = get_firestore_db()
@@ -476,17 +450,12 @@ def _sync_solicitud_firestore(instance):
             "fecha_solicitud": instance.fecha_solicitud.isoformat(),
         }
         db.collection("solicitudes_medicamento").document(str(instance.id)).set(data)
-    except Exception as e:
-        print(f"Error al sincronizar solicitud {instance.id} en Firestore: {e}")
-
+    except Exception:
+        pass
 
 @never_cache
 @login_required
 def api_medicamento_detalle(request, medicamento_id):
-    """
-    Devuelve info del medicamento + en qué sedes hay stock (filtrado opcionalmente por ciudad).
-    Usado por el modal de "click en medicamento" en el dashboard del cliente.
-    """
     medicamento = get_object_or_404(Medicamento, pk=medicamento_id)
     ciudad = request.GET.get('ciudad')
 
@@ -519,11 +488,9 @@ def api_medicamento_detalle(request, medicamento_id):
         "sedes": sedes_data,
     })
 
-
 @never_cache
 @login_required
 def solicitar_medicamento(request):
-    """El cliente solicita un medicamento disponible. Crea el registro y lo sincroniza a Firestore."""
     if request.method != 'POST':
         return HttpResponseNotAllowed(['POST'])
 

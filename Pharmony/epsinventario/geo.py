@@ -45,8 +45,7 @@ CIUDADES_COORDS = {
     "valledupar": (10.4631, -73.2532),
 }
 
-FALLBACK_COORD = (4.7110, -74.0721)  # Bogotá centro, si la ciudad no está mapeada
-
+FALLBACK_COORD = (4.7110, -74.0721)
 
 def coords_para_ciudad(ciudad: str):
     if not ciudad:

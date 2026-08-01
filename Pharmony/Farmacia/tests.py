@@ -28,13 +28,10 @@ class DerechoPeticionTestCase(TestCase):
         )
 
     def test_generar_derecho_peticion_pdf(self):
-        # Force login
         self.client.login(username='testuser', password='testpassword')
         
-        # URL for the view
         url = reverse('generar_derecho_peticion')
         
-        # Post request data
         data = {
             'medicamento_id': self.medicamento.id,
             'nombre_usuario': 'Juan Perez',
@@ -49,30 +46,24 @@ class DerechoPeticionTestCase(TestCase):
         
         response = self.client.post(url, data)
         
-        # Check status and content type
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers['Content-Type'], 'application/pdf')
         
-        # Check that it returns PDF content (starts with %PDF)
         pdf_content = b"".join(response.streaming_content)
         self.assertTrue(pdf_content.startswith(b'%PDF'))
 
-        # Verify that the user model was updated in the database
         self.user.refresh_from_db()
         self.assertEqual(self.user.cedula, '10101010')
         self.assertEqual(self.user.direccion, 'Calle 10 # 20-30')
         self.assertEqual(self.user.telefono, '3001234567')
 
     def test_mi_cuenta_get_and_post(self):
-        # Force login
         self.client.login(username='testuser', password='testpassword')
         
-        # Test GET
         url = reverse('mi_cuenta')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         
-        # Test POST update
         post_data = {
             'nombre': 'Carlos',
             'apellido': 'Gomez',
@@ -84,11 +75,9 @@ class DerechoPeticionTestCase(TestCase):
         }
         response = self.client.post(url, post_data)
         
-        # Should redirect back to mi_cuenta with ?saved=1
         self.assertEqual(response.status_code, 302)
         self.assertIn('?saved=1', response.url)
         
-        # Verify changes in DB
         self.user.refresh_from_db()
         self.assertEqual(self.user.first_name, 'Carlos')
         self.assertEqual(self.user.last_name, 'Gomez')

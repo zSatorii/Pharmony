@@ -1,7 +1,10 @@
+import urllib.parse
+import xml.etree.ElementTree as ET
+import requests
+
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 
-# Noticias de ejemplo — puedes sustituirlas por datos reales de una BD o API
 NOTICIAS = [
     {
         "id": 1,
@@ -59,8 +62,11 @@ NOTICIAS = [
     },
 ]
 
-import requests
-import xml.etree.ElementTree as ET
+MESES_ES = {
+    "jan": "ene", "feb": "feb", "mar": "mar", "apr": "abr",
+    "may": "may", "jun": "jun", "jul": "jul", "aug": "ago",
+    "sep": "sep", "oct": "oct", "nov": "nov", "dec": "dic"
+}
 
 def obtener_noticias_salud():
     url = "https://www.eltiempo.com/rss/salud.xml"
@@ -86,12 +92,7 @@ def obtener_noticias_salud():
                                 day = parts[1]
                                 month_str = parts[2][:3].lower()
                                 year = parts[3]
-                                meses_es = {
-                                    "jan": "ene", "feb": "feb", "mar": "mar", "apr": "abr",
-                                    "may": "may", "jun": "jun", "jul": "jul", "aug": "ago",
-                                    "sep": "sep", "oct": "oct", "nov": "nov", "dec": "dic"
-                                }
-                                month_es = meses_es.get(month_str, month_str)
+                                month_es = MESES_ES.get(month_str, month_str)
                                 fecha = f"{day} {month_es}. {year}"
                         except Exception:
                             pass
@@ -114,6 +115,10 @@ def obtener_noticias_salud():
                     
                     enclosure = item.find("enclosure")
                     image_url = enclosure.attrib.get("url") if enclosure is not None else None
+                    image_webp_url = None
+                    if image_url:
+                        encoded_url = urllib.parse.quote(image_url, safe='')
+                        image_webp_url = f"https://wsrv.nl/?url={encoded_url}&output=webp&q=80"
 
                     words = len(description.split())
                     reading_time = max(2, words // 35)
@@ -127,18 +132,16 @@ def obtener_noticias_salud():
                         "lectura": f"{reading_time} min de lectura",
                         "icono": icono,
                         "link": link,
-                        "image_url": image_url
+                        "image_url": image_url,
+                        "image_webp_url": image_webp_url,
                     })
-    except Exception as e:
-        print(f"Error al obtener noticias RSS: {e}")
+    except Exception:
+        pass
     
-    if not noticias:
-        return NOTICIAS
-    return noticias
+    return noticias if noticias else NOTICIAS
 
 @never_cache
 def home(request):
-    """Vista principal de la página de inicio de Pharmony."""
     noticias = obtener_noticias_salud()
     context = {
         "noticias": noticias,
@@ -146,3 +149,4 @@ def home(request):
         "noticias_secundarias": noticias[1:] if len(noticias) > 1 else [],
     }
     return render(request, "home/index.html", context)
+

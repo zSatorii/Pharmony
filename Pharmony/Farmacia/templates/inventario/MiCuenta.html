@@ -17,7 +17,6 @@
 }
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100);color:var(--gray-800);}
 
-/* ── SIDEBAR ── */
 .sidebar{
   position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);
   background:linear-gradient(170deg,var(--blue-dark) 0%,var(--blue-deep) 100%);
@@ -51,10 +50,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .user-info .uname{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .user-info .urole{font-size:11px;color:rgba(255,255,255,0.38);}
 
-/* ── MAIN ── */
 .main{margin-left:var(--sidebar-w);min-height:100vh;display:flex;flex-direction:column;}
 
-/* TOPBAR */
 .topbar{
   background:#fff;padding:0 28px;height:64px;
   display:flex;align-items:center;justify-content:space-between;
@@ -65,10 +62,8 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .topbar-title h1{font-size:17px;font-weight:500;color:var(--gray-800);}
 .topbar-title p{font-size:12px;color:var(--gray-400);margin-top:1px;}
 
-/* CONTENT */
 .content{padding:28px;flex:1;display:flex;flex-direction:column;gap:24px;max-width:1000px;width:100%;margin:0 auto;}
 
-/* ALERTS */
 .alert{
   padding:14px 20px;border-radius:12px;font-size:13.5px;line-height:1.5;
   display:flex;align-items:center;gap:12px;
@@ -76,7 +71,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--gray-100
 .alert.success{background:var(--green-pale);color:#15803d;border:1px solid rgba(34, 197, 94, 0.2);}
 .alert.danger{background:var(--red-pale);color:#b91c1c;border:1px solid rgba(239, 68, 68, 0.2);}
 
-/* PROFILE GRID */
 .profile-grid{
   display:grid;grid-template-columns:300px 1fr;gap:24px;
 }
@@ -130,7 +124,6 @@ input::placeholder{color:var(--gray-400);}
 </head>
 <body>
 
-<!-- ── SIDEBAR ── -->
 <aside class="sidebar">
   <div class="sidebar-logo">
     <div class="name">Pharmony</div>
@@ -169,9 +162,9 @@ input::placeholder{color:var(--gray-400);}
       Mapa de Sedes
     </a>
 
-    <a class="nav-item" href="#">
-      <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><path d="M3 3h12a1 1 0 0 1 1 1v2H2V4a1 1 0 0 1 1-1z" fill="currentColor" opacity=".6"/><path d="M2 6h14l-1.5 9H3.5L2 6z" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M7 10h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      Solicitar Medicamento
+    <a class="nav-item" href="{% url 'DocsIA:escaner_ui' %}">
+      <svg class="nav-icon" viewBox="0 0 18 18" fill="none"><path d="M9 2L10.5 6.5L15 8L10.5 9.5L9 14L7.5 9.5L3 8L7.5 6.5L9 2Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2L14.75 4.25L17 5L14.75 5.75L14 8L13.25 5.75L11 5L13.25 4.25L14 2Z" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Buscar medicamento con IA
     </a>
 
     <span class="nav-group-label" style="margin-top:6px;">Usuario</span>
@@ -199,7 +192,6 @@ input::placeholder{color:var(--gray-400);}
   </div>
 </aside>
 
-<!-- ── MAIN ── -->
 <main class="main">
 
   <div class="topbar">
@@ -225,7 +217,6 @@ input::placeholder{color:var(--gray-400);}
     {% endif %}
 
     <div class="profile-grid">
-      <!-- LEFT: Profile overview card -->
       <div class="profile-card">
         <div class="profile-avatar">{{ user_initials }}</div>
         <div class="profile-name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
@@ -257,7 +248,6 @@ input::placeholder{color:var(--gray-400);}
         </div>
       </div>
 
-      <!-- RIGHT: Form Edit Info -->
       <div class="form-card">
         <div class="form-title">Modificar Información Personal</div>
         

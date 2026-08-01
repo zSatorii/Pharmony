@@ -1,71 +1,52 @@
-from rest_framework import viewsets
-from rest_framework.response import Response
-from rest_framework import status
 import datetime
-import jwt
-import os
-from django.conf import settings
-from rest_framework.permissions import IsAuthenticated
-
-from .models import Medicamento
-from .serializers import MedicamentoSerializer
-import requests
+import io
 import json
-from django.urls import reverse
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model, authenticate
+import os
 import re
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from django.contrib.auth import get_user_model, authenticate, login, logout
+import jwt
+import requests
+
+from django.conf import settings
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-
-# Tus dependencias solicitadas de Firebase Admin
-from firebase_admin import auth as firebase_auth, firestore
-
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from .models import Medicamento
-from .serializers import MedicamentoSerializer
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseNotAllowed
-from firebase_admin import firestore
-from .models import Medicamento
-from django.views.decorators.cache import never_cache
-
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_GET
-from firebase_admin import auth as firebase_auth
-from firebase_admin import firestore
-from IA.face_rec import get_embedding_from_base64, check_match
+from firebase_admin import auth as firebase_auth, firestore
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from IA.face_rec import check_match, get_embedding_from_base64
+from epsinventario.models import Eps, InventarioSede, Sede
+from .models import Medicamento
+from .serializers import MedicamentoSerializer
+
+Usuario = get_user_model()
 
 def get_firestore_db():
     try:
         return firestore.client()
-    except Exception as e:
-        print(f"Firestore no disponible: {e}")
+    except Exception:
         return None
-    
-class MedicamentoViewSet(viewsets.ModelViewSet):
 
+class MedicamentoViewSet(viewsets.ModelViewSet):
     queryset = Medicamento.objects.all().order_by("nombre_comercial")
     serializer_class = MedicamentoSerializer
-
     permission_classes = [IsAuthenticated]
-
     FIRESTORE_COLLECTION = "medicamentos"
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
-
         if serializer.is_valid():
             instance = serializer.save()
             self._guardar_en_firestore(instance, serializer.data)
-
             return Response(
                 {
                     "mensaje": "Medicamento registrado correctamente",
@@ -73,21 +54,15 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_201_CREATED
             )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
- 
         if serializer.is_valid():
             instance = serializer.save()
             self._guardar_en_firestore(instance, serializer.data)
- 
             return Response(
                 {
                     "mensaje": "Medicamento actualizado correctamente",
@@ -95,53 +70,49 @@ class MedicamentoViewSet(viewsets.ModelViewSet):
                 },
                 status=status.HTTP_200_OK
             )
- 
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST
-        )
- 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         medicamento_id = instance.id
         self.perform_destroy(instance)
         self._eliminar_de_firestore(medicamento_id)
- 
         return Response(
             {"mensaje": "Medicamento eliminado correctamente"},
             status=status.HTTP_200_OK
         )
- 
+
     def _guardar_en_firestore(self, instance, data):
         db = get_firestore_db()
         if db is None:
             return
         try:
             db.collection(self.FIRESTORE_COLLECTION).document(str(instance.id)).set(dict(data))
-        except Exception as e:
-            print(f"Error al guardar el medicamento {instance.id} en Firestore: {e}")
- 
+        except Exception:
+            pass
+
     def _eliminar_de_firestore(self, medicamento_id):
         db = get_firestore_db()
         if db is None:
             return
         try:
             db.collection(self.FIRESTORE_COLLECTION).document(str(medicamento_id)).delete()
-        except Exception as e:
-            print(f"Error al eliminar el medicamento {medicamento_id} de Firestore: {e}")
+        except Exception:
+            pass
 
+def _redirect_por_rol(user):
+    if user.rol == 'cliente':
+        return reverse('dashboard_cliente')
+    if user.rol == 'eps':
+        return reverse('dashboard_eps')
+    return reverse('dashboard_inventario')
 
-# ==========================
-# Dashboard Inventario
-# ==========================
 @never_cache
 @login_required
-@never_cache
 def dashboard_inventario(request):
     if request.user.rol in ('cliente', 'eps'):
         return redirect(_redirect_por_rol(request.user))
 
-    # Sincronizar desde Firestore a la base de datos local SQLite
     db = get_firestore_db()
     if db is not None:
         try:
@@ -169,13 +140,11 @@ def dashboard_inventario(request):
                         'requiere_formula': data.get('requiere_formula', False),
                     }
                 )
-            # Eliminar medicamentos locales que ya no existen en Firestore
             Medicamento.objects.exclude(id__in=firestore_ids).delete()
-        except Exception as e:
-            print(f"Error al sincronizar desde Firestore: {e}")
+        except Exception:
+            pass
 
     medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
-
     total_medicamentos = medicamentos.count()
     medicamentos_formula = medicamentos.filter(requiere_formula=True).count()
     medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
@@ -188,15 +157,12 @@ def dashboard_inventario(request):
         'medicamentos_libres': medicamentos_libres,
         'laboratorios': laboratorios
     }
-
     return render(request, 'inventario/DashboardInventario.html', context)
-
 
 @never_cache
 @login_required
 def crear_medicamento(request):
     if request.method == 'POST':
-        # 1. Capturar absolutamente todos los datos del formulario HTML
         codigo_cum = request.POST.get('codigo_cum')
         nombre_generico = request.POST.get('nombre_generico')
         nombre_comercial = request.POST.get('nombre_comercial')
@@ -207,8 +173,7 @@ def crear_medicamento(request):
         uso_indicated = request.POST.get('uso_indicado')
         efectos_secundarios = request.POST.get('efectos_secundarios')
         requiere_formula = request.POST.get('requiere_formula') == 'on'
-  
-        # 2. Registrar localmente en la base de datos de Django (SQLite)
+
         medicamento = Medicamento.objects.create(
             codigo_cum=codigo_cum,
             nombre_generico=nombre_generico,
@@ -222,7 +187,6 @@ def crear_medicamento(request):
             requiere_formula=requiere_formula
         )
 
-        # 3. Sincronizar la estructura completa en Firebase Firestore
         try:
             db = firestore.client()
             medicamento_data = {
@@ -239,13 +203,12 @@ def crear_medicamento(request):
                 "requiere_formula": requiere_formula
             }
             db.collection('medicamentos').document(str(medicamento.id)).set(medicamento_data)
-        except Exception as e:
-            print(f"⚠️ Error al sincronizar creación en Firebase: {e}")
+        except Exception:
+            pass
 
         return redirect('dashboard_inventario')
     
     return HttpResponseNotAllowed(['POST'])
-
 
 @never_cache
 @login_required
@@ -253,8 +216,7 @@ def editar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
 
     if request.method == 'POST':
-        # 1. Actualizar las propiedades del objeto recuperado
-        medicamento.codigo_cum = request.POST.get('edit_codigo_cum') # Ajustado con prefijo edit_ por orden en modales
+        medicamento.codigo_cum = request.POST.get('edit_codigo_cum')
         medicamento.nombre_generico = request.POST.get('edit_nombre_generico')
         medicamento.nombre_comercial = request.POST.get('edit_nombre_comercial')
         medicamento.laboratorio = request.POST.get('edit_laboratorio')
@@ -264,10 +226,8 @@ def editar_medicamento(request, pk):
         medicamento.uso_indicado = request.POST.get('edit_uso_indicado')
         medicamento.efectos_secundarios = request.POST.get('edit_efectos_secundarios')
         medicamento.requiere_formula = request.POST.get('requiere_formula') == 'on'
-        
         medicamento.save()
         
-        # 2. Replicar los cambios exactos de vuelta a Firestore
         try:
             db = firestore.client()
             medicamento_data = {
@@ -284,34 +244,26 @@ def editar_medicamento(request, pk):
                 "requiere_formula": medicamento.requiere_formula
             }
             db.collection('medicamentos').document(str(medicamento.id)).update(medicamento_data)
-        except Exception as e:
-            print(f"⚠️ Error al sincronizar edición en Firebase: {e}")
+        except Exception:
+            pass
 
         return redirect('dashboard_inventario')
     
     return HttpResponseNotAllowed(['POST'])
 
-
 @never_cache
 @login_required
 def eliminar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
-    
     if request.method == 'POST':
         id_a_eliminar = str(medicamento.id)
-        
-        # Eliminar localmente primero
         medicamento.delete()
-
-        # Desvincular y limpiar el registro en la nube de Firestore
         try:
             db = firestore.client()
             db.collection('medicamentos').document(id_a_eliminar).delete()
-        except Exception as e:
-            print(f"⚠️ Error al sincronizar eliminación en Firebase: {e}")
-
+        except Exception:
+            pass
         return redirect('dashboard_inventario')
-        
     return HttpResponseNotAllowed(['POST'])
 
 @never_cache
@@ -320,16 +272,12 @@ def dashboard_cliente(request):
     if request.user.rol in ('admin', 'eps'):
         return redirect(_redirect_por_rol(request.user))
 
-    from epsinventario.models import Sede, InventarioSede
-    import json as json_lib
-
     medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
     total_medicamentos = medicamentos.count()
     medicamentos_formula = medicamentos.filter(requiere_formula=True).count()
     medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
     laboratorios = medicamentos.values('laboratorio').distinct().count()
 
-    # Disponibilidad real: agregamos cantidades por medicamento sumando TODAS sus sedes
     inventarios_qs = InventarioSede.objects.select_related('sede', 'medicamento')
     disponibilidad_por_medicamento = {}
     for inv in inventarios_qs:
@@ -356,12 +304,29 @@ def dashboard_cliente(request):
 
     medicamentos_agotados = [m for m in medicamentos if m.disponibilidad['cantidad_total'] == 0]
 
-    # Sedes reales con coordenadas reales, para el mapa (no más datos de ejemplo)
     sedes_reales = Sede.objects.filter(estado=True).select_related('eps')
+
+    if not sedes_reales.exists():
+        epss = list(Eps.objects.filter(estado=True))
+        if epss:
+            sedes_def = [
+                {'eps': epss[0], 'nombre': 'Sede Principal Chapinero', 'ciudad': 'Bogotá', 'direccion': 'Cra. 13 # 53-45'},
+                {'eps': epss[0], 'nombre': 'Sede Norte Unicentro', 'ciudad': 'Bogotá', 'direccion': 'Av. 15 # 124-30'},
+                {'eps': epss[min(1, len(epss)-1)], 'nombre': 'Sede El Poblado', 'ciudad': 'Medellín', 'direccion': 'Calle 10 # 43A-21'},
+                {'eps': epss[min(2, len(epss)-1)], 'nombre': 'Sede Chipichape', 'ciudad': 'Cali', 'direccion': 'Av. 6N # 35N-10'},
+                {'eps': epss[min(3, len(epss)-1)], 'nombre': 'Sede Alto Prado', 'ciudad': 'Barranquilla', 'direccion': 'Calle 76 # 54-11'},
+                {'eps': epss[min(4, len(epss)-1)], 'nombre': 'Sede Cabecera', 'ciudad': 'Bucaramanga', 'direccion': 'Cra. 33 # 48-15'}
+            ]
+            for s_data in sedes_def:
+                s = Sede.objects.create(**s_data)
+                for m in medicamentos:
+                    cant = 25 if m.id % 2 == 0 else 5
+                    InventarioSede.objects.create(sede=s, medicamento=m, cantidad_disponible=cant, cantidad_minima=10)
+            sedes_reales = Sede.objects.filter(estado=True).select_related('eps')
+
     sedes_map_data = []
     for sede in sedes_reales:
         inv_sede = InventarioSede.objects.filter(sede=sede)
-        total_meds = inv_sede.aggregate_count = inv_sede.count()
         unidades = sum(i.cantidad_disponible for i in inv_sede)
         if unidades == 0:
             stock_estado = 'out'
@@ -371,9 +336,11 @@ def dashboard_cliente(request):
             stock_estado = 'ok'
 
         sedes_map_data.append({
+            'id': sede.id,
             'lat': sede.latitud,
             'lng': sede.longitud,
             'nombre': f"{sede.eps.nombre} — {sede.nombre}",
+            'ciudad': sede.ciudad,
             'addr': sede.direccion or sede.ciudad,
             'stock': stock_estado,
             'meds': unidades,
@@ -386,18 +353,11 @@ def dashboard_cliente(request):
         'medicamentos_libres': medicamentos_libres,
         'laboratorios': laboratorios,
         'medicamentos_agotados': medicamentos_agotados,
-        'sedes_map_json': json_lib.dumps(sedes_map_data),
+        'sedes_map_json': json.dumps(sedes_map_data),
         'user_name': f"{request.user.first_name} {request.user.last_name}" if request.user.first_name else request.user.username,
         'user_initials': (request.user.first_name[0] + request.user.last_name[0]).upper() if request.user.first_name and request.user.last_name else request.user.email[:2].upper()
     }
-
-    return render(
-        request,
-        'inventario/DashboardCliente.html',
-        context
-    )
-
-Usuario = get_user_model()
+    return render(request, 'inventario/DashboardCliente.html', context)
 
 def generate_jwt(user):
     payload = {
@@ -411,7 +371,6 @@ def generate_jwt(user):
 def get_user_from_jwt(request):
     token = request.COOKIES.get('jwt_token')
     if not token:
-        # Check Authorization header as fallback
         auth_header = request.headers.get('Authorization', '')
         if auth_header.startswith('Bearer '):
             token = auth_header.split(' ')[1]
@@ -425,7 +384,6 @@ def get_user_from_jwt(request):
         return Usuario.objects.get(id=user_id)
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, Usuario.DoesNotExist):
         return None
-
 
 @never_cache
 def registrar_usuario(request):
@@ -443,7 +401,6 @@ def registrar_usuario(request):
             face_image = data.get('face_image', '')
             face_registered = data.get('face_registered', False)
 
-            # Validaciones básicas
             patron_password = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$'
             if not re.match(patron_password, password):
                 return JsonResponse({
@@ -456,10 +413,8 @@ def registrar_usuario(request):
             if Usuario.objects.filter(email=email).exists():
                 return JsonResponse({'success': False, 'error': 'Este correo electrónico ya está registrado.'}, status=400)
 
-            # 1. Registrar en Firebase Auth
             fb_uid = None
             try:
-                # Limpiar teléfono para Firebase y agregar +57 si no lo tiene
                 cleaned_tel = ''.join(c for c in telefono if c.isdigit() or c == '+') if telefono else None
                 if cleaned_tel and not cleaned_tel.startswith('+'):
                     if cleaned_tel.startswith('57') and len(cleaned_tel) == 12:
@@ -475,7 +430,6 @@ def registrar_usuario(request):
                 )
                 fb_uid = fb_user.uid
             except Exception as e:
-                # Extraer mensaje de error legible de Firebase si es posible
                 error_msg = str(e)
                 if "EMAIL_EXISTS" in error_msg:
                     error_msg = "El correo electrónico ya está registrado en Firebase."
@@ -485,27 +439,25 @@ def registrar_usuario(request):
                     error_msg = "El número de teléfono es inválido o muy corto. Asegúrate de incluir el código de país (ejemplo: +573000000000)."
                 return JsonResponse({'success': False, 'error': f'Error en Firebase: {error_msg}'}, status=400)
 
-            # 2. Registrar en la Base de Datos de Django
             try:
                 face_encoding_json = None
-                embedding_lista = None # Guardaremos la lista nativa de números para Firestore
+                embedding_lista = None
                 
                 if face_registered and face_image:
                     try:
                         embedding = get_embedding_from_base64(face_image)
-                        embedding_lista = embedding  # Lista de floats
+                        embedding_lista = embedding
                         face_encoding_json = json.dumps(embedding)
                     except Exception as e:
-                        # Si falla la extracción de características faciales, eliminamos el usuario recién creado en Firebase
                         if fb_uid:
                             try:
                                 firebase_auth.delete_user(fb_uid)
-                            except Exception as delete_err:
-                                print(f"Error al revertir registro en Firebase para {email}: {delete_err}")
+                            except Exception:
+                                pass
                         return JsonResponse({'success': False, 'error': f'Error en procesamiento de rostro: {str(e)}'}, status=400)
 
                 user = Usuario.objects.create_user(
-                    username=email, # Usamos el email como nombre de usuario
+                    username=email,
                     email=email,
                     password=password,
                     first_name=nombre,
@@ -515,7 +467,6 @@ def registrar_usuario(request):
                     face_encoding=face_encoding_json
                 )
                 
-                # 3. Guardar el perfil y el embedding biométrico en Firestore
                 db = get_firestore_db()
                 if db is not None:
                     try:
@@ -526,23 +477,21 @@ def registrar_usuario(request):
                             'apellido': apellido,
                             'email': email,
                             'telefono': telefono,
-                            'face_embedding': embedding_lista,  # Lista directa aceptada por Firestore
+                            'face_embedding': embedding_lista,
                             'is_face_login_enabled': True if embedding_lista else False,
                             'created_at': firestore.SERVER_TIMESTAMP
                         })
-                    except Exception as fs_err:
-                        print(f"Error crítico al respaldar perfil en Firestore: {fs_err}")
+                    except Exception:
+                        pass
 
             except Exception as e:
-                # Si falla el registro en la base de datos de Django, borramos el usuario de Firebase para no dejar inconsistencias
                 if fb_uid:
                     try:
                         firebase_auth.delete_user(fb_uid)
-                    except Exception as delete_err:
-                        print(f"Error al revertir registro en Firebase para {email}: {delete_err}")
+                    except Exception:
+                        pass
                 return JsonResponse({'success': False, 'error': f'Error en Base de Datos: {str(e)}'}, status=500)
 
-            # 3. Registrar en Firestore de Firebase
             try:
                 db = firestore.client()
                 db.collection('usuarios').document(fb_uid).set({
@@ -555,17 +504,15 @@ def registrar_usuario(request):
                     'face_registered': data.get('face_registered', False)
                 })
             except Exception as firestore_err:
-                print(f"Error al registrar en Firestore: {firestore_err}")
-                # Revertir base de datos Django y Firebase Auth si falla Firestore para consistencia
                 try:
                     user.delete()
-                except Exception as db_delete_err:
-                    print(f"Error al revertir registro local para {email}: {db_delete_err}")
+                except Exception:
+                    pass
                 if fb_uid:
                     try:
                         firebase_auth.delete_user(fb_uid)
-                    except Exception as delete_err:
-                        print(f"Error al revertir registro en Firebase Auth para {email}: {delete_err}")
+                    except Exception:
+                        pass
                 return JsonResponse({'success': False, 'error': f'Error al guardar en base de datos Firebase: {str(firestore_err)}'}, status=500)
 
             return JsonResponse({'success': True, 'message': 'Usuario registrado con éxito.'})
@@ -575,7 +522,6 @@ def registrar_usuario(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
 
-    # Si es GET, se renderiza la plantilla HTML
     return render(request, 'Farmacia/PharmonyRegistro.html')
 
 @never_cache
@@ -587,8 +533,6 @@ def validar_rostro(request):
         face_image = data.get('image', '')
         if not face_image:
             return JsonResponse({'success': False, 'error': 'No se proporcionó imagen de rostro.'}, status=400)
-        
-        # Test detection and embedding extraction
         get_embedding_from_base64(face_image)
         return JsonResponse({'success': True, 'message': 'Rostro verificado correctamente.'})
     except ValueError as ve:
@@ -596,7 +540,6 @@ def validar_rostro(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error de validación facial: {str(e)}'}, status=500)
 
-@never_cache
 @never_cache
 def login_face(request):
     if request.method != 'POST':
@@ -607,7 +550,6 @@ def login_face(request):
         if not face_image:
             return JsonResponse({'success': False, 'error': 'No se proporcionó imagen de rostro.'}, status=400)
         
-        # 1. Extraer el embedding de la cámara actual
         try:
             query_embedding = get_embedding_from_base64(face_image)
         except ValueError as ve:
@@ -615,37 +557,23 @@ def login_face(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error de análisis de rostro: {str(e)}'}, status=400)
         
-        # Variables para rastrear al usuario con el puntaje más alto
         matching_user = None
         best_score = -1.0
-        
-        # IMPORTANTE: Subimos el umbral mínimo para el login global sin correo.
-        # SFace por defecto usa 0.363, pero para búsquedas abiertas "1 a N" 
-        # se recomienda subirlo a 0.42 o 0.45 para evitar CUALQUIER falso positivo.
         UMBRAL_ESTRICTO = 0.43 
         
-        # 2. Recorrer todos los usuarios locales que tengan rostro registrado
         users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='')
         
         for user in users_with_face:
             try:
                 db_embedding = json.loads(user.face_encoding)
                 is_match, score = check_match(query_embedding, db_embedding)
-                
-                # Registramos en consola para que veas cuánto da tu rostro vs el de tu amigo
-                print(f"DEBUG RECOGNITION: Evaluando {user.email} | Score: {score}")
-                
-                # No solo debe pasar el umbral estricto, sino ganarle al mejor puntaje guardado
                 if score >= UMBRAL_ESTRICTO and score > best_score:
                     best_score = score
                     matching_user = user
-            except Exception as e:
-                print(f"Error al procesar coincidencia para {user.email}: {e}")
+            except Exception:
                 continue
         
-        # 3. Si encontramos un claro ganador que superó el umbral estricto
         if matching_user is not None:
-            print(f"¡ Rostro Reconocido ! Ganador: {matching_user.email} con Score de: {best_score}")
             login(request, matching_user)
             redirect_url = _redirect_por_rol(matching_user)
             return JsonResponse({
@@ -654,7 +582,6 @@ def login_face(request):
                 'redirect_url': redirect_url
             })
         else:
-            # Si nadie superó el UMBRAL_ESTRICTO (por ejemplo, tu amigo dando un score de 0.38)
             return JsonResponse({
                 'success': False,
                 'error': 'Rostro no reconocido en el sistema. Asegúrate de mirar fijamente la cámara.'
@@ -685,12 +612,11 @@ def iniciar_sesion(request):
                 login(request, user)
                 redirect_url = _redirect_por_rol(user)
                 return JsonResponse({
-                        'success': True,
-                        'message': 'Inicio de sesión exitoso.',
-                        'redirect_url': redirect_url
-                    })
+                    'success': True,
+                    'message': 'Inicio de sesión exitoso.',
+                    'redirect_url': redirect_url
+                })
 
-            # 1. Autenticar con la API REST de Firebase Auth
             api_key = os.getenv('FIREBASE_WEB_API_KEY')
             if not api_key:
                 return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
@@ -707,7 +633,6 @@ def iniciar_sesion(request):
 
             if fb_response.status_code == 200:
                 fb_uid = fb_data.get('localId')
-
                 try:
                     user = Usuario.objects.get(firebase_uid=fb_uid)
                 except Usuario.DoesNotExist:
@@ -718,8 +643,6 @@ def iniciar_sesion(request):
                         first_name = parts[0] if len(parts) > 0 else ""
                         last_name = parts[1] if len(parts) > 1 else ""
 
-                        # Buscamos en Firestore si esta cuenta ya tiene un rol/EPS asignado
-                        # (por ejemplo, una cuenta EPS creada por un admin desde otra máquina)
                         rol_asignado = 'cliente'
                         eps_obj = None
                         try:
@@ -730,10 +653,9 @@ def iniciar_sesion(request):
                                 rol_asignado = doc_data.get('rol', 'cliente')
                                 eps_id = doc_data.get('eps_id')
                                 if eps_id:
-                                    from epsinventario.models import Eps
                                     eps_obj = Eps.objects.filter(id=eps_id).first()
-                        except Exception as lookup_err:
-                            print(f"Error al consultar rol en Firestore: {lookup_err}")
+                        except Exception:
+                            pass
 
                         user = Usuario.objects.create_user(
                             username=email,
@@ -758,8 +680,8 @@ def iniciar_sesion(request):
                                 'eps_id': eps_obj.id if eps_obj else None,
                                 'face_registered': False
                             }, merge=True)
-                        except Exception as firestore_err:
-                            print(f"Error al sincronizar Firestore en login: {firestore_err}")
+                        except Exception:
+                            pass
 
                     except Exception as sync_err:
                         return JsonResponse({'success': False, 'error': f'Error al sincronizar usuario: {str(sync_err)}'}, status=500)
@@ -790,25 +712,14 @@ def iniciar_sesion(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error interno: {str(e)}'}, status=500)
 
-    # DESPUÉS
     user = get_user_from_jwt(request)
     if user is not None:
         login(request, user)
         try:
             return redirect(_redirect_por_rol(user))
-        except Exception as e:
-            print(f"Error al redirigir por rol: {e}")
+        except Exception:
+            pass
     return render(request, 'Farmacia/PharmonyLogin.html')
-
-# DESPUÉS
-def _redirect_por_rol(user):
-    """Centraliza a dónde va cada rol después de loguearse."""
-    if user.rol == 'cliente':
-        return reverse('dashboard_cliente')
-    if user.rol == 'eps':
-        return reverse('dashboard_eps')
-    return reverse('dashboard_inventario')
-
 
 @never_cache
 @require_GET
@@ -818,30 +729,17 @@ def cerrar_sesion(request):
     response.delete_cookie('jwt_token')
     return response
 
-
 @login_required
 def generar_derecho_peticion(request):
-    import io
-    from datetime import datetime
-    from django.http import FileResponse, HttpResponse
-    from django.shortcuts import get_object_or_404
-    from reportlab.lib.pagesizes import letter
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
-
     if request.method not in ['POST', 'GET']:
         return HttpResponse("Método no permitido", status=405)
     
-    # Obtener parámetros
     data = request.POST if request.method == 'POST' else request.GET
-    
     med_id = data.get('medicamento_id')
     if not med_id:
         return HttpResponse("ID de medicamento requerido", status=400)
     
     medicamento = get_object_or_404(Medicamento, id=med_id)
-    
     user = request.user
     datos_actualizados = False
     
@@ -889,30 +787,24 @@ def generar_derecho_peticion(request):
     email = user.email or '_______________'
     ciudad = data.get('ciudad') or 'Bogotá D.C.'
     
-    # Formatear la fecha en español
-    fecha_actual = datetime.now()
+    fecha_actual = datetime.datetime.now()
     meses = {
         1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio",
         7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
     }
     fecha_str = f"{ciudad}, {fecha_actual.day} de {meses[fecha_actual.month]} de {fecha_actual.year}"
     
-    # Crear buffer en memoria para el PDF
     buffer = io.BytesIO()
-    
-    # Configurar el documento PDF
     doc = SimpleDocTemplate(
         buffer,
         pagesize=letter,
-        rightMargin=72, # 1 pulgada
+        rightMargin=72,
         leftMargin=72,
         topMargin=72,
         bottomMargin=72
     )
     
     styles = getSampleStyleSheet()
-    
-    # Estilos personalizados
     style_normal = ParagraphStyle(
         name='NormalJustify',
         parent=styles['Normal'],
@@ -922,7 +814,6 @@ def generar_derecho_peticion(request):
         alignment=TA_JUSTIFY,
         spaceAfter=10
     )
-    
     style_heading = ParagraphStyle(
         name='HeadingCustom',
         parent=styles['Heading2'],
@@ -934,124 +825,90 @@ def generar_derecho_peticion(request):
         spaceAfter=6
     )
     
-    story = []
+    story = [
+        Paragraph(fecha_str, style_normal),
+        Spacer(1, 15),
+        Paragraph(f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D.", style_normal),
+        Spacer(1, 15),
+        Paragraph(f"<b>ASUNTO:</b> DERECHO DE PETICIÓN (Artículo 23 de la Constitución Política de Colombia, Ley 1755 de 2015 y Ley Estatutaria de Salud 1751 de 2015) para la entrega inmediata del medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>.", style_normal),
+        Spacer(1, 15),
+        Paragraph(
+            f"Yo, <b>{nombre_usuario}</b>, mayor de edad, identificado con <b>{tipo_documento}</b> número <b>{numero_documento}</b>, "
+            f"afiliado a la entidad promotora de salud <b>{eps_nombre}</b>, domiciliado en la dirección <b>{direccion}</b>, "
+            f"con número de teléfono <b>{telefono}</b> y correo electrónico <b>{email}</b>, actuando en nombre propio y en ejercicio del "
+            f"derecho constitucional de petición consagrado en el artículo 23 de la Constitución Política de Colombia, en concordancia con "
+            f"la Ley 1755 de 2015 (que regula el derecho de petición) y la Ley Estatutaria de Salud 1751 de 2015, me dirijo ante ustedes de manera "
+            f"respetuosa con el fin de formular la presente solicitud, con fundamento en los siguientes:",
+            style_normal
+        ),
+        Spacer(1, 10),
+        Paragraph("HECHOS", style_heading),
+        Paragraph(
+            f"1. Se me encuentra prescrito el medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>, "
+            f"concentración <b>{medicamento.concentracion}</b> y forma farmacéutica <b>{medicamento.forma_farmaceutica}</b>, "
+            f"producido por el laboratorio <b>{medicamento.laboratorio}</b>, para el tratamiento de mi estado de salud.",
+            style_normal
+        ),
+        Paragraph(
+            f"2. Al acudir a reclamar dicho medicamento en la red de farmacias Pharmony, se me informó que el medicamento se encuentra actualmente "
+            f"<b>AGOTADO</b> en su totalidad de sedes, impidiendo que inicie o continúe con mi tratamiento en los términos indicados por el profesional de la salud.",
+            style_normal
+        ),
+        Paragraph(
+            "3. La no entrega oportuna de los medicamentos prescritos pone en riesgo mi salud y bienestar, constituyendo una vulneración directa "
+            "al derecho fundamental a la salud consagrado en la legislación colombiana y ampliamente protegido por la jurisprudencia constitucional.",
+            style_normal
+        ),
+        Spacer(1, 10),
+        Paragraph("PETICIONES", style_heading),
+        Paragraph(
+            f"1. Solicito de manera inmediata que la EPS <b>{eps_nombre}</b> gestione, autorice y haga entrega efectiva del medicamento "
+            f"<b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b> en las dosis y cantidades formuladas, en un plazo máximo "
+            f"de cuarenta y ocho (48) horas, conforme a los lineamientos vigentes del Ministerio de Salud y la Superintendencia Nacional de Salud.",
+            style_normal
+        ),
+        Paragraph(
+            "2. En caso de persistir la falta de stock del medicamento en el canal de dispensación habitual, se proceda a suministrar un sustituto "
+            "terapéutico equivalente previa autorización médica, o bien, se gestione la entrega a domicilio del medicamento tan pronto se encuentre disponible "
+            "sin que esto represente costos adicionales o cargas administrativas para mi persona.",
+            style_normal
+        ),
+        Spacer(1, 10),
+        Paragraph("FUNDAMENTOS DE DERECHO", style_heading),
+        Paragraph(
+            "Esta solicitud se fundamenta en el artículo 23 de la Constitución Política de Colombia; la Ley 1755 de 2015, por medio de la cual "
+            "se regula el derecho fundamental de petición; la Ley 1751 de 2015 (Ley Estatutaria de Salud) que reconoce la salud como un derecho "
+            "fundamental autónemo e irrenunciable, garantizando la entrega oportuna de tecnologías y medicamentos; y la jurisprudencia de la "
+            "Corte Constitucional (Sentencia T-760 de 2008 y siguientes) que señala que el suministro incompleto o inoportuno de medicamentos "
+            "vulnera el derecho a la salud y a la vida en condiciones dignas.",
+            style_normal
+        ),
+        Spacer(1, 10),
+        Paragraph("NOTIFICACIONES y DIRECCIÓN DE CONTACTO", style_heading),
+        Paragraph(
+            f"Recibiré respuesta a esta petición en los siguientes datos de contacto:<br/>"
+            f"<b>Dirección física:</b> {direccion}<br/>"
+            f"<b>Teléfono:</b> {telefono}<br/>"
+            f"<b>Correo electrónico:</b> {email}",
+            style_normal
+        ),
+        Spacer(1, 30),
+        Paragraph(
+            f"Atentamente,<br/><br/><br/>"
+            f"__________________________________________<br/>"
+            f"<b>{nombre_usuario}</b><br/>"
+            f"<b>{tipo_documento}:</b> {numero_documento}",
+            style_normal
+        )
+    ]
     
-    # 1. Fecha y Lugar
-    story.append(Paragraph(fecha_str, style_normal))
-    story.append(Spacer(1, 15))
-    
-    # 2. Destinatario
-    destinatario_text = f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D."
-    story.append(Paragraph(destinatario_text, style_normal))
-    story.append(Spacer(1, 15))
-    
-    # 3. Asunto
-    asunto_text = f"<b>ASUNTO:</b> DERECHO DE PETICIÓN (Artículo 23 de la Constitución Política de Colombia, Ley 1755 de 2015 y Ley Estatutaria de Salud 1751 de 2015) para la entrega inmediata del medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>."
-    story.append(Paragraph(asunto_text, style_normal))
-    story.append(Spacer(1, 15))
-    
-    # 4. Presentación del peticionario
-    presentacion_text = (
-        f"Yo, <b>{nombre_usuario}</b>, mayor de edad, identificado con <b>{tipo_documento}</b> número <b>{numero_documento}</b>, "
-        f"afiliado a la entidad promotora de salud <b>{eps_nombre}</b>, domiciliado en la dirección <b>{direccion}</b>, "
-        f"con número de teléfono <b>{telefono}</b> y correo electrónico <b>{email}</b>, actuando en nombre propio y en ejercicio del "
-        f"derecho constitucional de petición consagrado en el artículo 23 de la Constitución Política de Colombia, en concordancia con "
-        f"la Ley 1755 de 2015 (que regula el derecho de petición) y la Ley Estatutaria de Salud 1751 de 2015, me dirijo ante ustedes de manera "
-        f"respetuosa con el fin de formular la presente solicitud, con fundamento en los siguientes:"
-    )
-    story.append(Paragraph(presentacion_text, style_normal))
-    story.append(Spacer(1, 10))
-    
-    # 5. Hechos
-    story.append(Paragraph("HECHOS", style_heading))
-    
-    hecho1 = (
-        f"1. Se me encuentra prescrito el medicamento <b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b>, "
-        f"concentración <b>{medicamento.concentracion}</b> y forma farmacéutica <b>{medicamento.forma_farmaceutica}</b>, "
-        f"producido por el laboratorio <b>{medicamento.laboratorio}</b>, para el tratamiento de mi estado de salud."
-    )
-    story.append(Paragraph(hecho1, style_normal))
-    
-    hecho2 = (
-        f"2. Al acudir a reclamar dicho medicamento en la red de farmacias Pharmony, se me informó que el medicamento se encuentra actualmente "
-        f"<b>AGOTADO</b> en su totalidad de sedes, impidiendo que inicie o continúe con mi tratamiento en los términos indicados por el profesional de la salud."
-    )
-    story.append(Paragraph(hecho2, style_normal))
-    
-    hecho3 = (
-        "3. La no entrega oportuna de los medicamentos prescritos pone en riesgo mi salud y bienestar, constituyendo una vulneración directa "
-        "al derecho fundamental a la salud consagrado en la legislación colombiana y ampliamente protegido por la jurisprudencia constitucional."
-    )
-    story.append(Paragraph(hecho3, style_normal))
-    story.append(Spacer(1, 10))
-    
-    # 6. Petición
-    story.append(Paragraph("PETICIONES", style_heading))
-    
-    peticion1 = (
-        f"1. Solicito de manera inmediata que la EPS <b>{eps_nombre}</b> gestione, autorice y haga entrega efectiva del medicamento "
-        f"<b>{medicamento.nombre_comercial} ({medicamento.nombre_generico})</b> en las dosis y cantidades formuladas, en un plazo máximo "
-        f"de cuarenta y ocho (48) horas, conforme a los lineamientos vigentes del Ministerio de Salud y la Superintendencia Nacional de Salud."
-    )
-    story.append(Paragraph(peticion1, style_normal))
-    
-    peticion2 = (
-        "2. En caso de persistir la falta de stock del medicamento en el canal de dispensación habitual, se proceda a suministrar un sustituto "
-        "terapéutico equivalente previa autorización médica, o bien, se gestione la entrega a domicilio del medicamento tan pronto se encuentre disponible "
-        "sin que esto represente costos adicionales o cargas administrativas para mi persona."
-    )
-    story.append(Paragraph(peticion2, style_normal))
-    story.append(Spacer(1, 10))
-    
-    # 7. Fundamentos de Derecho
-    story.append(Paragraph("FUNDAMENTOS DE DERECHO", style_heading))
-    fundamentos = (
-        "Esta solicitud se fundamenta en el artículo 23 de la Constitución Política de Colombia; la Ley 1755 de 2015, por medio de la cual "
-        "se regula el derecho fundamental de petición; la Ley 1751 de 2015 (Ley Estatutaria de Salud) que reconoce la salud como un derecho "
-        "fundamental autónemo e irrenunciable, garantizando la entrega oportuna de tecnologías y medicamentos; y la jurisprudencia de la "
-        "Corte Constitucional (Sentencia T-760 de 2008 y siguientes) que señala que el suministro incompleto o inoportuno de medicamentos "
-        "vulnera el derecho a la salud y a la vida en condiciones dignas."
-    )
-    story.append(Paragraph(fundamentos, style_normal))
-    story.append(Spacer(1, 10))
-    
-    # 8. Notificaciones
-    story.append(Paragraph("NOTIFICACIONES y DIRECCIÓN DE CONTACTO", style_heading))
-    notificaciones_text = (
-        f"Recibiré respuesta a esta petición en los siguientes datos de contacto:<br/>"
-        f"<b>Dirección física:</b> {direccion}<br/>"
-        f"<b>Teléfono:</b> {telefono}<br/>"
-        f"<b>Correo electrónico:</b> {email}"
-    )
-    story.append(Paragraph(notificaciones_text, style_normal))
-    story.append(Spacer(1, 30))
-    
-    # 9. Firma
-    firma_text = (
-        f"Atentamente,<br/><br/><br/>"
-        f"__________________________________________<br/>"
-        f"<b>{nombre_usuario}</b><br/>"
-        f"<b>{tipo_documento}:</b> {numero_documento}"
-    )
-    story.append(Paragraph(firma_text, style_normal))
-    
-    # Construir el PDF
     doc.build(story)
-    
-    # Volver al inicio del buffer
     buffer.seek(0)
-    
-    # Retornar como descarga de archivo
-    response = FileResponse(buffer, as_attachment=True, filename=f"Derecho_Peticion_{medicamento.nombre_comercial.replace(' ', '_')}.pdf")
-    return response
-
+    return FileResponse(buffer, as_attachment=True, filename=f"Derecho_Peticion_{medicamento.nombre_comercial.replace(' ', '_')}.pdf")
 
 @login_required
 @never_cache
 def mi_cuenta(request):
-    from epsinventario.models import Eps
-    
-    # Sincronizar EPS de Firebase Firestore a SQLite local
     db = get_firestore_db()
     if db:
         try:
@@ -1072,8 +929,8 @@ def mi_cuenta(request):
                             'estado': data.get('estado', True)
                         }
                     )
-        except Exception as sync_err:
-            print(f"Error al sincronizar EPS desde Firestore: {sync_err}")
+        except Exception:
+            pass
             
     mensaje_exito = None
     mensaje_error = None
@@ -1112,10 +969,8 @@ def mi_cuenta(request):
                 
             user.save()
             
-            # Sincronizar con Firebase (Firestore y Auth)
             fb_uid = user.firebase_uid
             if fb_uid:
-                # Firestore
                 try:
                     db = get_firestore_db()
                     if db:
@@ -1128,24 +983,22 @@ def mi_cuenta(request):
                             'direccion': user.direccion or "",
                             'eps_id': eps_obj.id if eps_obj else None
                         }, merge=True)
-                except Exception as fs_err:
-                    print(f"Error sincronizando perfil en Firestore: {fs_err}")
+                except Exception:
+                    pass
                 
-                # Firebase Auth
                 try:
                     firebase_auth.update_user(
                         fb_uid,
                         email=user.email
                     )
-                except Exception as auth_err:
-                    print(f"Error actualizando Firebase Auth: {auth_err}")
+                except Exception:
+                    pass
                     
             return redirect(reverse('mi_cuenta') + '?saved=1')
             
     if request.GET.get('saved') == '1':
         mensaje_exito = "¡Tu información de perfil se ha guardado y sincronizado con Firebase correctamente!"
         
-    # Calcular iniciales para el avatar
     user_name = request.user.get_full_name() or request.user.username
     parts = user_name.split()
     user_initials = "".join([p[0].upper() for p in parts[:2]]) if parts else "?"

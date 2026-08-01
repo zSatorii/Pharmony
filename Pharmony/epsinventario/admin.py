@@ -7,7 +7,6 @@ from .views import (
     _eliminar_doc_firestore,
 )
 
-
 @admin.register(Eps)
 class EpsAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'nit', 'ciudad', 'estado')
@@ -23,7 +22,6 @@ class EpsAdmin(admin.ModelAdmin):
         super().delete_model(request, obj)
         _eliminar_doc_firestore("eps", eps_id)
 
-
 @admin.register(Sede)
 class SedeAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'eps', 'ciudad', 'estado')
@@ -38,7 +36,6 @@ class SedeAdmin(admin.ModelAdmin):
         sede_id = obj.id
         super().delete_model(request, obj)
         _eliminar_doc_firestore("sedes", sede_id)
-
 
 @admin.register(InventarioSede)
 class InventarioSedeAdmin(admin.ModelAdmin):

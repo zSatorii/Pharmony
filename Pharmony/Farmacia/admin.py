@@ -3,7 +3,6 @@ from django.contrib.auth.admin import UserAdmin
 from firebase_admin import auth as firebase_auth, firestore
 from .models import Usuario, Medicamento
 
-
 class UsuarioAdmin(UserAdmin):
     model = Usuario
     fieldsets = UserAdmin.fieldsets + (
@@ -19,8 +18,6 @@ class UsuarioAdmin(UserAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-
-        # Solo al crear un usuario nuevo (no al editar) y si todavía no tiene firebase_uid
         if not change and not obj.firebase_uid and obj.email:
             password = form.cleaned_data.get('password1')
             if not password:
@@ -57,7 +54,6 @@ class UsuarioAdmin(UserAdmin):
                     f"con Firebase: {e}",
                     level='warning'
                 )
-
 
 admin.site.register(Usuario, UsuarioAdmin)
 admin.site.register(Medicamento)
