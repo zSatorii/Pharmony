@@ -12,7 +12,7 @@ if not env_path.exists():
     env_path = BASE_DIR.parent / '.env'
 dotenv.load_dotenv(env_path)
 
-SECRET_KEY = 'django-insecure-go13z231#w8#@8l+e&f7hn%!_n99jtagit#p#aavuygnpxvb+3'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = True
 ALLOWED_HOSTS = []
 
