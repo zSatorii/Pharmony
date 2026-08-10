@@ -52,3 +52,7 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return f"{self.username} - {self.get_rol_display()}"
+
+    def nombre_para_mostrar(self):
+        nombre_completo = f"{self.first_name} {self.last_name}".strip()
+        return nombre_completo or self.username
