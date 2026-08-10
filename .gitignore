@@ -1,74 +1,96 @@
-# ==========================================
-# Python / Django
-# ==========================================
-# Archivos compilados
+### ---------- Django / Python (Pharmony backend) ----------
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Extensiones C
 *.so
 
-# Archivos específicos de Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
-# Archivos multimedia y estáticos
-media/
-staticfiles/
-
-# ==========================================
-# Entornos Virtuales
-# ==========================================
+# Entornos virtuales
 venv/
-.venv/
 env/
+.venv/
 ENV/
-env.bak/
-venv.bak/
 
-# ==========================================
-# Secretos y Variables de Entorno (¡MUY IMPORTANTE!)
-# ==========================================
-# Nunca subas credenciales, llaves o variables de entorno a GitHub
+# Config y secretos
 .env
 .env.*
-serviceAccountKey.json
-secrets.json
-firebase_credentials.json
+!.env.example
+*.sqlite3
+db.sqlite3
+ServiceAccountKey.json
+*firebase*key*.json
+*credentials*.json
 
-# ==========================================
-# Archivos de Editores e IDEs (VS Code, PyCharm, etc)
-# ==========================================
-.vscode/
-.idea/
-*.sublime-workspace
-*.sublime-project
+# Django
+staticfiles/
+media/
+*.log
+local_settings.py
 
-# ==========================================
-# Archivos del Sistema Operativo
-# ==========================================
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-ehthumbs_vista.db
-[Tt]humbs.db
+# Distribución / empaquetado
+build/
+dist/
+*.egg-info/
+.eggs/
 
-# ==========================================
-# Pruebas (Testing / Coverage)
-# ==========================================
+# Testing / coverage
+.coverage
 .pytest_cache/
 htmlcov/
-.coverage
-.coverage.*
-.tox/
-nosetests.xml
-coverage.xml
-.angular/
-node_modules/
-dist/
+
+# Editores / IDEs
+.vscode/
+.idea/
+*.iml
+
+### ---------- Flutter / Dart (PharmonyFront) ----------
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/.pub-cache/
+**/.pub/
+**/build/
+**/pubspec.lock
+
+# Android
+**/android/**/gradle-wrapper.jar
+**/android/.gradle
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/local.properties
+**/android/**/GeneratedPluginRegistrant.java
+**/android/key.properties
+*.jks
+
+# iOS / macOS
+**/ios/**/*.mode1v3
+**/ios/**/*.mode2v3
+**/ios/**/*.moved-aside
+**/ios/**/*.pbxuser
+**/ios/**/*.perspectivev3
+**/ios/**/Pods/
+**/ios/**/.symlinks/
+**/ios/**/Flutter/Flutter.framework
+**/ios/**/Flutter/Flutter.podspec
+**/ios/**/Flutter/Generated.xcconfig
+**/ios/**/Flutter/ephemeral/
+**/ios/**/Runner/GeneratedPluginRegistrant.*
+**/macos/**/Flutter/GeneratedPluginRegistrant.swift
+**/macos/**/Flutter/ephemeral/
+
+# Linux / Windows generated
+**/linux/flutter/generated_plugin_registrant.*
+**/linux/flutter/generated_plugins.cmake
+**/windows/flutter/generated_plugin_registrant.*
+**/windows/flutter/generated_plugins.cmake
+
+# Web
+**/web/*.js.map
+
+### ---------- Modelos IA pesados (evaluar Git LFS) ----------
+*.onnx
+
+### ---------- Sistema operativo ----------
+.DS_Store
+Thumbs.db

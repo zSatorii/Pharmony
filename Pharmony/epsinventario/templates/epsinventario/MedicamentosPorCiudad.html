@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Medicamentos en {{ ciudad }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9;
+            --w: #fff; --g100: #f1f5f9; --g200: #e2e8f0; --g400: #94a3b8; --g800: #1e293b;
+            --grn: #22c55e; --grnp: #f0fdf4;
+            --amber: #f59e0b; --amberp: #fffbeb;
+        }
+        body { background: var(--g100); font-family: 'DM Sans', sans-serif; color: var(--g800); min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
+            color: var(--w); padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo-name { font-family: 'Quicksand', sans-serif; font-size: 20px; letter-spacing: 2px; }
+        .btn-back { background: rgba(255,255,255,0.12); color: var(--w); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 16px; font-size: 13.5px; text-decoration: none; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 600; color: var(--bd); margin-bottom: 6px; }
+        .subtitle { color: var(--g400); margin-bottom: 24px; font-size: 14px; }
+        .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+        .med-card { background: var(--w); border-radius: 14px; padding: 18px 20px; box-shadow: 0 2px 10px rgba(13,71,201,0.06); }
+        .med-card h3 { font-size: 16px; color: var(--bd); margin-bottom: 4px; }
+        .med-card .lab { font-size: 12.5px; color: var(--g400); margin-bottom: 10px; }
+        .med-card .sede-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 4px 0; border-top: 1px solid var(--g100); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 600; }
+        .badge-disponible { background: var(--grnp); color: var(--grn); }
+        .badge-stock_bajo { background: var(--amberp); color: var(--amber); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo-name">PHARMONY</span>
+        <a class="btn-back" href="javascript:history.back()">← Volver</a>
+    </div>
+
+    <div class="container">
+        <h1>Medicamentos disponibles en {{ ciudad }}</h1>
+        <p class="subtitle">{{ sedes|length }} sede(s) encontrada(s) en esta ciudad</p>
+
+        <div class="grid-cards">
+            {% for inv in inventarios %}
+            <div class="med-card">
+                <h3>{{ inv.medicamento.nombre_comercial }}</h3>
+                <p class="lab">{{ inv.medicamento.laboratorio }} · {{ inv.medicamento.concentracion }}</p>
+                <div class="sede-row">
+                    <span>{{ inv.sede.nombre }}</span>
+                    <span>
+                        {{ inv.cantidad_disponible }} u.
+                        <span class="badge badge-{{ inv.estado_stock }}">{{ inv.estado_stock }}</span>
+                    </span>
+                </div>
+            </div>
+            {% empty %}
+            <p>No hay medicamentos disponibles en {{ ciudad }} actualmente.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

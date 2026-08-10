@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Inventario {{ sede.nombre }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9; --bmi: #1a5fd4;
+            --w: #fff; --g100: #f1f5f9; --g200: #e2e8f0; --g300: #cbd5e1;
+            --g400: #94a3b8; --g800: #1e293b;
+            --grn: #22c55e; --grnp: #f0fdf4;
+            --red: #ef4444; --redp: #fef2f2;
+            --amber: #f59e0b; --amberp: #fffbeb;
+        }
+        body { background: var(--g100); font-family: 'DM Sans', sans-serif; color: var(--g800); min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
+            color: var(--w); padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo-name { font-family: 'Quicksand', sans-serif; font-size: 20px; letter-spacing: 2px; }
+        .btn-logout, .btn-back {
+            background: rgba(255,255,255,0.12); color: var(--w);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 10px;
+            padding: 8px 16px; font-size: 13.5px; font-weight: 500;
+            text-decoration: none; margin-left: 8px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 600; color: var(--bd); }
+        .subtitle { color: var(--g400); margin-bottom: 24px; font-size: 14px; }
+        .card { background: var(--w); border-radius: 14px; padding: 24px; box-shadow: 0 2px 10px rgba(13,71,201,0.06); margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 12.5px; color: var(--g400); text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--g200); }
+        td { padding: 10px 6px; font-size: 14px; border-bottom: 1px solid var(--g100); }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-disponible { background: var(--grnp); color: var(--grn); }
+        .badge-stock_bajo { background: var(--amberp); color: var(--amber); }
+        .badge-agotado { background: var(--redp); color: var(--red); }
+        form.inline-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+        form.inline-form input, form.inline-form select { padding: 9px 12px; border: 1px solid var(--g300); border-radius: 8px; font-size: 14px; }
+        .btn-primary { background: var(--bm); color: var(--w); border: none; border-radius: 8px; padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; grid-column: span 2; }
+        .btn-primary:hover { background: var(--bmi); }
+        .acciones form { display: inline; }
+        .btn-mini { background: none; border: none; color: var(--g400); cursor: pointer; font-size: 13px; margin-right: 8px; }
+        .btn-mini.danger { color: var(--red); }
+        .edit-inline input { width: 70px; padding: 4px 6px; border: 1px solid var(--g300); border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo-name">PHARMONY · EPS</span>
+        <div>
+            <a class="btn-back" href="{% url 'dashboard_eps' %}">← Volver</a>
+            <a class="btn-logout" href="{% url 'logout' %}">Cerrar sesión</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Inventario — {{ sede.nombre }}</h1>
+        <p class="subtitle">{{ sede.ciudad }} · {{ sede.eps.nombre }}</p>
+
+        <div class="card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Medicamento</th><th>Lote</th><th>Cantidad</th><th>Mínima</th>
+                        <th>Vencimiento</th><th>Estado</th><th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inv in inventarios %}
+                    <tr>
+                        <td>{{ inv.medicamento.nombre_comercial }}</td>
+                        <td>{{ inv.lote|default:"—" }}</td>
+                        <td>
+                            <form class="edit-inline" method="post" action="{% url 'editar_inventario' inv.id %}">
+                                {% csrf_token %}
+                                <input type="number" name="cantidad_disponible" value="{{ inv.cantidad_disponible }}">
+                        </td>
+                        <td>
+                                <input type="number" name="cantidad_minima" value="{{ inv.cantidad_minima }}">
+                        </td>
+                        <td>
+                                <input type="date" name="fecha_vencimiento" value="{{ inv.fecha_vencimiento|date:'Y-m-d' }}">
+                        </td>
+                        <td><span class="badge badge-{{ inv.estado_stock }}">{{ inv.estado_stock }}</span></td>
+                        <td class="acciones">
+                                <button type="submit" class="btn-mini">Guardar</button>
+                            </form>
+                            <form method="post" action="{% url 'eliminar_inventario' inv.id %}" onsubmit="return confirm('¿Eliminar este registro?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-mini danger">Eliminar</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7">Esta sede no tiene medicamentos en inventario todavía.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h2 style="font-size:17px; font-weight:600; color:var(--bd); margin-bottom:16px;">Agregar medicamento al stock</h2>
+
+            <div style="display:flex; gap:10px; margin-bottom:16px;">
+                <button type="button" class="btn-primary" style="background:var(--bm);" onclick="toggleModo('existente')">Medicamento ya existente</button>
+                <button type="button" class="btn-primary" style="background:var(--g400);" onclick="toggleModo('nuevo')">+ Crear medicamento nuevo</button>
+            </div>
+
+            <form id="form-existente" class="inline-form" method="post" action="{% url 'crear_inventario' sede.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="modo" value="existente">
+                <select name="medicamento_id" required>
+                    <option value="">-- Selecciona medicamento --</option>
+                    {% for m in medicamentos_disponibles %}
+                    <option value="{{ m.id }}">{{ m.nombre_comercial }} ({{ m.nombre_generico }})</option>
+                    {% endfor %}
+                </select>
+                <input type="text" name="lote" placeholder="Lote">
+                <input type="number" name="cantidad_disponible" placeholder="Cantidad disponible" min="0" required>
+                <input type="number" name="cantidad_minima" placeholder="Cantidad mínima" min="0">
+                <input type="date" name="fecha_vencimiento">
+                <button type="submit" class="btn-primary">+ Agregar al inventario</button>
+            </form>
+
+            <form id="form-nuevo" class="inline-form" method="post" action="{% url 'crear_inventario' sede.id %}" style="display:none;">
+                {% csrf_token %}
+                <input type="hidden" name="modo" value="nuevo">
+                <input type="text" name="nombre_comercial" placeholder="Nombre comercial" required>
+                <input type="text" name="nombre_generico" placeholder="Nombre genérico" required>
+                <input type="text" name="codigo_cum" placeholder="Código CUM" required>
+                <input type="text" name="laboratorio" placeholder="Laboratorio">
+                <input type="text" name="concentracion" placeholder="Concentración">
+                <input type="text" name="forma_farmaceutica" placeholder="Forma farmacéutica">
+                <input type="text" name="lote" placeholder="Lote">
+                <input type="number" name="cantidad_disponible" placeholder="Cantidad disponible" min="0" required>
+                <input type="number" name="cantidad_minima" placeholder="Cantidad mínima" min="0">
+                <input type="date" name="fecha_vencimiento">
+                <label style="grid-column: span 2; font-size:13px;"><input type="checkbox" name="requiere_formula" style="width:auto; margin-right:6px;"> Requiere fórmula médica</label>
+                <button type="submit" class="btn-primary">+ Crear y agregar al inventario</button>
+            </form>
+        </div>
+
+        <script>
+        function toggleModo(modo) {
+            document.getElementById('form-existente').style.display = modo === 'existente' ? 'grid' : 'none';
+            document.getElementById('form-nuevo').style.display = modo === 'nuevo' ? 'grid' : 'none';
+        }
+        </script>
+
+    </div>
+</body>
+</html>

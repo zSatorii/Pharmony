@@ -1,7 +1,10 @@
+import urllib.parse
+import xml.etree.ElementTree as ET
+import requests
+
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 
-# Noticias de ejemplo — puedes sustituirlas por datos reales de una BD o API
 NOTICIAS = [
     {
         "id": 1,
@@ -59,13 +62,91 @@ NOTICIAS = [
     },
 ]
 
+MESES_ES = {
+    "jan": "ene", "feb": "feb", "mar": "mar", "apr": "abr",
+    "may": "may", "jun": "jun", "jul": "jul", "aug": "ago",
+    "sep": "sep", "oct": "oct", "nov": "nov", "dec": "dic"
+}
+
+def obtener_noticias_salud():
+    url = "https://www.eltiempo.com/rss/salud.xml"
+    noticias = []
+    try:
+        response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=5)
+        if response.status_code == 200:
+            root = ET.fromstring(response.content)
+            channel = root.find("channel")
+            if channel is not None:
+                items = channel.findall("item")
+                for i, item in enumerate(items):
+                    title = item.find("title").text if item.find("title") is not None else ""
+                    description = item.find("description").text if item.find("description") is not None else ""
+                    link = item.find("link").text if item.find("link") is not None else "#"
+                    pub_date = item.find("pubDate").text if item.find("pubDate") is not None else ""
+                    
+                    fecha = pub_date
+                    if pub_date:
+                        try:
+                            parts = pub_date.split()
+                            if len(parts) >= 4:
+                                day = parts[1]
+                                month_str = parts[2][:3].lower()
+                                year = parts[3]
+                                month_es = MESES_ES.get(month_str, month_str)
+                                fecha = f"{day} {month_es}. {year}"
+                        except Exception:
+                            pass
+                    
+                    icono = "💊"
+                    categoria = "Salud"
+                    t_lower = title.lower()
+                    if "vacuna" in t_lower or "vacunación" in t_lower:
+                        icono = "💉"
+                        categoria = "Prevención"
+                    elif "tecnología" in t_lower or "ia" in t_lower or "inteligencia artificial" in t_lower:
+                        icono = "🧬"
+                        categoria = "Tecnología"
+                    elif "investigación" in t_lower or "estudio" in t_lower or "descubren" in t_lower:
+                        icono = "🔬"
+                        categoria = "Investigación"
+                    elif "invima" in t_lower or "ministerio" in t_lower or "gobierno" in t_lower or "minsalud" in t_lower:
+                        icono = "🏥"
+                        categoria = "Regulación"
+                    
+                    enclosure = item.find("enclosure")
+                    image_url = enclosure.attrib.get("url") if enclosure is not None else None
+                    image_webp_url = None
+                    if image_url:
+                        encoded_url = urllib.parse.quote(image_url, safe='')
+                        image_webp_url = f"https://wsrv.nl/?url={encoded_url}&output=webp&q=80"
+
+                    words = len(description.split())
+                    reading_time = max(2, words // 35)
+
+                    noticias.append({
+                        "id": i + 1,
+                        "categoria": categoria,
+                        "titulo": title,
+                        "resumen": description,
+                        "fecha": fecha,
+                        "lectura": f"{reading_time} min de lectura",
+                        "icono": icono,
+                        "link": link,
+                        "image_url": image_url,
+                        "image_webp_url": image_webp_url,
+                    })
+    except Exception:
+        pass
+    
+    return noticias if noticias else NOTICIAS
 
 @never_cache
 def home(request):
-    """Vista principal de la página de inicio de Pharmony."""
+    noticias = obtener_noticias_salud()
     context = {
-        "noticias": NOTICIAS,
-        "noticia_destacada": NOTICIAS[0],
-        "noticias_secundarias": NOTICIAS[1:],
+        "noticias": noticias,
+        "noticia_destacada": noticias[0] if noticias else None,
+        "noticias_secundarias": noticias[1:] if len(noticias) > 1 else [],
     }
     return render(request, "home/index.html", context)
+

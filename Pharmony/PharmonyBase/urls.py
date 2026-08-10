@@ -1,23 +1,7 @@
-"""
-URL configuration for PharmonyBase project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/6.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
 from django.contrib import admin
-from django.urls import path, include
-from Farmacia.views import registrar_usuario, iniciar_sesion, cerrar_sesion
+from django.urls import include, path
+
+from Farmacia.views import cerrar_sesion, iniciar_sesion, login_face, registrar_usuario, validar_rostro
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,10 +9,9 @@ urlpatterns = [
     path('registro/', registrar_usuario, name='registro'),
     path('login/', iniciar_sesion, name='login'),
     path('logout/', cerrar_sesion, name='logout'),
+    path('api/validar-rostro/', validar_rostro, name='validar_rostro'),
+    path('api/login-face/', login_face, name='login_face'),
     path('api/', include('Farmacia.urls')),
-    path('logout/', cerrar_sesion, name='logout'),
-    
-    # Rutas del Administrador
-    path('admin-panel/', include('Admin.urls')),
+    path('', include('epsinventario.urls')),
+    path('docs-ia/', include('DocsIA.urls')),
 ]
-

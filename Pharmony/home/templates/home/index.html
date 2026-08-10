@@ -394,10 +394,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g800);ov
   <!-- Noticia Destacada + Lateral -->
   <div class="news-featured">
     {% with n=noticia_destacada %}
-    <div class="news-card-featured">
+    <div class="news-card-featured" onclick="window.open('{{ n.link }}', '_blank')">
       <div class="featured-visual">
         <div class="featured-badge">Destacado</div>
-        {{ n.icono }}
+        {% if n.image_webp_url %}
+          <picture style="position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;">
+            <source srcset="{{ n.image_webp_url }}" type="image/webp">
+            <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
+          </picture>
+        {% elif n.image_url %}
+          <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; z-index: 1;">
+        {% else %}
+          {{ n.icono }}
+        {% endif %}
       </div>
       <div class="featured-body">
         <div class="news-meta">
@@ -415,8 +424,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g800);ov
 
     <div class="news-side-stack">
       {% for n in noticias_secundarias|slice:":3" %}
-      <div class="news-card-side">
-        <div class="side-icon">{{ n.icono }}</div>
+      <div class="news-card-side" onclick="window.open('{{ n.link }}', '_blank')">
+        <div class="side-icon">
+          {% if n.image_webp_url %}
+            <picture style="width: 100%; height: 100%;">
+              <source srcset="{{ n.image_webp_url }}" type="image/webp">
+              <img src="{{ n.image_url }}" alt="" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+            </picture>
+          {% elif n.image_url %}
+            <img src="{{ n.image_url }}" alt="" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover; border-radius: 12px;">
+          {% else %}
+            {{ n.icono }}
+          {% endif %}
+        </div>
         <div class="side-body">
           <div class="side-cat">{{ n.categoria }}</div>
           <div class="side-title">{{ n.titulo }}</div>
@@ -430,8 +450,19 @@ body{font-family:'DM Sans',sans-serif;background:var(--g50);color:var(--g800);ov
   <!-- Grid de noticias secundarias -->
   <div class="news-grid">
     {% for n in noticias_secundarias|slice:"3:" %}
-    <div class="news-card">
-      <div class="card-visual">{{ n.icono }}</div>
+    <div class="news-card" onclick="window.open('{{ n.link }}', '_blank')">
+      <div class="card-visual">
+        {% if n.image_webp_url %}
+          <picture style="width: 100%; height: 100%;">
+            <source srcset="{{ n.image_webp_url }}" type="image/webp">
+            <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
+          </picture>
+        {% elif n.image_url %}
+          <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
+        {% else %}
+          {{ n.icono }}
+        {% endif %}
+      </div>
       <div class="card-body">
         <div class="card-cat">{{ n.categoria }}</div>
         <div class="card-title">{{ n.titulo }}</div>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Dashboard EPS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9; --bmi: #1a5fd4;
+            --bl: #3b82f6; --bs: #93c5fd; --bp: #dbeafe;
+            --w: #fff; --g50: #f8fafc; --g100: #f1f5f9; --g200: #e2e8f0;
+            --g300: #cbd5e1; --g400: #94a3b8; --g600: #475569; --g800: #1e293b;
+            --grn: #22c55e; --grnp: #f0fdf4;
+            --red: #ef4444; --redp: #fef2f2;
+            --amber: #f59e0b; --amberp: #fffbeb;
+        }
+        body { background: var(--g100); font-family: 'DM Sans', sans-serif; color: var(--g800); min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
+            color: var(--w); padding: 16px 32px;
+            display: flex; align-items: center; justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.1);
+        }
+        .logo-wrap { display: flex; align-items: center; gap: 14px; }
+        .logo-name { font-family: 'Quicksand', sans-serif; font-size: 20px; font-weight: 400; letter-spacing: 2px; color: var(--w); }
+        .role-pill { background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; font-size: 12.5px; font-weight: 600; }
+        .btn-logout {
+            background: rgba(255,255,255,0.12); color: var(--w);
+            border: 1px solid rgba(255,255,255,0.25); border-radius: 10px;
+            padding: 8px 16px; font-size: 13.5px; font-weight: 500;
+            text-decoration: none; cursor: pointer;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+        h1 { font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 600; color: var(--bd); margin-bottom: 4px; }
+        .subtitle { color: var(--g400); font-size: 14px; margin-bottom: 24px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+        .card { background: var(--w); border-radius: 14px; padding: 24px; box-shadow: 0 2px 10px rgba(13,71,201,0.06); margin-bottom: 24px; }
+        .card h2 { font-size: 17px; font-weight: 600; color: var(--bd); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; font-size: 12.5px; color: var(--g400); text-transform: uppercase; padding: 8px 6px; border-bottom: 1px solid var(--g200); }
+        td { padding: 10px 6px; font-size: 14px; border-bottom: 1px solid var(--g100); vertical-align: middle; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+        .badge-on { background: var(--grnp); color: var(--grn); }
+        .badge-off { background: var(--redp); color: var(--red); }
+        a.link-sede { color: var(--bm); font-weight: 600; text-decoration: none; }
+        a.link-sede:hover { text-decoration: underline; }
+        form.inline-form { display: grid; gap: 10px; margin-top: 16px; }
+        form.quick-form { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+        input, select {
+            padding: 9px 12px; border: 1px solid var(--g300); border-radius: 8px;
+            font-size: 14px; font-family: 'DM Sans', sans-serif; width: 100%;
+        }
+        .btn-primary {
+            background: var(--bm); color: var(--w); border: none; border-radius: 8px;
+            padding: 10px 16px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 4px;
+        }
+        .btn-primary:hover { background: var(--bmi); }
+        .btn-mini { background: none; border: none; color: var(--g600); cursor: pointer; font-size: 13px; margin-right: 10px; padding: 0; text-decoration: underline; }
+        .btn-mini.danger { color: var(--red); }
+        .ciudades-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .ciudad-tag {
+            background: var(--bp); color: var(--bd); padding: 6px 14px;
+            border-radius: 20px; font-size: 13px; font-weight: 600; text-decoration: none;
+        }
+        .ciudad-tag:hover { background: var(--bs); }
+        .edit-row { display: none; background: var(--g50); }
+        .edit-row.open { display: table-row; }
+        .edit-row td { padding: 16px; }
+        .edit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .edit-grid .full { grid-column: span 3; }
+        .quick-banner {
+            background: linear-gradient(135deg, var(--bp) 0%, var(--w) 100%);
+            border: 1px solid var(--bs); border-radius: 14px; padding: 24px; margin-bottom: 24px;
+        }
+        .quick-banner h2 { color: var(--bd); }
+        .empty-state { text-align: center; padding: 32px 16px; color: var(--g400); }
+        .alert-warn { background: var(--amberp); border: 1px solid var(--amber); color: #92620a; border-radius: 12px; padding: 18px; margin-bottom: 24px; font-size: 14px; }
+        
+        
+        .django-messages { margin-bottom: 24px; list-style: none; }
+        .alert-msg { padding: 16px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; margin-bottom: 10px; display: block; border: 1px solid transparent; }
+        .alert-msg.error, .alert-msg.danger { background: var(--redp); color: #b91c1c; border-color: #fca5a5; }
+        .alert-msg.success { background: var(--grnp); color: #15803d; border-color: #86efac; }
+        .alert-msg.info { background: var(--bp); color: var(--bd); border-color: var(--bs); }
+        
+        .mi-eps-banner { background: var(--w); border-radius: 14px; padding: 18px 24px; margin-bottom: 24px; box-shadow: 0 2px 10px rgba(13,71,201,0.06); display: flex; align-items: center; justify-content: space-between; }
+        .mi-eps-banner .eps-name { font-size: 18px; font-weight: 600; color: var(--bd); }
+        .mi-eps-banner .eps-nit { font-size: 13px; color: var(--g400); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo-wrap">
+            <span class="logo-name">PHARMONY</span>
+            <span class="role-pill">{% if is_admin %}Administrador{% else %}Personal EPS{% endif %}</span>
+        </div>
+        <a class="btn-logout" href="{% url 'logout' %}">Cerrar sesión</a>
+    </div>
+
+    <div class="container">
+
+        {% if messages %}
+        <div class="django-messages">
+            {% for message in messages %}
+            <div class="alert-msg {{ message.tags }}">
+                {% if message.tags == "error" %}<strong>⚠ Error:</strong>{% elif message.tags == "success" %}<strong>✓ Éxito:</strong>{% endif %} {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if sin_eps %}
+        <div class="alert-warn">
+            <strong>⚠ Tu cuenta no tiene una EPS asignada.</strong><br>
+            Contacta a un administrador para que te asigne una EPS y puedas empezar a gestionar sedes e inventario.
+        </div>
+        {% else %}
+
+        {% if is_admin %}
+            <h1>Panel de Administración</h1>
+            <p class="subtitle">Gestiona todas las EPS, sedes e inventario de la plataforma.</p>
+        {% else %}
+            <div class="mi-eps-banner">
+                <div>
+                    <div class="eps-name">{{ mi_eps.nombre }}</div>
+                    <div class="eps-nit">NIT {{ mi_eps.nit }} · {{ mi_eps.ciudad|default:"" }}</div>
+                </div>
+                <span class="badge {% if mi_eps.estado %}badge-on{% else %}badge-off{% endif %}">{% if mi_eps.estado %}Activa{% else %}Inactiva{% endif %}</span>
+            </div>
+            <h1>Mis sedes e inventario</h1>
+            <p class="subtitle">Solo ves y administras la información de tu EPS.</p>
+        {% endif %}
+
+        {% if sedes %}
+        <div class="quick-banner">
+            <h2 style="margin-bottom:6px;">🚀 Agregar medicamentos rápidamente</h2>
+            <p style="color:var(--g600); font-size:14px; margin-bottom:16px;">Elige una sede para ir directo a su inventario.</p>
+            <form class="quick-form" onsubmit="return irAInventario(event)">
+                <select id="select-sede">
+                    <option value="">-- Selecciona una sede --</option>
+                    {% for s in sedes %}
+                    <option value="{{ s.id }}">{{ s.nombre }} ({{ s.ciudad }}){% if is_admin %} — {{ s.eps.nombre }}{% endif %}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="btn-primary">Ir al inventario →</button>
+            </form>
+        </div>
+        {% endif %}
+
+        <div class="grid-2">
+            {% if is_admin %}
+            <div class="card">
+                <h2>🏢 EPS registradas</h2>
+                <table>
+                    <thead><tr><th>Nombre</th><th>NIT</th><th>Estado</th><th></th></tr></thead>
+                    <tbody>
+                        {% for e in eps_list %}
+                        <tr>
+                            <td>{{ e.nombre }}</td>
+                            <td>{{ e.nit }}</td>
+                            <td><span class="badge {% if e.estado %}badge-on{% else %}badge-off{% endif %}">{% if e.estado %}Activa{% else %}Inactiva{% endif %}</span></td>
+                            <td>
+                                <button type="button" class="btn-mini" onclick="toggleEdit('eps-{{ e.id }}')">Editar</button>
+                                <form method="post" action="{% url 'eliminar_eps' e.id %}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta EPS y todas sus sedes?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-mini danger">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="edit-row" id="edit-eps-{{ e.id }}">
+                            <td colspan="4">
+                                <form method="post" action="{% url 'editar_eps' e.id %}">
+                                    {% csrf_token %}
+                                    <div class="edit-grid">
+                                        <input type="text" name="nombre" value="{{ e.nombre }}" placeholder="Nombre">
+                                        <input type="text" name="nit" value="{{ e.nit }}" placeholder="NIT">
+                                        <input type="text" name="ciudad" value="{{ e.ciudad }}" placeholder="Ciudad">
+                                        <input type="text" name="direccion" value="{{ e.direccion }}" placeholder="Dirección">
+                                        <input type="text" name="telefono" value="{{ e.telefono }}" placeholder="Teléfono">
+                                        <input type="email" name="email" value="{{ e.email }}" placeholder="Email">
+                                        <label class="full" style="font-size:13px;"><input type="checkbox" name="estado" {% if e.estado %}checked{% endif %} style="width:auto; margin-right:6px;"> Activa</label>
+                                        <button type="submit" class="btn-primary full">Guardar cambios</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="empty-state">No hay EPS registradas todavía.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <p style="font-size:13px; color:var(--g600); margin-top:16px; background:var(--g50); padding:14px; border-radius:10px;">
+                    ℹ️ Para crear una nueva EPS y asignarle personal, ve al
+                    <a href="/admin/epsinventario/eps/add/" style="color:var(--bm); font-weight:600;" target="_blank">Panel de Administración →</a>
+                </p>
+            </div>
+            {% endif %}
+
+            <div class="card" {% if not is_admin %}style="grid-column: span 2;"{% endif %}>
+                <h2>📍 {% if is_admin %}Sedes registradas{% else %}Mis sedes{% endif %}</h2>
+                <table>
+                    <thead><tr><th>Nombre</th><th>Ciudad</th>{% if is_admin %}<th>EPS</th>{% endif %}<th></th></tr></thead>
+                    <tbody>
+                        {% for s in sedes %}
+                        <tr>
+                            <td>{{ s.nombre }}</td>
+                            <td>{{ s.ciudad }}</td>
+                            {% if is_admin %}<td>{{ s.eps.nombre }}</td>{% endif %}
+                            <td>
+                                <a class="link-sede" href="{% url 'inventario_por_sede' s.id %}">Ver inventario</a><br>
+                                <button type="button" class="btn-mini" onclick="toggleEdit('sede-{{ s.id }}')">Editar</button>
+                                <form method="post" action="{% url 'eliminar_sede' s.id %}" style="display:inline;" onsubmit="return confirm('¿Eliminar esta sede y su inventario?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-mini danger">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="edit-row" id="edit-sede-{{ s.id }}">
+                            <td colspan="4">
+                                <form method="post" action="{% url 'editar_sede' s.id %}">
+                                    {% csrf_token %}
+                                    <div class="edit-grid">
+                                        {% if is_admin %}
+                                        <select name="eps_id">
+                                            {% for e in eps_list %}
+                                            <option value="{{ e.id }}" {% if e.id == s.eps.id %}selected{% endif %}>{{ e.nombre }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% endif %}
+                                        <input type="text" name="nombre" value="{{ s.nombre }}" placeholder="Nombre">
+                                        <input type="text" name="ciudad" value="{{ s.ciudad }}" placeholder="Ciudad">
+                                        <input type="text" name="direccion" value="{{ s.direccion }}" placeholder="Dirección">
+                                        <input type="text" name="telefono" value="{{ s.telefono }}" placeholder="Teléfono">
+                                        <input type="email" name="email" value="{{ s.email }}" placeholder="Email">
+                                        <label class="full" style="font-size:13px;"><input type="checkbox" name="estado" {% if s.estado %}checked{% endif %} style="width:auto; margin-right:6px;"> Activa</label>
+                                        <button type="submit" class="btn-primary full">Guardar cambios</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="4" class="empty-state">{% if is_admin %}No hay sedes registradas todavía.{% else %}Tu EPS no tiene sedes todavía. Crea la primera abajo.{% endif %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <form class="inline-form" method="post" action="{% url 'crear_sede' %}">
+                    {% csrf_token %}
+                    {% if is_admin %}
+                    <select name="eps_id" required>
+                        <option value="">-- Selecciona la EPS --</option>
+                        {% for e in eps_list %}
+                        <option value="{{ e.id }}">{{ e.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <input type="text" name="nombre" placeholder="Nombre de la sede" required>
+                    <input type="text" name="ciudad" placeholder="Ciudad (ej: Mosquera)" required>
+                    <input type="text" name="direccion" placeholder="Dirección">
+                    <input type="text" name="telefono" placeholder="Teléfono">
+                    <input type="email" name="email" placeholder="Email">
+                    <button type="submit" class="btn-primary">+ Agregar sede</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🌍 Ver medicamentos disponibles por ciudad (vista del cliente)</h2>
+            <div class="ciudades-tags">
+                {% for c in ciudades %}
+                <a class="ciudad-tag" href="{% url 'medicamentos_por_ciudad' c %}">{{ c }}</a>
+                {% empty %}
+                <p class="empty-state">No hay ciudades con sedes registradas todavía.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% endif %}
+    </div>
+
+    <script>
+        function irAInventario(event) {
+            event.preventDefault();
+            const sedeId = document.getElementById('select-sede').value;
+            if (!sedeId) { alert('Selecciona una sede primero.'); return false; }
+            window.location.href = `/sedes/${sedeId}/inventario/`;
+            return false;
+        }
+        function toggleEdit(id) {
+            document.getElementById('edit-' + id).classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

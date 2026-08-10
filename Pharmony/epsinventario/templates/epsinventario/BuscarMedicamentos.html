@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Buscar medicamentos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --bd: #052060; --bdk: #0a3a8c; --bm: #0d47c9;
+            --w: #fff; --g100: #f1f5f9; --g400: #94a3b8; --g800: #1e293b; --bp: #dbeafe; --bs: #93c5fd;
+        }
+        body { background: var(--g100); font-family: 'DM Sans', sans-serif; color: var(--g800); min-height: 100vh; }
+        .header {
+            background: linear-gradient(135deg, var(--bdk) 0%, var(--bm) 100%);
+            color: var(--w); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo-name { font-family: 'Quicksand', sans-serif; font-size: 20px; letter-spacing: 2px; }
+        .btn-logout { background: rgba(255,255,255,0.12); color: var(--w); border: 1px solid rgba(255,255,255,0.25); border-radius: 10px; padding: 8px 16px; font-size: 13.5px; text-decoration: none; }
+        .container { max-width: 700px; margin: 60px auto; padding: 0 24px; text-align: center; }
+        h1 { font-family: 'Quicksand', sans-serif; font-size: 26px; font-weight: 600; color: var(--bd); margin-bottom: 8px; }
+        p { color: var(--g400); margin-bottom: 28px; }
+        .ciudades-tags { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .ciudad-tag { background: var(--w); border: 2px solid var(--bp); color: var(--bd); padding: 12px 22px; border-radius: 14px; font-size: 15px; font-weight: 600; text-decoration: none; }
+        .ciudad-tag:hover { background: var(--bp); border-color: var(--bs); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <span class="logo-name">PHARMONY</span>
+        <a class="btn-logout" href="{% url 'logout' %}">Cerrar sesión</a>
+    </div>
+    <div class="container">
+        <h1>¿En qué ciudad necesitas tu medicamento?</h1>
+        <p>Selecciona tu ciudad para ver disponibilidad en tiempo real por sede.</p>
+        <div class="ciudades-tags">
+            {% for c in ciudades %}
+            <a class="ciudad-tag" href="{% url 'medicamentos_por_ciudad' c %}">{{ c }}</a>
+            {% empty %}
+            <p>Todavía no hay sedes con medicamentos disponibles.</p>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

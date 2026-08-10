@@ -18,14 +18,12 @@
 
 html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);overflow:hidden;}
 
-/* ── LAYOUT ── */
 .page{
   display:grid;
   grid-template-columns:1fr 480px;
   height:100vh;
 }
 
-/* ── LEFT PANEL ── */
 .left{
   position:relative;
   background:linear-gradient(150deg, var(--bdk) 0%, var(--bm) 55%, var(--bmi) 100%);
@@ -35,7 +33,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
   overflow:hidden;
 }
 
-/* Floating shapes */
 .shapes{position:absolute;inset:0;pointer-events:none;z-index:0;}
 .shapes svg{width:100%;height:100%;}
 
@@ -46,7 +43,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .left-top{position:relative;z-index:5;}
 .left-bottom{position:relative;z-index:5;}
 
-/* Logo */
 .logo{display:flex;align-items:center;gap:12px;margin-bottom:0;}
 .logo-mark{
   width:42px;height:42px;border-radius:12px;
@@ -59,7 +55,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
   font-size:24px;font-weight:300;letter-spacing:3px;color:#fff;
 }
 
-/* Hero text */
 .hero-text{margin-top:auto;padding-top:60px;}
 .hero-tag{
   display:inline-flex;align-items:center;gap:7px;
@@ -82,7 +77,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
   margin-bottom:36px;
 }
 
-/* Feature pills */
 .features{display:flex;flex-wrap:wrap;gap:10px;}
 .feat{
   display:flex;align-items:center;gap:7px;
@@ -93,7 +87,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 }
 .feat svg{flex-shrink:0;opacity:.8;}
 
-/* Bottom quote */
 .left-bottom{padding-top:32px;border-top:1px solid rgba(255,255,255,0.1);}
 .quote-text{font-size:13.5px;color:rgba(255,255,255,0.5);line-height:1.6;font-style:italic;margin-bottom:12px;}
 .quote-author{display:flex;align-items:center;gap:10px;}
@@ -106,7 +99,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .q-name{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.7);}
 .q-role{font-size:11.5px;color:rgba(255,255,255,0.35);}
 
-/* ── RIGHT PANEL ── */
 .right{
   background:var(--w);
   display:flex;flex-direction:column;
@@ -122,7 +114,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .form-header h2{font-size:22px;font-weight:500;color:var(--g800);margin-bottom:4px;}
 .form-header p{font-size:13.5px;color:var(--g400);line-height:1.5;}
 
-/* TABS */
 .auth-tabs{
   display:flex;
   background:var(--g100);
@@ -141,7 +132,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .auth-tab.active{background:var(--w);color:var(--bm);box-shadow:0 1px 6px rgba(0,0,0,0.08);}
 .auth-tab:hover:not(.active){color:var(--g600);}
 
-/* Form fields */
 .field{margin-bottom:14px;}
 .field label{display:block;font-size:12.5px;font-weight:500;color:var(--g600);margin-bottom:5px;}
 .field input{
@@ -171,7 +161,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .forgot a{font-size:12.5px;color:var(--bl);text-decoration:none;font-weight:500;}
 .forgot a:hover{text-decoration:underline;}
 
-/* Error */
 .err{
   font-size:12.5px;color:var(--red);
   background:var(--redp);border:1px solid #fecaca;
@@ -181,7 +170,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 }
 .err.show{display:flex;}
 
-/* CTA */
 .btn-cta{
   width:100%;height:48px;
   background:var(--bm);color:#fff;border:none;border-radius:12px;
@@ -194,7 +182,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .btn-cta:hover{background:#1e40af;}
 .btn-cta:active{transform:scale(0.99);}
 
-/* ── BIOMETRIC SECTION ── */
 .bio-section{display:none;}
 .bio-section.active{display:block;}
 .email-section{display:block;}
@@ -227,7 +214,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .bio-card.selected .bio-lbl{color:var(--bm);}
 .bio-err{font-size:12.5px;color:var(--red);text-align:center;min-height:18px;margin-bottom:8px;}
 
-/* Scan state */
 .scan-state{display:none;flex-direction:column;align-items:center;padding:16px 0 8px;gap:16px;}
 .scan-state.visible{display:flex;}
 .scan-ring-wrap{position:relative;width:96px;height:96px;}
@@ -252,7 +238,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .scan-cancel{font-size:12.5px;color:var(--g400);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .15s;}
 .scan-cancel:hover{color:var(--g800);}
 
-/* Success state */
 .success-state{display:none;flex-direction:column;align-items:center;padding:16px 0;gap:14px;}
 .success-state.visible{display:flex;}
 .ok-circle{
@@ -266,17 +251,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 .ok-label{font-size:15px;font-weight:500;color:var(--g800);}
 .ok-sub{font-size:13px;color:var(--g400);}
 
-/* Divider */
 .divider{display:flex;align-items:center;gap:12px;margin:20px 0;}
 .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--g200);}
 .divider span{font-size:12px;color:var(--g400);white-space:nowrap;}
 
-/* Register link */
 .reg-link{text-align:center;font-size:13px;color:var(--g400);margin-top:20px;}
 .reg-link a{color:var(--bm);font-weight:500;text-decoration:none;}
 .reg-link a:hover{text-decoration:underline;}
 
-/* Footer */
 .form-footer{
   margin-top:28px;padding-top:20px;
   border-top:1px solid var(--g100);
@@ -284,12 +266,44 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 }
 .form-footer svg{opacity:.4;}
 .form-footer span{font-size:11.5px;color:var(--g300);}
+
+.cam-area{
+  position:relative;border-radius:14px;overflow:hidden;
+  background:#0f172a;border:2px solid var(--g200);
+  margin-bottom:16px;
+  aspect-ratio:4/3;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+}
+#videoEl{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
+.cam-idle{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:2;}
+.cam-idle-icon{font-size:48px;opacity:.6;}
+.cam-idle-text{font-size:13px;color:rgba(255,255,255,0.5);text-align:center;}
+
+.face-frame{
+  position:absolute;inset:0;z-index:3;display:none;
+  align-items:center;justify-content:center;
+}
+.face-oval{
+  width:160px;height:200px;border-radius:50%;
+  border:2.5px solid rgba(255,255,255,0.5);
+  position:relative;
+  box-shadow:0 0 0 2000px rgba(0,0,0,0.35);
+}
+.face-oval::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
+.face-oval::after{content:'';position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
+.scan-line{
+  position:absolute;left:10%;right:10%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--bs),transparent);
+  border-radius:2px;
+  animation:scanDown 2.2s ease-in-out infinite;
+}
+@keyframes scanDown{0%{top:10%;}100%{top:88%;}}
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ── LEFT ── -->
   <div class="left">
     <div class="shapes">
       <svg viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -298,24 +312,24 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
           <radialGradient id="g2" cx="35%" cy="28%" r="60%"><stop offset="0%" stop-color="#7ac0ff"/><stop offset="50%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#051e7a"/></radialGradient>
           <radialGradient id="g3" cx="45%" cy="32%" r="70%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="45%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1e3a8a"/></radialGradient>
         </defs>
-        <!-- Top spiral C -->
+        
         <g opacity=".9" style="animation:s1 8s ease-in-out infinite;transform-origin:520px 60px">
           <path d="M520 -30 C580 20 620 90 590 160 C560 225 490 245 430 215 C375 185 360 115 400 70" stroke="url(#g1)" stroke-width="48" fill="none" stroke-linecap="round"/>
         </g>
-        <!-- Left boomerangs -->
+        
         <g opacity=".2" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
           <path d="M20 310 C75 272 165 268 200 302 C232 332 216 388 170 400 C130 410 68 384 52 348" stroke="url(#g2)" stroke-width="42" fill="none" stroke-linecap="round"/>
           <path d="M45 420 C94 388 168 387 198 416 C224 442 210 488 176 498 C144 507 98 484 82 452" stroke="url(#g1)" stroke-width="35" fill="none" stroke-linecap="round"/>
         </g>
-        <!-- Right curve -->
+        
         <g opacity=".1" style="animation:s3 9s ease-in-out infinite 2.5s;transform-origin:740px 230px">
           <path d="M700 140 C760 100 820 118 826 162 C832 200 798 230 762 220" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
         </g>
-        <!-- S bottom left -->
+        
         <g opacity=".3" style="animation:s1 11s ease-in-out infinite 4s;transform-origin:120px 680px">
           <path d="M50 630 C120 598 190 612 200 652 C210 688 164 716 124 706 C84 696 62 666 82 634 C102 602 158 592 196 608" stroke="url(#g3)" stroke-width="38" fill="none" stroke-linecap="round"/>
         </g>
-        <!-- Blob right bottom -->
+        
         <g opacity=".15" style="animation:s2 12s ease-in-out infinite 3s;">
           <ellipse cx="720" cy="750" rx="150" ry="65" fill="url(#g1)" transform="rotate(-10 720 750)"/>
         </g>
@@ -370,7 +384,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
     </div>
   </div>
 
-  <!-- ── RIGHT ── -->
   <div class="right">
     <div class="form-wrap">
 
@@ -379,7 +392,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         <p>Inicia sesión con tu método preferido para acceder al panel.</p>
       </div>
 
-      <!-- TABS -->
       <div class="auth-tabs">
         <button class="auth-tab active" id="tab-email" onclick="switchTab('email')">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="12" height="8" rx="1.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M1 4.5l6 4 6-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -391,7 +403,6 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         </button>
       </div>
 
-      <!-- EMAIL FORM -->
       <div class="email-section" id="emailSection">
         {% csrf_token %}
         <div class="field">
@@ -418,14 +429,13 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
         </button>
       </div>
 
-      <!-- BIOMETRIC SECTION -->
       <div class="bio-section" id="bioSection">
 
-        <!-- Choice -->
+        
         <div id="bioChoice">
           <p class="bio-desc">El inicio de sesión biométrico es opcional y actualmente está en desarrollo. Selecciona Face ID para probar la interfaz visual.</p>
           <div class="bio-cards" style="justify-content: center;">
-            <!-- Face ID -->
+            
             <div class="bio-card" style="flex: none; width: 180px;" id="cardF" onclick="selectBio('face')">
               <div class="bio-ico">
                 <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -449,20 +459,39 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
           </button>
         </div>
 
-        <!-- Scanning -->
-        <div class="scan-state" id="scanState">
-          <div class="scan-ring-wrap">
-            <div class="scan-ring-outer"></div>
-            <div class="scan-emoji" id="scanEmoji">🖐</div>
+        
+        <div class="scan-state" id="scanState" style="width:100%; display:none; flex-direction:column; align-items:center; gap:16px;">
+          
+          <div class="cam-area" id="camArea" style="width:100%; max-width:320px; aspect-ratio:4/3; position:relative; border-radius:14px; overflow:hidden; background:#0f172a; border:2px solid var(--g200); display:flex; align-items:center; justify-content:center; flex-direction:column; gap:12px; margin-bottom:8px;">
+            <video id="videoEl" autoplay playsinline style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:none;"></video>
+            <div class="cam-idle" id="camIdle" style="display:flex; flex-direction:column; align-items:center; gap:10px; position:relative; z-index:2;">
+              <div class="cam-idle-icon" style="font-size:48px; opacity:.6;">📷</div>
+              <div class="cam-idle-text" style="font-size:13px; color:rgba(255,255,255,0.5); text-align:center;">Inicializando cámara...</div>
+            </div>
+            
+            <div class="face-frame" id="faceFrame" style="position:absolute; inset:0; z-index:3; display:none; align-items:center; justify-content:center;">
+              <div class="face-oval" style="width:160px; height:200px; border-radius:50%; border:2.5px solid rgba(255,255,255,0.5); position:relative; box-shadow:0 0 0 2000px rgba(0,0,0,0.35);">
+                <div class="scan-line" id="scanLine" style="position:absolute; left:10%; right:10%; height:2px; background:linear-gradient(90deg,transparent,var(--bs),transparent); border-radius:2px; animation:scanDown 2.2s ease-in-out infinite;"></div>
+              </div>
+            </div>
           </div>
-          <div style="text-align:center;">
+          
+          <div style="text-align:center; width:100%;">
             <div style="font-size:15px;font-weight:500;color:var(--g800);margin-bottom:5px;" id="scanTitle">Huella dactilar</div>
             <div class="scan-label" id="scanLabel">Coloca tu dedo en el sensor...</div>
           </div>
+
+          
+          <div class="cam-controls" id="camControls" style="display:none; gap:10px; width:100%;">
+            <button class="btn-cta" id="btnCapture" onclick="captureAndVerify()" style="height:42px; font-size:13.5px; box-shadow:none;">
+              Capturar y Iniciar Sesión
+            </button>
+          </div>
+
           <button class="scan-cancel" onclick="cancelScan()">Cancelar verificación</button>
         </div>
 
-        <!-- Success -->
+        
         <div class="success-state" id="successState">
           <div class="ok-circle">✓</div>
           <div class="ok-label">¡Identidad verificada!</div>
@@ -485,7 +514,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);ov
 </div>
 
 <script>
-let pwVisible=false, bioSelected=null;
+let pwVisible=false, bioSelected=null, camStream=null;
 
 function togglePw(){
   pwVisible=!pwVisible;
@@ -519,7 +548,7 @@ async function doLogin(){
   if(!e||!e.includes('@')){setErr('Ingresa un correo electrónico válido.');return;}
   if(p.length<4){setErr('Ingresa tu contraseña.');return;}
   setErr('');
-  
+
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   try {
       const response = await fetch('/login/', {
@@ -532,10 +561,11 @@ async function doLogin(){
       });
       const result = await response.json();
       if(result.success){
-          localStorage.setItem('jwt_token', result.token);
-          // Guardar en cookie para que esté disponible en las peticiones del servidor
-          document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
-          showLoginSuccess();
+          if (result.token) {
+              localStorage.setItem('jwt_token', result.token);
+              document.cookie = "jwt_token=" + result.token + "; max-age=86400; path=/; SameSite=Lax";
+          }
+          showLoginSuccess(result.redirect_url || '/');
       } else {
           setErr(result.error || 'Error al iniciar sesión.');
       }
@@ -550,48 +580,134 @@ function selectBio(type){
   document.getElementById('bioErr').textContent='';
 }
 
-function startScan(){
+async function startScan(){
   if(!bioSelected){document.getElementById('bioErr').textContent='⚠ Selecciona un método biométrico para continuar.';return;}
   document.getElementById('bioChoice').style.display='none';
   const ss=document.getElementById('scanState');
-  ss.className='scan-state visible';
-  const em=document.getElementById('scanEmoji');
+  ss.style.display='flex';
+  
   const lb=document.getElementById('scanLabel');
   const ti=document.getElementById('scanTitle');
-  em.textContent='😊'; ti.textContent='Face ID'; lb.textContent='Mira fijamente a la cámara...';
-  setTimeout(()=>{ lb.textContent='Analizando tu rostro...'; },1300);
-  setTimeout(()=>{
-    ss.className='scan-state';
-    document.getElementById('successState').className='success-state visible';
-    setTimeout(()=>showLoginSuccess('/api/dashboard-inventario/'), 1400);
-  },2900);
+  ti.textContent='Face ID'; 
+  lb.textContent='Iniciando cámara...';
+  document.getElementById('bioErr').textContent='';
+  
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720,facingMode:'user'}});
+    const video = document.getElementById('videoEl');
+    video.srcObject = camStream;
+    video.style.display = 'block';
+    document.getElementById('camIdle').style.display = 'none';
+    document.getElementById('faceFrame').style.display = 'flex';
+    document.getElementById('camControls').style.display = 'flex';
+    lb.textContent = 'Posiciona tu rostro en el óvalo y presiona "Capturar y Iniciar Sesión"';
+  } catch(e) {
+    console.error(e);
+    lb.textContent = 'Error al acceder a la cámara.';
+    document.getElementById('bioErr').textContent = '⚠ No se pudo acceder a la cámara. Verifica los permisos del navegador.';
+    cancelScan();
+  }
+}
+
+async function captureAndVerify(){
+  if(!camStream) return;
+  
+  const video = document.getElementById('videoEl');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth || 640;
+  canvas.height = video.videoHeight || 480;
+  
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  const base64Img = canvas.toDataURL('image/jpeg', 0.9);
+  
+  const lb=document.getElementById('scanLabel');
+  lb.textContent='Analizando datos biométricos...';
+  document.getElementById('btnCapture').disabled = true;
+  document.getElementById('btnCapture').style.opacity = '.5';
+  document.getElementById('scanLine').style.animationDuration = '0.7s';
+  document.getElementById('bioErr').textContent = '';
+  
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  try {
+    const response = await fetch('/api/login-face/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({ image: base64Img })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      stopCam();
+      document.getElementById('scanState').style.display='none';
+      document.getElementById('successState').className='success-state visible';
+      setTimeout(() => showLoginSuccess(result.redirect_url), 1000);
+    } else {
+      lb.textContent = 'Autenticación fallida.';
+      document.getElementById('bioErr').textContent = '⚠ ' + (result.error || 'Rostro no reconocido.');
+      document.getElementById('btnCapture').disabled = false;
+      document.getElementById('btnCapture').style.opacity = '1';
+      document.getElementById('scanLine').style.animationDuration='2.2s';
+    }
+  } catch (error) {
+    console.error(error);
+    lb.textContent = 'Error de conexión.';
+    document.getElementById('bioErr').textContent = '⚠ Error de red. Inténtalo de nuevo.';
+    document.getElementById('btnCapture').disabled = false;
+    document.getElementById('btnCapture').style.opacity = '1';
+    document.getElementById('scanLine').style.animationDuration='2.2s';
+  }
+}
+
+function stopCam(){
+  if(camStream){
+    camStream.getTracks().forEach(t=>t.stop());
+    camStream=null;
+  }
+  const video=document.getElementById('videoEl');
+  if(video) video.srcObject=null;
 }
 
 function cancelScan(){
-  document.getElementById('scanState').className='scan-state';
+  stopCam();
+  document.getElementById('scanState').style.display='none';
   document.getElementById('bioChoice').style.display='';
+  document.getElementById('camIdle').style.display='flex';
+  document.getElementById('videoEl').style.display='none';
+  document.getElementById('faceFrame').style.display='none';
+  document.getElementById('camControls').style.display='none';
 }
 
 function resetBio(){
+  stopCam();
   bioSelected=null;
   document.getElementById('bioChoice').style.display='';
-  document.getElementById('scanState').className='scan-state';
+  document.getElementById('scanState').style.display='none';
   document.getElementById('successState').className='success-state';
   document.getElementById('cardF').className='bio-card';
   document.getElementById('bioErr').textContent='';
+  document.getElementById('camIdle').style.display='flex';
+  document.getElementById('videoEl').style.display='none';
+  document.getElementById('faceFrame').style.display='none';
+  document.getElementById('camControls').style.display='none';
 }
 
-function showLoginSuccess(){
+function showLoginSuccess(redirectUrl){
   document.querySelector('.right').innerHTML=`
     <div style="text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);">
       <div style="width:80px;height:80px;border-radius:50%;background:var(--grnp);border:2px solid #bbf7d0;display:flex;align-items:center;justify-content:center;font-size:36px;">✓</div>
       <div style="font-size:20px;font-weight:500;color:var(--g800);">¡Acceso concedido!</div>
-      <div style="font-size:14px;color:var(--g400);line-height:1.6;">Cargando el panel farmacéutico...</div>
+      <div style="font-size:14px;color:var(--g400);line-height:1.6;">Cargando tu panel...</div>
       <div style="display:flex;gap:5px;margin-top:6px;">${[1,2,3].map(i=>`<div style="width:7px;height:7px;border-radius:50%;background:var(--bm);animation:pulse ${.6+i*.2}s ease-in-out infinite alternate;"></div>`).join('')}</div>
     </div>
     <style>@keyframes pop{from{opacity:0;transform:scale(.7);}to{opacity:1;transform:scale(1);}}@keyframes pulse{from{opacity:.3;transform:scale(.8);}to{opacity:1;transform:scale(1);}}</style>
   `;
-  setTimeout(()=>window.location.href = '/api/inventario', 2000);
+  setTimeout(()=>window.location.href = redirectUrl, 2000);
 }
 </script>
 </body>
