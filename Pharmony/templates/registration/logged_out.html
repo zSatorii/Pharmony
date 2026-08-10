@@ -1,0 +1,27 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <span class="brand-mark">PHARMONY</span>
+  <span class="brand-sub">Panel administrativo</span>
+</h1>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="logout-box">
+    <div class="logout-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0d47c9" stroke-width="1.8"><path d="M8 17H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4" stroke-linecap="round"/><path d="M13 14l4-4-4-4M17 10H7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <h2>Sesión cerrada</h2>
+    <p>Gracias por usar Pharmony. Puedes iniciar sesión de nuevo cuando quieras.</p>
+    <a class="btn-relogin" href="{% url 'admin:index' %}">Iniciar sesión de nuevo</a>
+</div>
+{% endblock %}

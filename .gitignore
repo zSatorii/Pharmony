@@ -19,6 +19,18 @@ db.sqlite3-journal
 media/
 staticfiles/
 
+# Archivos multimedia y estáticos
+Pharmony/media/
+Pharmony/staticfiles/
+
+# Documentos privados subidos por usuarios
+Pharmony/turnos/cedulas/
+Pharmony/turnos/formulas/
+
+# Configuración privada de Firebase
+Pharmony/turnos/static/turnos/firebase-config.js
+Pharmony/turnos/static/turnos/firebase-init.js
+
 # ==========================================
 # Entornos Virtuales
 # ==========================================
