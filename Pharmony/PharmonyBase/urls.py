@@ -14,4 +14,11 @@ urlpatterns = [
     path('api/', include('Farmacia.urls')),
     path('', include('epsinventario.urls')),
     path('docs-ia/', include('DocsIA.urls')),
+    path('turnos/', include('turnos.urls')),
 ]
+
+from django.conf import settings
+from django.conf.urls.static import static
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

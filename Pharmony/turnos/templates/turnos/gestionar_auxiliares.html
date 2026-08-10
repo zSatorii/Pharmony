@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Pharmony — Auxiliares de {{ sede.nombre }}</title></head>
+<body style="font-family:sans-serif;max-width:650px;margin:60px auto;">
+    <h1>Auxiliares habilitados — {{ sede.nombre }}</h1>
+    <p style="color:#666;">Solo el personal EPS de tu propia entidad puede habilitarse aquí.</p>
+
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left;border-bottom:1px solid #ccc;">
+                <th>Usuario</th><th>Email</th><th>Estado</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in candidatos %}
+            <tr style="border-bottom:1px solid #eee;">
+                <td>{{ c.username }}</td>
+                <td>{{ c.email }}</td>
+                <td>{% if c.id in habilitados_ids %}<strong style="color:green;">Habilitado</strong>{% else %}<span style="color:#999;">No habilitado</span>{% endif %}</td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="usuario_id" value="{{ c.id }}">
+                        {% if c.id in habilitados_ids %}
+                        <input type="hidden" name="accion" value="deshabilitar">
+                        <button type="submit">Deshabilitar</button>
+                        {% else %}
+                        <input type="hidden" name="accion" value="habilitar">
+                        <button type="submit">Habilitar</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="padding:16px;color:#999;">No hay personal EPS registrado para tu entidad todavía. Créalos desde /admin/ (rol='eps', misma EPS).</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

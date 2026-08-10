@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% load i18n static %}
+
+{% block title %}{{ title }} · Pharmony Admin{% endblock %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <span class="brand-mark">PHARMONY</span>
+    <span class="brand-sub">Panel administrativo</span>
+  </a>
+</h1>
+{% endblock %}
+
+{% block usertools %}
+{% if has_permission %}
+<div id="user-tools">
+    <span class="ut-welcome">Hola, <strong>{% firstof user.get_short_name user.get_username %}</strong></span>
+    {% if site_url %}<a href="{{ site_url }}">Ver el sitio</a>{% endif %}
+    {% if user.is_active and user.is_staff %}
+        {% url 'admin:password_change' as password_change_url %}
+        {% if password_change_url %}<a href="{{ password_change_url }}">Cambiar contraseña</a>{% endif %}
+    {% endif %}
+    {% if user.has_usable_password %}
+    <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+        {% csrf_token %}
+        <button type="submit">Cerrar sesión</button>
+    </form>
+    {% endif %}
+    {% include "admin/color_theme_toggle.html" %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="{% static 'admin/js/theme_sync.js' %}" defer></script>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

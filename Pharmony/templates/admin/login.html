@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'admin/css/custom_admin.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+  <span class="brand-mark">PHARMONY</span>
+  <span class="brand-sub">Panel administrativo</span>
+</h1>
+{% endblock %}
+
+{% block content %}
+{% if form.errors and not form.non_field_errors %}
+<p class="errornote">Corrige el error de abajo.</p>
+{% endif %}
+
+{% if form.non_field_errors %}
+{% for error in form.non_field_errors %}
+<p class="errornote">{{ error }}</p>
+{% endfor %}
+{% endif %}
+
+<div id="content-main">
+  {% if user.is_authenticated %}
+  <p class="errornote">Iniciaste sesión como {{ user.get_username }}, pero esa cuenta no tiene permiso para entrar aquí. ¿Quieres iniciar sesión con otra cuenta?</p>
+  {% endif %}
+
+  <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+    <div class="form-row">
+      {{ form.username.errors }}
+      {{ form.username.label_tag }}
+      {{ form.username }}
+    </div>
+    <div class="form-row password-row">
+      {{ form.password.errors }}
+      {{ form.password.label_tag }}
+      <div class="password-wrapper">
+        {{ form.password }}
+        <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar contraseña">
+          <svg id="eyeIcon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6">
+            <path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6z"/><circle cx="10" cy="10" r="2.3"/>
+          </svg>
+        </button>
+      </div>
+      <input type="hidden" name="next" value="{{ next }}">
+    </div>
+    {% url 'admin_password_reset' as password_reset_url %}
+    {% if password_reset_url %}
+    <div class="password-reset-link">
+      <a href="{{ password_reset_url }}">¿Olvidaste tu usuario o contraseña?</a>
+    </div>
+    {% endif %}
+    <div class="submit-row">
+      <input type="submit" value="Iniciar sesión">
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const toggleBtn = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const passwordInput = document.getElementById('id_password');
+    if (!toggleBtn || !passwordInput) return;
+    toggleBtn.addEventListener('click', function () {
+      const visible = passwordInput.type === 'text';
+      passwordInput.type = visible ? 'password' : 'text';
+      eyeIcon.innerHTML = visible
+        ? '<path d="M1.5 10S4.5 4 10 4s8.5 6 8.5 6-3 6-8.5 6-8.5-6-8.5-6z"/><circle cx="10" cy="10" r="2.3"/>'
+        : '<path d="M2 2l16 16M9.3 9.3a2.3 2.3 0 0 0 3.2 3.2M5.5 5.7C3.3 7.1 1.5 10 1.5 10s3 6 8.5 6c1.6 0 3-.5 4.2-1.2M8 4.2C8.6 4.1 9.3 4 10 4c5.5 0 8.5 6 8.5 6a13.9 13.9 0 0 1-1.8 2.6" stroke-linecap="round"/>';
+      toggleBtn.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+    });
+  })();
+</script>
+{% endblock %}

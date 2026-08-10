@@ -104,7 +104,7 @@ def _redirect_por_rol(user):
     if user.rol == 'cliente':
         return reverse('dashboard_cliente')
     if user.rol == 'eps':
-        return reverse('dashboard_eps')
+        return reverse('turnos:seleccion_panel')
     return reverse('dashboard_inventario')
 
 @never_cache

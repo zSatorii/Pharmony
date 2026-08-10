@@ -52,3 +52,41 @@ def coords_para_ciudad(ciudad: str):
         return FALLBACK_COORD
     clave = ciudad.strip().lower()
     return CIUDADES_COORDS.get(clave, FALLBACK_COORD)
+
+
+import math
+
+
+def _distancia_km(coord1, coord2):
+    lat1, lng1 = coord1
+    lat2, lng2 = coord2
+    R = 6371
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = (math.sin(dlat / 2) ** 2
+         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
+
+
+def ciudades_cercanas(ciudad_base: str, radio_km: float = 40):
+    """
+    Devuelve los nombres de ciudad dentro de `radio_km` de `ciudad_base`
+    (incluida ella misma), ordenados de más cerca a más lejos. Si la
+    ciudad no está en CIUDADES_COORDS, devuelve solo esa ciudad tal cual.
+    """
+    clave_base = (ciudad_base or '').strip().lower()
+    coord_base = CIUDADES_COORDS.get(clave_base)
+    if not coord_base:
+        return [ciudad_base] if ciudad_base else []
+
+    por_coordenada = {}
+    for nombre, coord in CIUDADES_COORDS.items():
+        dist = _distancia_km(coord_base, coord)
+        if dist <= radio_km:
+            existente = por_coordenada.get(coord)
+            if not existente or len(nombre) > len(existente[0]):
+                por_coordenada[coord] = (nombre, dist)
+
+    resultado = sorted(por_coordenada.values(), key=lambda x: x[1])
+    return [nombre.title() for nombre, _ in resultado]
