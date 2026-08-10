@@ -120,15 +120,15 @@ def dashboard_inventario(request):
             firestore_ids = set()
             for doc in docs:
                 data = doc.to_dict()
-                try:
-                    med_id = int(doc.id)
-                except ValueError:
+                med_id = data.get('id') or (int(doc.id) if doc.id.isdigit() else None)
+                if med_id is None:
                     continue
                 firestore_ids.add(med_id)
+                codigo_cum = data.get('codigo_cum') or doc.id
                 Medicamento.objects.update_or_create(
                     id=med_id,
                     defaults={
-                        'codigo_cum': data.get('codigo_cum', ''),
+                        'codigo_cum': str(codigo_cum),
                         'nombre_generico': data.get('nombre_generico', ''),
                         'nombre_comercial': data.get('nombre_comercial', ''),
                         'laboratorio': data.get('laboratorio', ''),
@@ -137,10 +137,11 @@ def dashboard_inventario(request):
                         'descripcion': data.get('descripcion', ''),
                         'uso_indicado': data.get('uso_indicado', ''),
                         'efectos_secundarios': data.get('efectos_secundarios', ''),
-                        'requiere_formula': data.get('requiere_formula', False),
+                        'requiere_formula': bool(data.get('requiere_formula', False)),
                     }
                 )
-            Medicamento.objects.exclude(id__in=firestore_ids).delete()
+            if firestore_ids:
+                Medicamento.objects.exclude(id__in=firestore_ids).delete()
         except Exception:
             pass
 
@@ -617,7 +618,7 @@ def iniciar_sesion(request):
                     'redirect_url': redirect_url
                 })
 
-            api_key = os.getenv('FIREBASE_WEB_API_KEY')
+            api_key = os.getenv('FIREBASE_WEB_API_KEY') or os.getenv('FIREBASE_API_KEY')
             if not api_key:
                 return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
 
