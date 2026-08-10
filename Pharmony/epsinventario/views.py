@@ -245,7 +245,6 @@ def medicamentos_por_ciudad(request, ciudad):
     sedes = Sede.objects.filter(ciudad__iexact=ciudad)
     inventarios = InventarioSede.objects.select_related('medicamento', 'sede').filter(
         sede__ciudad__iexact=ciudad,
-        cantidad_disponible__gt=0
     ).order_by('medicamento__nombre_comercial')
 
     context = {'ciudad': ciudad, 'sedes': sedes, 'inventarios': inventarios}
