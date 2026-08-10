@@ -281,6 +281,10 @@
         .sede-city { font-size: 11.5px; color: var(--g400); }
         .sede-stock-ok  { font-weight: 700; color: var(--grn); }
         .sede-stock-out { font-weight: 700; color: var(--red); }
+        .sede-row-selectable { cursor: pointer; border-radius: var(--r-sm); padding-left: 6px; padding-right: 6px; transition: background 0.15s; }
+        .sede-row-selectable:hover { background: var(--g50); }
+        .sede-row-selected { background: var(--bp) !important; }
+        .sede-row-disabled { opacity: 0.55; }
         .btn-solicitar { display: block; width: 100%; background: var(--bm); color: var(--w); border: none; border-radius: var(--r-md); padding: 12px; font-size: 14px; font-weight: 700; font-family: 'DM Sans', sans-serif; cursor: pointer; box-shadow: 0 4px 14px rgba(13,71,201,0.22); transition: background 0.2s, transform 0.15s; margin-top: 14px; }
         .btn-solicitar:hover { background: var(--bdk); transform: translateY(-1px); }
         .btn-solicitar:disabled { background: var(--g200); color: var(--g400); cursor: not-allowed; box-shadow: none; transform: none; }
@@ -380,6 +384,13 @@
             Buscar medicamento con IA
         </a>
         <span class="nav-group-label" style="margin-top:4px;">Usuario</span>
+        <a class="nav-item" href="{% url 'turnos:mis_turnos' %}">
+            <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+                <rect x="2" y="3" width="14" height="12" rx="1.5" fill="none"/>
+                <path d="M5 7h8M5 10h8M5 13h5" stroke-linecap="round"/>
+            </svg>
+            Mis turnos
+        </a>
         <a class="nav-item" href="{% url 'mi_cuenta' %}">
             <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="9" cy="6" r="3"/>
@@ -897,29 +908,43 @@
         if (med.descripcion) { document.getElementById('medModalDescText').textContent = med.descripcion; descEl.style.display = ''; } else descEl.style.display = 'none';
         
         const sedesEl = document.getElementById('medModalSedes');
+        _activeSedeId = null;
         if (med.sedes.length > 0) {
-            sedesEl.innerHTML = med.sedes.map(s => `<div class="sede-row"><div><span class="sede-name">${s.sede_nombre}</span><span class="sede-city"> (${s.ciudad})</span></div><span class="${s.cantidad_disponible > 0 ? 'sede-stock-ok' : 'sede-stock-out'}">${s.cantidad_disponible} unid.</span></div>`).join('');
-            const primera = med.sedes.find(s => s.cantidad_disponible > 0);
-            _activeSedeId = primera?.sede_id ?? null;
-        } else { sedesEl.innerHTML = '<p style="color:var(--g400);font-size:12.5px;padding:8px 0;">No hay stock registrado en ninguna sede.</p>'; _activeSedeId = null; }
-        
-        const btn = document.getElementById('medModalBtn');
-        btn.disabled = !med.disponible; btn.textContent = med.disponible ? 'Solicitar medicamento' : 'No disponible actualmente';
+            sedesEl.innerHTML = med.sedes.map(s => `
+                <div class="sede-row ${s.cantidad_disponible > 0 ? 'sede-row-selectable' : 'sede-row-disabled'}"
+                     data-sede-id="${s.sede_id}"
+                     ${s.cantidad_disponible > 0 ? `onclick="seleccionarSede(${s.sede_id})"` : ''}>
+                    <div><span class="sede-name">${s.sede_nombre}</span><span class="sede-city"> (${s.ciudad})</span></div>
+                    <span class="${s.cantidad_disponible > 0 ? 'sede-stock-ok' : 'sede-stock-out'}">${s.cantidad_disponible} unid.</span>
+                </div>`).join('');
+        } else {
+            sedesEl.innerHTML = '<p style="color:var(--g400);font-size:12.5px;padding:8px 0;">No hay stock registrado en ninguna sede.</p>';
+        }
+        actualizarBotonSolicitar(med.disponible);
+        document.getElementById('solicitudMsg').textContent = med.sedes.some(s => s.cantidad_disponible > 0) ? 'Selecciona la sede donde quieres reclamarlo.' : '';
+    }
+
+    function seleccionarSede(sedeId) {
+        _activeSedeId = sedeId;
+        document.querySelectorAll('#medModalSedes .sede-row').forEach(row => {
+            row.classList.toggle('sede-row-selected', parseInt(row.dataset.sedeId) === sedeId);
+        });
         document.getElementById('solicitudMsg').textContent = '';
+        actualizarBotonSolicitar(true);
+    }
+
+    function actualizarBotonSolicitar(disponibleGeneral) {
+        const btn = document.getElementById('medModalBtn');
+        if (!disponibleGeneral) { btn.disabled = true; btn.textContent = 'No disponible actualmente'; }
+        else if (!_activeSedeId) { btn.disabled = true; btn.textContent = 'Selecciona una sede primero'; }
+        else { btn.disabled = false; btn.textContent = 'Solicitar medicamento'; }
     }
 
     function cerrarModalDetalle() { document.getElementById('medModalOverlay').classList.remove('active'); }
 
-    async function solicitarMedicamento() {
-        const msgEl = document.getElementById('solicitudMsg');
-        msgEl.textContent = 'Enviando solicitud\u2026'; msgEl.style.color = 'var(--g400)';
-        try {
-            const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
-            const res = await fetch('/medicamentos/solicitar/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf }, body: JSON.stringify({ medicamento_id: _activeMedId, sede_id: _activeSedeId }) });
-            const data = await res.json();
-            if (data.success) { msgEl.style.color = 'var(--grn)'; msgEl.textContent = '\u2713 ' + data.message; }
-            else { msgEl.style.color = 'var(--red)'; msgEl.textContent = data.error || 'Ocurrió un error.'; }
-        } catch { msgEl.style.color = 'var(--red)'; msgEl.textContent = 'Error de conexión con el servidor.'; }
+    function solicitarMedicamento() {
+        if (!_activeMedId || !_activeSedeId) return;
+        window.location.href = `/turnos/solicitar/${_activeSedeId}/${_activeMedId}/`;
     }
 
     
