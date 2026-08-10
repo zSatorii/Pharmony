@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Solicitar medicamento</title>
+    <style>
+        body { font-family: 'DM Sans', sans-serif; max-width: 550px; margin: 60px auto; padding: 0 20px; color: #1e293b; }
+        h1 { font-size: 22px; margin-bottom: 4px; }
+        .sub { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
+        .resumen { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 14px; }
+        .resumen strong { color: #0d47c9; }
+        .campo { margin-bottom: 18px; }
+        .campo label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        .campo input[type="file"], .campo input[type="text"], .campo select {
+            width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
+            font-size: 14px; font-family: 'DM Sans', sans-serif; box-sizing: border-box; background: #fff;
+        }
+        .hint { font-size: 11.5px; color: #94a3b8; margin-top: 4px; }
+        .errores { color: #ef4444; font-size: 12.5px; margin-top: 4px; }
+        .msg-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: 13.5px; }
+        .btn-enviar {
+            width: 100%; background: #0d47c9; color: #fff; border: none; border-radius: 10px;
+            padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px;
+        }
+        .btn-enviar:hover { background: #0a3a8c; }
+    </style>
+</head>
+<body>
+    <h1>Solicitar medicamento</h1>
+    <p class="sub">Completa tus documentos para generar tu turno de dispensación.</p>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="msg-error">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="resumen">
+        <div><strong>Medicamento:</strong> {{ medicamento.nombre_comercial }} ({{ medicamento.nombre_generico }})</div>
+        <div><strong>Sede:</strong> {{ sede.nombre }} — {{ sede.ciudad }}</div>
+        <div><strong>Disponibilidad actual:</strong> {{ inventario.cantidad_disponible }} unidades</div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="campo">
+            <label for="{{ form.formula_medica.id_for_label }}">Fórmula médica</label>
+            {{ form.formula_medica }}
+            <div class="hint">Solo PDF, DOCX o imagen (JPG/PNG).</div>
+            {% if form.formula_medica.errors %}<div class="errores">{{ form.formula_medica.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="campo">
+            <label for="{{ form.cedula_ciudadania.id_for_label }}">Cédula de ciudadanía</label>
+            {{ form.cedula_ciudadania }}
+            <div class="hint">Solo PDF, DOCX o imagen (JPG/PNG).</div>
+            {% if form.cedula_ciudadania.errors %}<div class="errores">{{ form.cedula_ciudadania.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="campo">
+            <label for="{{ form.ciudad_envio.id_for_label }}">Ciudad de entrega</label>
+            {{ form.ciudad_envio }}
+            <div class="hint">Solo se puede entregar en la ciudad de la sede o municipios cercanos.</div>
+            {% if form.ciudad_envio.errors %}<div class="errores">{{ form.ciudad_envio.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <div class="campo">
+            <label for="{{ form.direccion_envio.id_for_label }}">Dirección exacta</label>
+            {{ form.direccion_envio }}
+            {% if form.direccion_envio.errors %}<div class="errores">{{ form.direccion_envio.errors|join:", " }}</div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn-enviar">Generar turno</button>
+    </form>
+</body>
+</html>

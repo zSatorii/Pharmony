@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Pharmony — Marcar tarjeta</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--amber:#f59e0b;--amberp:#fffbeb;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
+    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;}
+    .wrap{max-width:520px;margin:0 auto;padding:40px 20px 60px;}
+    h1{font-family:'Quicksand',sans-serif;font-size:22px;color:var(--bd);margin-bottom:6px;}
+    .sub{color:var(--g400);font-size:13.5px;margin-bottom:24px;}
+    .alerta{background:var(--amberp);border:1px solid var(--amber);color:#92620a;border-radius:12px;padding:14px 16px;font-size:13.5px;margin-bottom:20px;}
+    .sedes{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+    .sede-opt{background:var(--w);border:2px solid var(--g200);border-radius:14px;padding:16px 18px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:.15s;}
+    .sede-opt:hover{border-color:var(--bs);}
+    .sede-opt.selected{border-color:var(--bm);background:var(--bp);}
+    .sede-opt input{accent-color:var(--bm);width:18px;height:18px;}
+    .sede-opt .nombre{font-weight:600;font-size:14.5px;}
+    .sede-opt .ciudad{font-size:12px;color:var(--g400);}
+    .btn-abrir{width:100%;background:var(--bm);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;}
+    .btn-abrir:hover{background:var(--bdk);}
+</style>
+</head>
+<body>
+<div class="topbar">PHARMONY</div>
+<div class="wrap">
+    <h1>Marcar tarjeta</h1>
+    <p class="sub">Selecciona la sede en la que vas a trabajar hoy.</p>
+
+    {% if messages %}{% for m in messages %}<div class="alerta">{{ m }}</div>{% endfor %}{% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="sedes">
+            {% for sede in sedes %}
+            <label class="sede-opt" onclick="document.querySelectorAll('.sede-opt').forEach(el=>el.classList.remove('selected'));this.classList.add('selected');">
+                <input type="radio" name="sede_id" value="{{ sede.id }}" required>
+                <div>
+                    <div class="nombre">{{ sede.nombre }}</div>
+                    <div class="ciudad">{{ sede.ciudad }}</div>
+                </div>
+            </label>
+            {% empty %}
+            <p style="color:var(--g400);font-size:13.5px;">No estás habilitado en ninguna sede todavía.</p>
+            {% endfor %}
+        </div>
+        {% if sedes %}<button type="submit" class="btn-abrir">Abrir caja</button>{% endif %}
+    </form>
+</div>
+</body>
+</html>

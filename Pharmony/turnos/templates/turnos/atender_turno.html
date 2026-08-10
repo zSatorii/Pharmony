@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmony — Atender turno</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
+    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;}
+    .topbar .ticket-id{font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;}
+    .wrap{max-width:680px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:20px;}
+    .card{background:var(--w);border-radius:18px;box-shadow:0 6px 20px rgba(13,71,201,0.08);overflow:hidden;}
+    .card-head{background:linear-gradient(135deg,var(--bd) 0%,var(--bdk) 100%);color:#fff;padding:14px 20px;font-family:'Quicksand',sans-serif;font-size:14.5px;font-weight:600; text-align: center;}
+    .card-body{padding:18px 20px;}
+    .doc-list{display:flex;gap:12px;flex-wrap:wrap;}
+    .doc-item{flex:1;min-width:140px;background:var(--g50);border:1.5px solid var(--g200);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:.15s;}
+    .doc-item:hover{border-color:var(--bs);background:var(--bp);}
+    .doc-item svg{margin-bottom:6px;}
+    .doc-item span{display:block;font-size:12.5px;font-weight:600;color:var(--g800);}
+    .info-row{font-size:13.5px;color:var(--g600);margin-top:12px;}
+    .info-row b{color:var(--g800);}
+
+    .chat-scroll{padding:16px 18px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--g50);}
+    .bubble{max-width:78%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.4;}
+    .bubble.own{align-self:flex-end;background:var(--bm);color:#fff;border-bottom-right-radius:4px;}
+    .bubble.other{align-self:flex-start;background:var(--w);border:1px solid var(--g200);color:var(--g800);border-bottom-left-radius:4px;}
+    .bubble .autor{font-size:10.5px;font-weight:700;opacity:.7;margin-bottom:2px;display:block;}
+    .bubble .hora{font-size:10px;opacity:.6;display:block;margin-top:3px;text-align:right;}
+    .bubble a.adjunto{color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;}
+    .chat-input-row{display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--g100);background:var(--w);}
+    .chat-input-row input[type="text"]{flex:1;border:1.5px solid var(--g200);border-radius:20px;padding:10px 16px;font-size:13.5px;font-family:inherit;outline:none;}
+    .btn-attach{width:38px;height:38px;border-radius:50%;background:var(--g100);border:1px solid var(--g200);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:var(--g600);}
+    .btn-attach:hover{background:var(--bp);color:var(--bm);}
+    .btn-send{width:38px;height:38px;border-radius:50%;background:var(--bm);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;color:#fff;}
+    .btn-send:hover{background:var(--bdk);}
+    .archivo-preview{font-size:11.5px;color:var(--bm);padding:0 14px 8px;}
+
+    .finalizar-form label{margin-right:18px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;}
+    .finalizar-form textarea{width:100%;margin:12px 0;padding:11px;border:1.5px solid var(--g200);border-radius:10px;font-family:inherit;min-height:74px;font-size:13.5px;}
+    .btn-confirmar{background:var(--bm);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;}
+    .btn-confirmar:hover{background:var(--bdk);}
+
+    .doc-modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,32,96,0.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:24px;}
+    .doc-modal-overlay.active{display:flex;}
+    .doc-modal{background:#fff;border-radius:16px;width:100%;max-width:780px;height:85vh;display:flex;flex-direction:column;overflow:hidden;}
+    .doc-modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--g200);}
+    .doc-modal-head h3{font-size:14.5px;color:var(--bd);}
+    .doc-modal-close{background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--g600);}
+    .doc-modal-body{flex:1;overflow:auto;background:var(--g50);}
+    .doc-modal-body iframe,.doc-modal-body img{width:100%;height:100%;object-fit:contain;border:none;}
+    .doc-modal-fallback{padding:40px;text-align:center;color:var(--g600);}
+    .doc-modal-docx{padding:32px 40px;background:#fff;line-height:1.6;font-size:14px;color:#1e293b;}
+    .doc-modal-docx img{max-width:100%;}
+</style>
+</head>
+<body>
+<div class="topbar"><span>PHARMONY</span><span class="ticket-id">{{ turno.codigo_ticket }} — {{ turno.usuario.username }}</span></div>
+<div class="wrap">
+
+    <div class="card">
+        <div class="card-head">Documentos del usuario</div>
+        <div class="card-body">
+            <div class="doc-list">
+                <div class="doc-item" onclick="abrirDocumento('{{ turno.formula_medica.url }}')">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d47c9" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    <span>Fórmula médica</span>
+                </div>
+                <div class="doc-item" onclick="abrirDocumento('{{ turno.cedula_ciudadania.url }}')">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d47c9" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h5M14 14h3"/></svg>
+                    <span>Cédula de ciudadanía</span>
+                </div>
+            </div>
+            <div class="info-row"><b>Dirección de envío:</b> {{ turno.direccion_envio }}, {{ turno.ciudad_envio }}</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-head">Chat con el usuario</div>
+        <div id="chatBoxAdmin" class="chat-scroll">
+            {% for m in mensajes %}
+            <div class="bubble {% if m.remitente == request.user %}own{% else %}other{% endif %}">
+                {% if m.remitente != request.user %}<span class="autor">{{ m.remitente.nombre_para_mostrar }}</span>{% endif %}
+                {{ m.contenido }}
+                {% if m.archivo %}<br><a class="adjunto" href="#" onclick="abrirDocumento('{{ m.archivo.url }}'); return false;">📎 Ver archivo</a>{% endif %}
+            </div>
+            {% empty %}
+            <p style="color:#94a3b8;font-size:13px;">Sin mensajes todavía.</p>
+            {% endfor %}
+        </div>
+        <form method="post" enctype="multipart/form-data" id="chatFormAdmin">
+            {% csrf_token %}
+            <input type="hidden" name="accion" value="mensaje">
+            <div class="chat-input-row">
+                <label class="btn-attach" for="archivoInputAdmin" title="Adjuntar archivo">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                </label>
+                <input type="file" id="archivoInputAdmin" name="archivo" style="display:none;" onchange="mostrarArchivoAdmin()">
+                <input type="text" name="contenido" placeholder="Escribe un mensaje al usuario...">
+                <button type="submit" class="btn-send" title="Enviar">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </div>
+            <div class="archivo-preview" id="archivoPreviewAdmin"></div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="card-head">Finalizar turno</div>
+        <div class="card-body">
+            <form method="post" class="finalizar-form">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="finalizar">
+                <label><input type="radio" name="estado_final" value="correcto" required> Correcto / aprobado</label>
+                <label><input type="radio" name="estado_final" value="rechazado"> Rechazado</label>
+                <textarea name="motivo" placeholder="Motivo (aparecerá en la factura del usuario)"></textarea>
+                <button type="submit" class="btn-confirmar">Confirmar y continuar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="doc-modal-overlay" id="docModalOverlay">
+    <div class="doc-modal">
+        <div class="doc-modal-head">
+            <h3>Documento</h3>
+            <button class="doc-modal-close" onclick="cerrarDocumento()">×</button>
+        </div>
+        <div class="doc-modal-body" id="docModalBody"></div>
+    </div>
+</div>
+
+{% load static %}
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="{% static 'turnos/firebase-config.js' %}"></script>
+<script src="{% static 'turnos/firebase-init.js' %}"></script>
+<script>
+    const firebaseCustomToken = "{{ firebase_token|default:'' }}";
+    const codigoTurno = "{{ turno.codigo_ticket }}";
+    const miUsername = "{{ request.user.username }}";
+
+    function mostrarArchivoAdmin() {
+        const input = document.getElementById('archivoInputAdmin');
+        document.getElementById('archivoPreviewAdmin').textContent = input.files.length ? `📎 ${input.files[0].name}` : '';
+    }
+
+    async function abrirDocumento(url) {
+        const ext = url.split('.').pop().toLowerCase().split('?')[0];
+        const body = document.getElementById('docModalBody');
+        document.getElementById('docModalOverlay').classList.add('active');
+        body.innerHTML = '<div class="doc-modal-fallback">Cargando documento...</div>';
+
+        try {
+            if (ext === 'pdf') {
+                const res = await fetch(url);
+                const blob = await res.blob();
+                const blobUrl = URL.createObjectURL(blob);
+                body.innerHTML = `<iframe src="${blobUrl}"></iframe>`;
+            } else if (['jpg','jpeg','png','webp','gif'].includes(ext)) {
+                body.innerHTML = `<img src="${url}" alt="documento">`;
+            } else if (ext === 'docx') {
+                const res = await fetch(url);
+                const buffer = await res.arrayBuffer();
+                const opciones = {
+                    convertImage: mammoth.images.imgElement(function (image) {
+                        return image.read('base64').then(function (imageBuffer) {
+                            return { src: 'data:' + image.contentType + ';base64,' + imageBuffer };
+                        });
+                    })
+                };
+                const resultado = await mammoth.convertToHtml({ arrayBuffer: buffer }, opciones);
+                body.innerHTML = `<div class="doc-modal-docx">${resultado.value}</div>`;
+            } else {
+                body.innerHTML = `<div class="doc-modal-fallback">Este tipo de archivo no se puede previsualizar aquí.<br><a href="${url}" target="_blank" style="color:#0d47c9;font-weight:700;">Abrir en una pestaña nueva →</a></div>`;
+            }
+        } catch (e) {
+            console.error('[turnos] error al cargar documento:', e);
+            body.innerHTML = `<div class="doc-modal-fallback">No se pudo cargar el documento.<br><a href="${url}" target="_blank" style="color:#0d47c9;font-weight:700;">Abrir en una pestaña nueva →</a></div>`;
+        }
+    }
+
+    function cerrarDocumento() {
+        document.getElementById('docModalOverlay').classList.remove('active');
+        document.getElementById('docModalBody').innerHTML = '';
+    }
+    document.getElementById('docModalOverlay').addEventListener('click', e => { if (e.target.id === 'docModalOverlay') cerrarDocumento(); });
+
+    function pintarMensajesAdmin(snapshot) {
+        const chatBox = document.getElementById('chatBoxAdmin');
+        if (snapshot.empty) { chatBox.innerHTML = '<p style="color:#94a3b8;font-size:13px;">Sin mensajes todavía.</p>'; return; }
+        const html = [];
+        snapshot.forEach(doc => {
+            const m = doc.data();
+            const esMio = m.remitente_username === miUsername;
+            const hora = m.fecha && m.fecha.toDate ? m.fecha.toDate().toLocaleTimeString().slice(0, 5) : '';
+            let contenido = m.contenido ? m.contenido.replace(/</g, '&lt;') : '';
+            let adjunto = m.archivo_url ? `<br><a class="adjunto" href="#" onclick="abrirDocumento('${m.archivo_url}'); return false;">📎 Ver archivo</a>` : '';
+            html.push(`<div class="bubble ${esMio ? 'own' : 'other'}">${!esMio ? `<span class="autor">${m.remitente_nombre}</span>` : ''}${contenido}${adjunto}<span class="hora">${hora}</span></div>`);
+        });
+        chatBox.innerHTML = html.join('');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function iniciarListenerChatAdmin() {
+        if (!firebaseCustomToken) { console.warn('[turnos] sin token de Firebase, no hay tiempo real'); return; }
+        try { await firebase.auth().signInWithCustomToken(firebaseCustomToken); }
+        catch (e) { console.error('[turnos] no se pudo autenticar con Firebase:', e); return; }
+
+        dbFirestore.collection('turnos').doc(codigoTurno).collection('mensajes').orderBy('fecha').onSnapshot(
+            snapshot => pintarMensajesAdmin(snapshot),
+            error => console.error('[turnos] error listener mensajes (admin):', error)
+        );
+
+        dbFirestore.collection('turnos').doc(codigoTurno).collection('mensajes').orderBy('fecha').onSnapshot(
+            snapshot => pintarMensajesAdmin(snapshot),
+            error => console.error('[turnos] error listener mensajes (admin):', error)
+        );
+
+        dbFirestore.collection('turnos').doc(codigoTurno).onSnapshot(doc => {
+            if (doc.exists && doc.data().estado === 'cancelado') {
+                alert('El usuario canceló este turno.');
+                window.location.href = "{% url 'turnos:cola_turnos' turno.sede.id %}";
+            }
+        }, error => console.error('[turnos] error listener estado (admin):', error));
+    }
+    iniciarListenerChatAdmin();
+</script>
+</body>
+</html>
