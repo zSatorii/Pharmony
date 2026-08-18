@@ -359,6 +359,20 @@
                 </div>
             </div>
 
+            <!-- Banner de éxito de asignación -->
+            <div id="alertAsignados" style="display:none; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--r-md); padding: 14px 18px; margin-bottom: 16px; align-items: center; justify-content: space-between; gap: 12px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--grn); font-size: 20px;"></i>
+                    <div>
+                        <strong style="color: #15803d; font-size: 13.5px;">¡Medicamentos agregados a tu tratamiento!</strong>
+                        <p style="color: #166534; font-size: 11.5px; margin-top: 1px;">Los medicamentos detectados en tu fórmula médica ya se asociaron a tu perfil y se reflejan en tu Dashboard.</p>
+                    </div>
+                </div>
+                <a href="{% url 'dashboard_cliente' %}" style="background: #16a34a; color: #fff; padding: 7px 14px; border-radius: var(--r-sm); font-size: 12px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+                    Ver en mi Dashboard <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+
             <div class="table-card">
                 <div class="table-head">
                     <h3><i class="bi bi-list-check" style="color: var(--bm); margin-right: 6px;"></i> Medicamentos Detectados en la Fórmula</h3>
@@ -370,7 +384,7 @@
                             <th>Concentración / Forma</th>
                             <th>Cantidad</th>
                             <th>Indicaciones / Uso</th>
-                            <th>Disponibilidad en Pharmony</th>
+                            <th>Tratamiento</th>
                         </tr>
                     </thead>
                     <tbody id="tablaResultados">
@@ -404,9 +418,11 @@
 
         const loading = document.getElementById('loadingBox');
         const results = document.getElementById('resultsContainer');
+        const alertAsignados = document.getElementById('alertAsignados');
 
         loading.style.display = 'block';
         results.style.display = 'none';
+        alertAsignados.style.display = 'none';
 
         try {
             const response = await fetch('/docs-ia/api/escanear/', {
@@ -426,6 +442,10 @@
             document.getElementById('resMedico').textContent = data.medico_nombre || 'No detectado';
             document.getElementById('resTotal').textContent = data.total_detectados;
 
+            if (data.asignados_automaticamente && data.asignados_automaticamente.length > 0) {
+                alertAsignados.style.display = 'flex';
+            }
+
             const tbody = document.getElementById('tablaResultados');
             tbody.innerHTML = '';
 
@@ -433,21 +453,17 @@
                 const det = item.detectado_ia;
                 const tr = document.createElement('tr');
 
-                let disponibilidadHtml = '';
-                if (item.encontrado_en_inventario) {
-                    const match = item.coincidencias[0];
-                    disponibilidadHtml = `
-                        <span class="pill pill-success">
-                            <i class="bi bi-check-circle-fill"></i> Disponible
+                let estadoTratamientoHtml = '';
+                if (item.asignado_a_perfil) {
+                    estadoTratamientoHtml = `
+                        <span class="pill pill-success" style="display:inline-flex; align-items:center; gap:4px;">
+                            <i class="bi bi-check-circle-fill"></i> En tu tratamiento
                         </span>
-                        <div style="font-size: 11px; color: var(--g600); margin-top: 3px;">
-                            Coincidencia: <strong>${match.nombre_comercial}</strong> (CUM: ${match.codigo_cum})
-                        </div>
                     `;
                 } else {
-                    disponibilidadHtml = `
-                        <span class="pill pill-danger">
-                            <i class="bi bi-x-circle-fill"></i> No disponible
+                    estadoTratamientoHtml = `
+                        <span class="pill pill-libre">
+                            Detectado
                         </span>
                     `;
                 }
@@ -457,7 +473,7 @@
                     <td>${det.concentracion || '-'} ${det.forma_farmaceutica ? '(' + det.forma_farmaceutica + ')' : ''}</td>
                     <td>${det.cantidad || '-'}</td>
                     <td><span style="color: var(--g600); font-size: 11.5px;">${det.posologia_indicaciones || '-'}</span></td>
-                    <td>${disponibilidadHtml}</td>
+                    <td>${estadoTratamientoHtml}</td>
                 `;
 
                 tbody.appendChild(tr);

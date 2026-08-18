@@ -227,6 +227,35 @@
         .btn-peticion { font-size: 11px; color: var(--red); cursor: pointer; padding: 5px 11px; border-radius: var(--r-sm); background: var(--redp); border: 1px solid rgba(239,68,68,0.18); font-family: 'DM Sans', sans-serif; font-weight: 600; transition: background 0.15s, color 0.15s; white-space: nowrap; flex-shrink: 0; }
         .btn-peticion:hover { background: var(--red); color: var(--w); }
 
+        .btn-peticion-tramite {
+            font-size: 10.5px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a;
+            padding: 4px 9px; border-radius: var(--r-sm); font-family: 'DM Sans', sans-serif;
+            font-weight: 600; white-space: nowrap; flex-shrink: 0; display: inline-flex;
+            align-items: center; gap: 5px; cursor: default;
+        }
+        .btn-peticion-tramite .badge-rad {
+            background: #f59e0b; color: #fff; padding: 1px 5px; border-radius: 4px;
+            font-size: 9.5px; font-weight: 700;
+        }
+        .btn-descargar-copia {
+            background: transparent; border: none; color: #b45309; cursor: pointer;
+            text-decoration: underline; font-size: 10.5px; font-family: 'DM Sans', sans-serif;
+            font-weight: 600; padding: 0 4px;
+        }
+        .btn-descargar-copia:hover { color: #92400e; }
+        .btn-scan-ia-mini {
+            font-size: 11px; font-weight: 600; color: var(--bm); background: var(--bp);
+            border: 1px solid var(--bs); padding: 4px 10px; border-radius: var(--r-sm);
+            text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+            transition: all 0.15s;
+        }
+        .btn-scan-ia-mini:hover { background: var(--bm); color: var(--w); }
+        .tag-tratamiento {
+            font-size: 9.5px; font-weight: 700; background: var(--bp); color: var(--bm);
+            border: 1px solid var(--bs); padding: 2px 6px; border-radius: 4px; display: inline-flex;
+            align-items: center; gap: 3px; margin-left: 6px;
+        }
+
         
         .map-card {
             background: var(--w); border-radius: var(--r-lg);
@@ -519,21 +548,21 @@
                 <div class="stat-info">
                     <div class="stat-label">Total</div>
                     <div class="stat-value">{{ total_medicamentos }}</div>
-                    <div class="stat-sub">Medicamentos</div>
+                    <div class="stat-sub">Catálogo general</div>
                 </div>
             </div>
 
             <div class="stat-card">
                 <div class="stat-icon green">
                     <svg width="17" height="17" viewBox="0 0 18 18" fill="none">
-                        <circle cx="9" cy="9" r="6.5" stroke="#22c55e" stroke-width="1.5" fill="none"/>
-                        <path d="M5.5 9l2.5 2.5 4.5-4.5" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 2a7 7 0 1 0 0 14A7 7 0 0 0 9 2z" stroke="#22c55e" stroke-width="1.5" fill="none"/>
+                        <path d="M6 9l2 2 4-4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Venta libre</div>
-                    <div class="stat-value">{{ medicamentos_libres }}</div>
-                    <div class="stat-sub">Sin fórmula</div>
+                    <div class="stat-label">Mi Tratamiento</div>
+                    <div class="stat-value">{{ mis_medicamentos_total }}</div>
+                    <div class="stat-sub">Asignados a mi perfil</div>
                 </div>
             </div>
 
@@ -545,9 +574,9 @@
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Fórmula</div>
-                    <div class="stat-value">{{ medicamentos_formula }}</div>
-                    <div class="stat-sub">Requieren receta</div>
+                    <div class="stat-label">Agotados</div>
+                    <div class="stat-value">{{ medicamentos_agotados|length }}</div>
+                    <div class="stat-sub">Sin stock general</div>
                 </div>
             </div>
 
@@ -559,19 +588,82 @@
                     </svg>
                 </div>
                 <div class="stat-info">
-                    <div class="stat-label">Laboratorios</div>
-                    <div class="stat-value">{{ laboratorios }}</div>
-                    <div class="stat-sub">Fabricantes</div>
+                    <div class="stat-label">Peticiones Activas</div>
+                    <div class="stat-value">{{ peticiones_activas_total }}</div>
+                    <div class="stat-sub">En trámite EPS</div>
                 </div>
             </div>
         </div>
 
         <div class="main-grid">
             <div class="left-col">
+                <!-- SECCIÓN: MI TRATAMIENTO (MEDICAMENTOS ASIGNADOS) -->
+                <div class="section-card" style="border-left: 4px solid var(--bm);">
+                    <div class="section-head">
+                        <div class="section-head-left">
+                            <h2>Mi Tratamiento y Medicamentos Asignados</h2>
+                            <p>Medicamentos formulados para tu perfil médico</p>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <a href="{% url 'DocsIA:escaner_ui' %}" class="btn-scan-ia-mini" title="Subir fórmula médica para detectar con IA">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.75 4a.75.75 0 0 0-1.5 0v2.25H5a.75.75 0 0 0 0 1.5h2.25V11a.75.75 0 0 0 1.5 0V8.75H11a.75.75 0 0 0 0-1.5H8.75V5z"/></svg>
+                                Escanear con IA
+                            </a>
+                            <span class="section-count" style="background:var(--bp);color:var(--bm);">{{ mis_medicamentos|length }}</span>
+                        </div>
+                    </div>
+                    <div class="med-list">
+                        {% for med in mis_medicamentos %}
+                        <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
+                            <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--grn){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--red){% endif %};"></div>
+                            <div class="med-main">
+                                <div class="med-name">
+                                    {{ med.nombre_comercial }}
+                                    <span class="med-name-generic">({{ med.nombre_generico }})</span>
+                                    {% if med.asignacion_usuario.fuente_asignacion == 'ia_formula' %}
+                                    <span class="tag-tratamiento"><svg width="9" height="9" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm3.5 6.5-4 4a.5.5 0 0 1-.7 0l-2-2a.5.5 0 0 1 .7-.7L7.15 9.44l3.65-3.64a.5.5 0 0 1 .7.7z"/></svg> IA</span>
+                                    {% endif %}
+                                </div>
+                                <div class="med-cat">
+                                    {% if med.asignacion_usuario.dosis %}Dosis: {{ med.asignacion_usuario.dosis }} &middot; {% endif %}
+                                    {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}
+                                </div>
+                            </div>
+                            <div class="med-right" onclick="event.stopPropagation();">
+                                {% if med.disponibilidad.estado == 'agotado' %}
+                                    {% if med.tiene_peticion_activa %}
+                                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                            <span class="btn-peticion-tramite" title="Petición ya radicada. La EPS debe entregar el medicamento para cerrar el trámite.">
+                                                <span class="badge-rad">{{ med.peticion_activa.numero_radicado }}</span> En trámite
+                                            </span>
+                                            <button class="btn-descargar-copia" onclick="descargarCopiaPeticion({{ med.id }})">Descargar PDF</button>
+                                        </div>
+                                    {% else %}
+                                        <button class="btn-peticion" onclick="iniciarDerechoPeticion({{ med.id }}, '{{ med.nombre_comercial|escapejs }}', '{{ med.nombre_generico|escapejs }}')">Derecho de Petici&oacute;n</button>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="med-sedes-count">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</span>
+                                {% endif %}
+                            </div>
+                            <div><div class="mini-bar"><div class="mini-fill" style="width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}36%{% else %}4%{% endif %};background:{% if med.disponibilidad.estado == 'disponible' %}var(--grn){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--red){% endif %};"></div></div></div>
+                        </div>
+                        {% empty %}
+                        <div class="empty-state" style="padding:22px 16px; text-align:center;">
+                            <p style="font-size:12.5px; color:var(--g600); margin-bottom:8px;">Aún no tienes medicamentos asignados a tu tratamiento.</p>
+                            <a href="{% url 'DocsIA:escaner_ui' %}" class="btn-scan-ia-mini">
+                                <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.75 4a.75.75 0 0 0-1.5 0v2.25H5a.75.75 0 0 0 0 1.5h2.25V11a.75.75 0 0 0 1.5 0V8.75H11a.75.75 0 0 0 0-1.5H8.75V5z"/></svg>
+                                Escanear mi fórmula médica con IA
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN: MEDICAMENTOS DISPONIBLES EN GENERAL -->
                 <div class="section-card">
                     <div class="section-head">
                         <div class="section-head-left">
-                            <h2>Medicamentos Disponibles</h2>
+                            <h2>Catálogo de Medicamentos</h2>
                             <p>Haz clic para ver disponibilidad por sede</p>
                         </div>
                         <span class="section-count">{{ medicamentos|length }}</span>
@@ -581,7 +673,11 @@
                         <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
                             <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--grn){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--red){% endif %};"></div>
                             <div class="med-main">
-                                <div class="med-name">{{ med.nombre_comercial }} <span class="med-name-generic">({{ med.nombre_generico }})</span></div>
+                                <div class="med-name">
+                                    {{ med.nombre_comercial }}
+                                    <span class="med-name-generic">({{ med.nombre_generico }})</span>
+                                    {% if med.es_mi_medicamento %}<span class="tag-tratamiento">Mi tratamiento</span>{% endif %}
+                                </div>
                                 <div class="med-cat">{{ med.laboratorio }} &middot; {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}</div>
                             </div>
                             <div class="med-right">
@@ -596,6 +692,7 @@
                     </div>
                 </div>
 
+                <!-- SECCIÓN: MEDICAMENTOS AGOTADOS -->
                 <div class="section-card">
                     <div class="section-head">
                         <div class="section-head-left">
@@ -609,10 +706,24 @@
                         <div class="ago-row">
                             <div class="ago-num">!</div>
                             <div class="ago-main">
-                                <div class="ago-name">{{ med.nombre_comercial }}</div>
+                                <div class="ago-name">
+                                    {{ med.nombre_comercial }}
+                                    {% if med.es_mi_medicamento %}<span class="tag-tratamiento">Mi tratamiento</span>{% endif %}
+                                </div>
                                 <div class="ago-sub">{{ med.nombre_generico }} &middot; Agotado en todas las sedes</div>
                             </div>
-                            <button class="btn-peticion" onclick="iniciarDerechoPeticion({{ med.id }}, '{{ med.nombre_comercial|escapejs }}', '{{ med.nombre_generico|escapejs }}')">Derecho de Petici&oacute;n</button>
+                            <div onclick="event.stopPropagation();">
+                                {% if med.tiene_peticion_activa %}
+                                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                        <span class="btn-peticion-tramite" title="Petición activa. Se bloquea la duplicidad hasta que la EPS haga la entrega del medicamento.">
+                                            <span class="badge-rad">{{ med.peticion_activa.numero_radicado }}</span> En trámite
+                                        </span>
+                                        <button class="btn-descargar-copia" onclick="descargarCopiaPeticion({{ med.id }})">Descargar PDF</button>
+                                    </div>
+                                {% else %}
+                                    <button class="btn-peticion" onclick="iniciarDerechoPeticion({{ med.id }}, '{{ med.nombre_comercial|escapejs }}', '{{ med.nombre_generico|escapejs }}')">Derecho de Petici&oacute;n</button>
+                                {% endif %}
+                            </div>
                         </div>
                         {% empty %}
                         <div class="empty-state">No hay medicamentos agotados actualmente. &#10003;</div>
@@ -956,7 +1067,15 @@
             const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
             f.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${csrf}"><input type="hidden" name="medicamento_id" value="${medId}">`;
             document.body.appendChild(f); f.submit(); f.remove();
+            setTimeout(() => { window.location.reload(); }, 1200);
         } else { abrirModalPeticion(medId, medComercial, medGenerico); }
+    }
+
+    function descargarCopiaPeticion(medId) {
+        const f = document.createElement('form'); f.action = "{% url 'generar_derecho_peticion' %}"; f.method = 'POST'; f.target = '_blank';
+        const csrf = document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1] || '';
+        f.innerHTML = `<input type="hidden" name="csrfmiddlewaretoken" value="${csrf}"><input type="hidden" name="medicamento_id" value="${medId}">`;
+        document.body.appendChild(f); f.submit(); f.remove();
     }
 
     function abrirModalPeticion(medId, medComercial, medGenerico) {
@@ -972,7 +1091,10 @@
     }
 
     function cerrarModalPeticion() { document.getElementById('peticionModalOverlay').classList.remove('active'); }
-    function handlePeticionSubmit() { setTimeout(cerrarModalPeticion, 800); }
+    function handlePeticionSubmit() {
+        setTimeout(cerrarModalPeticion, 800);
+        setTimeout(() => { window.location.reload(); }, 1500);
+    }
 
     
     function filterMeds(query) {

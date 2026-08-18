@@ -140,13 +140,40 @@ def obtener_noticias_salud():
     
     return noticias if noticias else NOTICIAS
 
+import json
+from epsinventario.models import Sede
+
 @never_cache
 def home(request):
     noticias = obtener_noticias_salud()
+    
+    sedes_db = []
+    try:
+        sedes_qs = Sede.objects.filter(estado=True).select_related('eps')
+        for s in sedes_qs:
+            lat = s.latitud
+            lng = s.longitud
+            if lat is not None and lng is not None:
+                sedes_db.append({
+                    "id": s.id,
+                    "nombre": s.nombre,
+                    "ciudad": s.ciudad,
+                    "direccion": s.direccion or "Dirección no especificada",
+                    "telefono": s.telefono or "",
+                    "eps": s.eps.nombre if s.eps else "Pharmony",
+                    "lat": float(lat),
+                    "lng": float(lng),
+                })
+    except Exception:
+        sedes_db = []
+
     context = {
         "noticias": noticias,
         "noticia_destacada": noticias[0] if noticias else None,
         "noticias_secundarias": noticias[1:] if len(noticias) > 1 else [],
+        "sedes_json": json.dumps(sedes_db),
+        "total_sedes_db": len(sedes_db),
     }
     return render(request, "home/index.html", context)
+
 
