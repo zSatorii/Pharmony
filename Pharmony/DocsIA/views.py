@@ -1,9 +1,63 @@
+import json
+import re
+import uuid
+import unicodedata
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from Farmacia.models import Medicamento
+from Farmacia.models import Medicamento, MedicamentoUsuario
+from Farmacia.firestore_sync import sync_medicamento_usuario_firestore
 from .services.gemini_scanner import escanear_documento_medico
+
+
+def normalizar_texto(texto):
+    if not texto:
+        return ""
+    texto = unicodedata.normalize('NFKD', str(texto)).encode('ASCII', 'ignore').decode('utf-8')
+    return texto.lower().strip()
+
+
+def buscar_coincidencia_medicamento(nombre_med):
+    """
+    Busca coincidencias inteligentes entre el nombre detectado por la IA
+    y el catálogo de medicamentos existente.
+    """
+    norm_query = normalizar_texto(nombre_med)
+    if not norm_query:
+        return None, []
+
+    # Extraer tokens significativos (palabras >= 3 caracteres sin ser solo números)
+    tokens = [t for t in re.split(r'[\s,.-]+', norm_query) if len(t) >= 3 and not t.isdigit()]
+
+    todos = list(Medicamento.objects.all())
+    
+    # 1. Búsqueda exacta o contenida normalizada
+    for med in todos:
+        nc = normalizar_texto(med.nombre_comercial)
+        ng = normalizar_texto(med.nombre_generico)
+        if norm_query == nc or norm_query == ng:
+            return med, [med]
+        if nc and (nc in norm_query or norm_query in nc):
+            return med, [med]
+        if ng and (ng in norm_query or norm_query in ng):
+            return med, [med]
+
+    # 2. Búsqueda por tokens de palabras
+    coincidencias = []
+    for med in todos:
+        nc = normalizar_texto(med.nombre_comercial)
+        ng = normalizar_texto(med.nombre_generico)
+        for token in tokens:
+            if token in nc or token in ng:
+                coincidencias.append(med)
+                break
+
+    if coincidencias:
+        return coincidencias[0], coincidencias
+
+    return None, []
 
 
 def escaner_ui_view(request):
@@ -17,6 +71,8 @@ def escaner_ui_view(request):
 def escanear_documento_api(request):
     """
     API Endpoint para procesar el documento subido, enviar a Google AI Studio y buscar en el inventario.
+    Si el usuario está autenticado, asigna automáticamente los medicamentos identificados a su tratamiento.
+    Si el medicamento no existe en el catálogo, lo registra automáticamente para garantizar que aparezca en el Dashboard.
     """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido. Usa POST.'}, status=405)
@@ -44,17 +100,57 @@ def escanear_documento_api(request):
         resultado_ia = escanear_documento_medico(file_bytes, mime_type)
 
         medicamentos_procesados = []
+        asignados_automaticamente = []
 
         for item in resultado_ia.medicamentos:
             nombre_med = item.nombre_medicamento.strip()
-            
-            # Buscar coincidencias en la base de datos de Pharmony
-            coincidencias_qs = Medicamento.objects.filter(
-                Q(nombre_generico__icontains=nombre_med) |
-                Q(nombre_comercial__icontains=nombre_med)
-            )[:5] # Limitar a las 5 mejores coincidencias
+            if not nombre_med:
+                continue
 
-            encontrado = coincidencias_qs.exists()
+            # Buscar coincidencias flexibles
+            coincidencia_principal, coincidencias_qs = buscar_coincidencia_medicamento(nombre_med)
+            
+            # Si no existe en el catálogo, lo creamos automáticamente para que el paciente lo tenga en su perfil
+            if not coincidencia_principal:
+                codigo_cum_auto = f"IA-{uuid.uuid4().hex[:6].upper()}"
+                coincidencia_principal = Medicamento.objects.create(
+                    codigo_cum=codigo_cum_auto,
+                    nombre_generico=nombre_med,
+                    nombre_comercial=nombre_med,
+                    laboratorio="Fórmula Médica (IA)",
+                    concentracion=(item.concentracion or 'Estándar').strip(),
+                    forma_farmaceutica=(item.forma_farmaceutica or 'Tableta').strip(),
+                    descripcion=f"Prescrito en fórmula médica. Indicaciones: {item.posologia_indicaciones or 'Según indicación médica'}",
+                    uso_indicado=(item.posologia_indicaciones or 'Tratamiento prescrito').strip(),
+                    efectos_secundarios="Consulte a su médico o farmacéutico.",
+                    requiere_formula=True
+                )
+                coincidencias_qs = [coincidencia_principal]
+
+            # Asignación al perfil del paciente autenticado
+            fue_asignado = False
+            if request.user.is_authenticated and coincidencia_principal:
+                dosis_val = (item.posologia_indicaciones or '')[:150]
+                cant_val = (item.cantidad or '')[:100]
+                med_user, created = MedicamentoUsuario.objects.update_or_create(
+                    usuario=request.user,
+                    medicamento=coincidencia_principal,
+                    defaults={
+                        'dosis': dosis_val,
+                        'cantidad_prescrita': cant_val,
+                        'fuente_asignacion': 'ia_formula',
+                        'activo': True
+                    }
+                )
+                # Sincronizar en tiempo real con Firebase Firestore
+                sync_medicamento_usuario_firestore(med_user)
+                fue_asignado = True
+                asignados_automaticamente.append({
+                    'id': coincidencia_principal.id,
+                    'nombre': coincidencia_principal.nombre_comercial,
+                    'dosis': dosis_val,
+                    'created': created
+                })
             
             coincidencias_lista = [
                 {
@@ -78,7 +174,8 @@ def escanear_documento_api(request):
                     'cantidad': item.cantidad,
                     'posologia_indicaciones': item.posologia_indicaciones,
                 },
-                'encontrado_en_inventario': encontrado,
+                'encontrado_en_inventario': True,
+                'asignado_a_perfil': fue_asignado,
                 'coincidencias': coincidencias_lista
             })
 
@@ -88,7 +185,9 @@ def escanear_documento_api(request):
             'medico_nombre': resultado_ia.medico_nombre,
             'observaciones': resultado_ia.observaciones,
             'medicamentos': medicamentos_procesados,
-            'total_detectados': len(medicamentos_procesados)
+            'asignados_automaticamente': asignados_automaticamente,
+            'total_detectados': len(medicamentos_procesados),
+            'usuario_autenticado': request.user.is_authenticated
         })
 
     except Exception as e:
@@ -96,3 +195,49 @@ def escanear_documento_api(request):
             'success': False,
             'error': f"Error durante el escaneo con IA: {str(e)}"
         }, status=500)
+
+
+
+@csrf_exempt
+def asignar_medicamento_usuario_api(request):
+    """
+    Endpoint para asignar manualmente o confirmar la asignación de un medicamento detectado al perfil del usuario.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
+
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'error': 'Debes iniciar sesión para asignar medicamentos.'}, status=401)
+
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+        medicamento_id = data.get('medicamento_id')
+        dosis = data.get('dosis', '')
+        cantidad = data.get('cantidad', '')
+
+        if not medicamento_id:
+            return JsonResponse({'success': False, 'error': 'medicamento_id es requerido.'}, status=400)
+
+        medicamento = Medicamento.objects.get(id=medicamento_id)
+        med_user, created = MedicamentoUsuario.objects.update_or_create(
+            usuario=request.user,
+            medicamento=medicamento,
+            defaults={
+                'dosis': str(dosis)[:150],
+                'cantidad_prescrita': str(cantidad)[:100],
+                'fuente_asignacion': 'ia_formula',
+                'activo': True
+            }
+        )
+        sync_medicamento_usuario_firestore(med_user)
+
+        return JsonResponse({
+            'success': True,
+            'mensaje': f'Medicamento {medicamento.nombre_comercial} asignado exitosamente a tu tratamiento.',
+            'medicamento_id': medicamento.id,
+            'asignacion_id': med_user.id
+        })
+    except Medicamento.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Medicamento no encontrado.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

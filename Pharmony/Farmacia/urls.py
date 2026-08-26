@@ -16,7 +16,8 @@ urlpatterns = [
     path('inventario/editar/<int:pk>/', views.editar_medicamento, name='editar_medicamento'),
     path('inventario/eliminar/<int:pk>/', views.eliminar_medicamento, name='eliminar_medicamento'),
     path('medicamentos/derecho-peticion/', views.generar_derecho_peticion, name='generar_derecho_peticion'),
+    path('medicamentos/derecho-peticion/<int:peticion_id>/entregar/', views.entregar_derecho_peticion_api, name='entregar_derecho_peticion_api'),
     path('mi-cuenta/', views.mi_cuenta, name='mi_cuenta'),
 ]
 
-urlpatterns += router.urls
+urlpatterns += router.urls

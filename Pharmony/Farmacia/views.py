@@ -3,6 +3,7 @@ import io
 import json
 import os
 import re
+import uuid
 import jwt
 import requests
 
@@ -12,7 +13,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
 from firebase_admin import auth as firebase_auth, firestore
 from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT
@@ -25,8 +28,13 @@ from rest_framework.response import Response
 
 from IA.face_rec import check_match, get_embedding_from_base64
 from epsinventario.models import Eps, InventarioSede, Sede
-from .models import Medicamento
+from .models import Medicamento, MedicamentoUsuario, DerechoPeticion
 from .serializers import MedicamentoSerializer
+from .firestore_sync import (
+    sync_medicamento_usuario_firestore,
+    eliminar_medicamento_usuario_firestore,
+    sync_derecho_peticion_firestore
+)
 
 Usuario = get_user_model()
 
@@ -120,15 +128,15 @@ def dashboard_inventario(request):
             firestore_ids = set()
             for doc in docs:
                 data = doc.to_dict()
-                try:
-                    med_id = int(doc.id)
-                except ValueError:
+                med_id = data.get('id') or (int(doc.id) if doc.id.isdigit() else None)
+                if med_id is None:
                     continue
                 firestore_ids.add(med_id)
+                codigo_cum = data.get('codigo_cum') or doc.id
                 Medicamento.objects.update_or_create(
                     id=med_id,
                     defaults={
-                        'codigo_cum': data.get('codigo_cum', ''),
+                        'codigo_cum': str(codigo_cum),
                         'nombre_generico': data.get('nombre_generico', ''),
                         'nombre_comercial': data.get('nombre_comercial', ''),
                         'laboratorio': data.get('laboratorio', ''),
@@ -137,10 +145,11 @@ def dashboard_inventario(request):
                         'descripcion': data.get('descripcion', ''),
                         'uso_indicado': data.get('uso_indicado', ''),
                         'efectos_secundarios': data.get('efectos_secundarios', ''),
-                        'requiere_formula': data.get('requiere_formula', False),
+                        'requiere_formula': bool(data.get('requiere_formula', False)),
                     }
                 )
-            Medicamento.objects.exclude(id__in=firestore_ids).delete()
+            if firestore_ids:
+                Medicamento.objects.exclude(id__in=firestore_ids).delete()
         except Exception:
             pass
 
@@ -272,11 +281,11 @@ def dashboard_cliente(request):
     if request.user.rol in ('admin', 'eps'):
         return redirect(_redirect_por_rol(request.user))
 
-    medicamentos = Medicamento.objects.all().order_by("nombre_comercial")
-    total_medicamentos = medicamentos.count()
-    medicamentos_formula = medicamentos.filter(requiere_formula=True).count()
-    medicamentos_libres = medicamentos.filter(requiere_formula=False).count()
-    laboratorios = medicamentos.values('laboratorio').distinct().count()
+    medicamentos = list(Medicamento.objects.all().order_by("nombre_comercial"))
+    total_medicamentos = len(medicamentos)
+    medicamentos_formula = sum(1 for m in medicamentos if m.requiere_formula)
+    medicamentos_libres = total_medicamentos - medicamentos_formula
+    laboratorios = len(set(m.laboratorio for m in medicamentos))
 
     inventarios_qs = InventarioSede.objects.select_related('sede', 'medicamento')
     disponibilidad_por_medicamento = {}
@@ -297,12 +306,28 @@ def dashboard_cliente(request):
         elif inv.estado_stock == 'stock_bajo' and info['estado'] != 'disponible':
             info['estado'] = 'stock_bajo'
 
+    # Medicamentos asignados al paciente
+    mis_asignaciones = list(MedicamentoUsuario.objects.filter(usuario=request.user, activo=True).select_related('medicamento'))
+    mis_meds_dict = {a.medicamento_id: a for a in mis_asignaciones}
+
+    # Derechos de petición activos del paciente (radicado o en trámite)
+    peticiones_activas = {
+        p.medicamento_id: p
+        for p in DerechoPeticion.objects.filter(usuario=request.user, estado__in=['radicado', 'en_tramite']).select_related('medicamento')
+    }
+
     for med in medicamentos:
         med.disponibilidad = disponibilidad_por_medicamento.get(med.id, {
             'cantidad_total': 0, 'sedes_count': 0, 'estado': 'agotado'
         })
+        med.tiene_peticion_activa = med.id in peticiones_activas
+        med.peticion_activa = peticiones_activas.get(med.id)
+        med.asignacion_usuario = mis_meds_dict.get(med.id)
+        med.es_mi_medicamento = med.id in mis_meds_dict
 
     medicamentos_agotados = [m for m in medicamentos if m.disponibilidad['cantidad_total'] == 0]
+    mis_medicamentos = [m for m in medicamentos if m.id in mis_meds_dict]
+    mis_medicamentos_agotados = [m for m in mis_medicamentos if m.disponibilidad['cantidad_total'] == 0]
 
     sedes_reales = Sede.objects.filter(estado=True).select_related('eps')
 
@@ -348,7 +373,11 @@ def dashboard_cliente(request):
 
     context = {
         'medicamentos': medicamentos,
+        'mis_medicamentos': mis_medicamentos,
+        'mis_medicamentos_agotados': mis_medicamentos_agotados,
         'total_medicamentos': total_medicamentos,
+        'mis_medicamentos_total': len(mis_medicamentos),
+        'peticiones_activas_total': len(peticiones_activas),
         'medicamentos_formula': medicamentos_formula,
         'medicamentos_libres': medicamentos_libres,
         'laboratorios': laboratorios,
@@ -616,7 +645,8 @@ def iniciar_sesion(request):
                     'message': 'Inicio de sesión exitoso.',
                     'redirect_url': redirect_url
                 })
-            api_key = os.getenv('FIREBASE_WEB_API_KEY')
+
+            api_key = os.getenv('FIREBASE_WEB_API_KEY') or os.getenv('FIREBASE_API_KEY')
             if not api_key:
                 return JsonResponse({'success': False, 'error': 'API key de Firebase no configurada.'}, status=500)
 
@@ -793,6 +823,25 @@ def generar_derecho_peticion(request):
         7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
     }
     fecha_str = f"{ciudad}, {fecha_actual.day} de {meses[fecha_actual.month]} de {fecha_actual.year}"
+
+    # Control de duplicidad: Verificar si ya tiene un derecho de petición activo
+    peticion_existente = DerechoPeticion.objects.filter(
+        usuario=user,
+        medicamento=medicamento,
+        estado__in=['radicado', 'en_tramite']
+    ).first()
+
+    if not peticion_existente:
+        num_radicado = f"DP-{fecha_actual.strftime('%Y%m')}-{uuid.uuid4().hex[:6].upper()}"
+        peticion = DerechoPeticion.objects.create(
+            numero_radicado=num_radicado,
+            usuario=user,
+            medicamento=medicamento,
+            estado='radicado'
+        )
+        sync_derecho_peticion_firestore(peticion)
+    else:
+        peticion = peticion_existente
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -826,7 +875,7 @@ def generar_derecho_peticion(request):
     )
     
     story = [
-        Paragraph(fecha_str, style_normal),
+        Paragraph(f"<b>RADICADO OFICIAL:</b> {peticion.numero_radicado}<br/><b>ESTADO DEL TRÁMITE:</b> {peticion.get_estado_display().upper()}<br/><b>FECHA DE EXPEDICIÓN:</b> {fecha_str}", style_normal),
         Spacer(1, 15),
         Paragraph(f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D.", style_normal),
         Spacer(1, 15),
@@ -897,14 +946,44 @@ def generar_derecho_peticion(request):
             f"Atentamente,<br/><br/><br/>"
             f"__________________________________________<br/>"
             f"<b>{nombre_usuario}</b><br/>"
-            f"<b>{tipo_documento}:</b> {numero_documento}",
+            f"<b>{tipo_documento}:</b> {numero_documento}<br/>"
+            f"<b>Radicado:</b> {peticion.numero_radicado}",
             style_normal
         )
     ]
     
     doc.build(story)
     buffer.seek(0)
-    return FileResponse(buffer, as_attachment=True, filename=f"Derecho_Peticion_{medicamento.nombre_comercial.replace(' ', '_')}.pdf")
+    return FileResponse(buffer, as_attachment=True, filename=f"Derecho_Peticion_{peticion.numero_radicado}_{medicamento.nombre_comercial.replace(' ', '_')}.pdf")
+
+
+@login_required
+@csrf_exempt
+def entregar_derecho_peticion_api(request, peticion_id):
+    """
+    Endpoint para que el farmacéutico o personal EPS marque la entrega efectiva del medicamento,
+    resolviendo la petición y liberando el bloqueo de duplicidad.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido. Usa POST.'}, status=405)
+    
+    if request.user.rol not in ('admin', 'eps') and not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'No autorizado. Solo personal EPS o Farmacéuticos.'}, status=403)
+        
+    peticion = get_object_or_404(DerechoPeticion, id=peticion_id)
+    peticion.estado = 'entregado'
+    peticion.fecha_respuesta = timezone.now()
+    peticion.atendido_por = request.user
+    peticion.save()
+    sync_derecho_peticion_firestore(peticion)
+    
+    return JsonResponse({
+        'success': True,
+        'mensaje': f'Derecho de petición {peticion.numero_radicado} resuelto y marcado como ENTREGADO.',
+        'radicado': peticion.numero_radicado,
+        'estado': peticion.estado,
+        'fecha_respuesta': peticion.fecha_respuesta.isoformat()
+    })
 
 @login_required
 @never_cache
