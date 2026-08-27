@@ -3,6 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.html import format_html
 from django.utils import timezone
 from firebase_admin import auth as firebase_auth, firestore
+from .services import crear_usuario_eps
 from .models import Usuario, Medicamento, MedicamentoUsuario, DerechoPeticion
 from .firestore_sync import (
     sync_medicamento_usuario_firestore,

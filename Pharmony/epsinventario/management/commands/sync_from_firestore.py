@@ -63,16 +63,22 @@ class Command(BaseCommand):
 
         # 3. Medicamentos
         count_meds = 0
+        # Mapa: id que el medicamento tenía en Firestore -> objeto Medicamento
+        # de Django. Se necesita porque inventario_sedes referencia ese id
+        # de Firestore (campo 'medicamento_id'), que ya NO coincide con el
+        # id autogenerado por Django ahora que sincronizamos por codigo_cum.
+        medicamento_por_firestore_id = {}
+
         for doc in db.collection('medicamentos').stream():
             d = doc.to_dict()
-            med_id = d.get('id') or (int(doc.id) if doc.id.isdigit() else None)
             codigo_cum = d.get('codigo_cum') or doc.id
-            if med_id is None:
+            if not codigo_cum:
+                self.stderr.write(f"  saltado: medicamento sin codigo_cum (doc id: {doc.id})")
                 continue
-            Medicamento.objects.update_or_create(
-                id=med_id,
+
+            medicamento, _creado = Medicamento.objects.update_or_create(
+                codigo_cum=str(codigo_cum),
                 defaults={
-                    'codigo_cum': str(codigo_cum),
                     'nombre_generico': d.get('nombre_generico', ''),
                     'nombre_comercial': d.get('nombre_comercial', ''),
                     'laboratorio': d.get('laboratorio', ''),
@@ -85,6 +91,10 @@ class Command(BaseCommand):
                 }
             )
             count_meds += 1
+
+            firestore_med_id = d.get('id')
+            if firestore_med_id is not None:
+                medicamento_por_firestore_id[firestore_med_id] = medicamento
         self.stdout.write(f"[OK] {count_meds} medicamentos sincronizados.")
 
         # 4. Inventario Sedes
@@ -93,7 +103,11 @@ class Command(BaseCommand):
             d = doc.to_dict()
             inv_id = d.get('id') or (int(doc.id) if doc.id.isdigit() else None)
             sede = Sede.objects.filter(id=d.get('sede_id')).first()
-            medicamento = Medicamento.objects.filter(id=d.get('medicamento_id')).first()
+            medicamento = medicamento_por_firestore_id.get(d.get('medicamento_id'))
+            if medicamento is None:
+                # Compatibilidad: si por algún motivo no está en el mapa
+                # (ej. datos viejos), se intenta el id de Django directo.
+                medicamento = Medicamento.objects.filter(id=d.get('medicamento_id')).first()
             if not sede or not medicamento or inv_id is None:
                 continue
             
