@@ -15,6 +15,7 @@ urlpatterns = [
     path('', include('epsinventario.urls')),
     path('docs-ia/', include('DocsIA.urls')),
     path('turnos/', include('turnos.urls')),
+    path('pedidos/', include('pedidos.urls')),
 ]
 
 from django.conf import settings

@@ -12,7 +12,9 @@ if not env_path.exists():
     env_path = BASE_DIR.parent / '.env'
 dotenv.load_dotenv(env_path)
 
-SECRET_KEY = 'django-insecure-go13z231#w8#@8l+e&f7hn%!_n99jtagit#p#aavuygnpxvb+3'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError('Falta DJANGO_SECRET_KEY en el archivo .env.')
 DEBUG = True
 ALLOWED_HOSTS = []
 
@@ -30,6 +32,7 @@ INSTALLED_APPS = [
     'epsinventario',
     'DocsIA',
     'turnos',
+    'pedidos',
 ]
 
 MIDDLEWARE = [
