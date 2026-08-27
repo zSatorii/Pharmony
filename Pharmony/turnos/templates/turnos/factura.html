@@ -49,27 +49,67 @@
     <div class="invoice-body">
         <table>
             <tr><td class="k">Sede</td><td class="v">{{ turno.sede.nombre }} — {{ turno.sede.ciudad }}</td></tr>
-            <tr><td class="k">Medicamento</td><td class="v">{{ turno.medicamento.nombre_comercial }}</td></tr>
-            <tr><td class="k">Dirección de envío</td><td class="v">{{ turno.direccion_envio }}, {{ turno.ciudad_envio }}</td></tr>
+            <tr><td class="k">Titular</td><td class="v">{{ turno.usuario.nombre_para_mostrar }} (C.C. {{ turno.usuario.cedula|default:"—" }})</td></tr>
+            <tr><td class="k">Dirección de entrega</td><td class="v">{{ turno.direccion_envio }}, {{ turno.ciudad_envio }}</td></tr>
             <tr><td class="k">Atendido por</td><td class="v">{{ turno.auxiliar_asignado.nombre_para_mostrar|default:"—" }}</td></tr>
             <tr><td class="k">Fecha de solicitud</td><td class="v">{{ turno.fecha_solicitud|date:"d/m/Y H:i" }}</td></tr>
-            <tr><td class="k">Fecha de finalización</td><td class="v">{{ turno.fecha_finalizacion|date:"d/m/Y H:i"|default:"—" }}</td></tr>
+            <tr><td class="k">Fecha de atención</td><td class="v">{{ turno.fecha_finalizacion|date:"d/m/Y H:i"|default:"—" }}</td></tr>
+            {% if turno.pedido %}
+            <tr><td class="k">Estado del pedido</td><td class="v"><span style="background:var(--bp);color:var(--bm);padding:3px 10px;border-radius:10px;font-size:12px;">{{ turno.pedido.get_estado_display }}</span></td></tr>
+            {% endif %}
         </table>
 
+        <!-- Medicamentos entregados -->
+        <div style="margin-top:20px;">
+            <div style="font-size:12px;font-weight:700;color:var(--bdk);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Medicamentos Dispensados:</div>
+            <div style="border:1px solid var(--g200);border-radius:12px;overflow:hidden;background:var(--g50);">
+                {% for it in items_entregados %}
+                <div style="padding:10px 14px;border-bottom:1px solid var(--g200);display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:13.5px;font-weight:700;color:var(--g800);">{{ it.medicamento.nombre_comercial }}</div>
+                        <div style="font-size:11.5px;color:var(--g400);">{{ it.medicamento.nombre_generico }} &middot; {{ it.medicamento.concentracion }}</div>
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:var(--bm);background:#fff;padding:4px 10px;border-radius:8px;border:1px solid var(--g200);">
+                        {{ it.cantidad }} unid.
+                    </div>
+                </div>
+                {% empty %}
+                <div style="padding:10px 14px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:13.5px;font-weight:700;color:var(--g800);">{{ turno.medicamento.nombre_comercial }}</div>
+                        <div style="font-size:11.5px;color:var(--g400);">{{ turno.medicamento.nombre_generico }} &middot; {{ turno.medicamento.concentracion }}</div>
+                    </div>
+                    <div style="font-size:13px;font-weight:700;color:var(--bm);background:#fff;padding:4px 10px;border-radius:8px;border:1px solid var(--g200);">
+                        {{ turno.cantidad_entregada|default:1 }} unid.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
         {% if turno.motivo_estado %}
-        <div class="motivo-box"><b>Motivo:</b> {{ turno.motivo_estado }}</div>
+        <div class="motivo-box"><b>Motivo / Observación:</b> {{ turno.motivo_estado }}</div>
         {% endif %}
 
         <div class="codigo-box">
             <div class="codigo">{{ turno.codigo_ticket }}</div>
-            <p>Guarda este código para verificar el estado del envío más adelante.</p>
+            <p>Guarda este código para verificar y rastrear el estado del envío en cualquier momento.</p>
         </div>
 
-        <div class="acciones">
-            {% if turno.estado != 'cancelado' %}
-            <a class="btn btn-pdf" href="{% url 'turnos:factura_pdf' turno.codigo_ticket %}">⬇ Descargar PDF</a>
+        <div class="acciones" style="flex-wrap:wrap;">
+            {% if turno.estado == 'correcto' or turno.estado == 'finalizado' %}
+            <a class="btn" style="background:#0284c7;color:#fff;flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;" href="{% url 'pedidos:seguimiento_con_codigo' turno.codigo_ticket %}">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                Rastrear Pedido
+            </a>
             {% endif %}
-            <form method="post" action="{% url 'turnos:volver_dashboard' turno.codigo_ticket %}" style="flex:1;">
+            {% if turno.estado != 'cancelado' %}
+            <a class="btn btn-pdf" style="flex:1;min-width:140px;display:inline-flex;align-items:center;justify-content:center;gap:8px;" href="{% url 'turnos:factura_pdf' turno.codigo_ticket %}">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Descargar PDF
+            </a>
+            {% endif %}
+            <form method="post" action="{% url 'turnos:volver_dashboard' turno.codigo_ticket %}" style="flex:1;min-width:140px;">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-dashboard" style="width:100%;">Volver al Inicio</button>
             </form>
