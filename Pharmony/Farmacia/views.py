@@ -9,6 +9,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -164,7 +165,13 @@ def dashboard_inventario(request):
 @login_required
 def crear_medicamento(request):
     if request.method == 'POST':
-        codigo_cum = request.POST.get('codigo_cum')
+        codigo_cum = request.POST.get('codigo_cum', '').strip().upper()
+        if not codigo_cum:
+            messages.error(request, 'Debes ingresar el código CUM original del producto.')
+            return redirect('dashboard_inventario')
+        if Medicamento.objects.filter(codigo_cum__iexact=codigo_cum).exists():
+            messages.error(request, f'El código CUM {codigo_cum} ya está registrado. El medicamento no fue creado.')
+            return redirect('dashboard_inventario')
         nombre_generico = request.POST.get('nombre_generico')
         nombre_comercial = request.POST.get('nombre_comercial')
         laboratorio = request.POST.get('laboratorio')
@@ -217,7 +224,14 @@ def editar_medicamento(request, pk):
     medicamento = get_object_or_404(Medicamento, pk=pk)
 
     if request.method == 'POST':
-        medicamento.codigo_cum = request.POST.get('edit_codigo_cum')
+        codigo_cum = request.POST.get('edit_codigo_cum', '').strip().upper()
+        if not codigo_cum:
+            messages.error(request, 'Debes ingresar el código CUM original del producto.')
+            return redirect('dashboard_inventario')
+        if Medicamento.objects.filter(codigo_cum__iexact=codigo_cum).exclude(pk=medicamento.pk).exists():
+            messages.error(request, f'El código CUM {codigo_cum} ya está registrado en otro medicamento. No se guardaron los cambios.')
+            return redirect('dashboard_inventario')
+        medicamento.codigo_cum = codigo_cum
         medicamento.nombre_generico = request.POST.get('edit_nombre_generico')
         medicamento.nombre_comercial = request.POST.get('edit_nombre_comercial')
         medicamento.laboratorio = request.POST.get('edit_laboratorio')
@@ -327,14 +341,10 @@ def dashboard_cliente(request):
 
     sedes_map_data = []
     for sede in sedes_reales:
-        inv_sede = InventarioSede.objects.filter(sede=sede)
-        unidades = sum(i.cantidad_disponible for i in inv_sede)
-        if unidades == 0:
-            stock_estado = 'out'
-        elif any(i.estado_stock == 'stock_bajo' for i in inv_sede):
-            stock_estado = 'low'
+        if sede.hora_apertura and sede.hora_cierre:
+            horario_texto = f"{sede.hora_apertura.strftime('%H:%M')} - {sede.hora_cierre.strftime('%H:%M')}"
         else:
-            stock_estado = 'ok'
+            horario_texto = 'Horario no configurado'
 
         sedes_map_data.append({
             'id': sede.id,
@@ -343,8 +353,8 @@ def dashboard_cliente(request):
             'nombre': f"{sede.eps.nombre} — {sede.nombre}",
             'ciudad': sede.ciudad,
             'addr': sede.direccion or sede.ciudad,
-            'stock': stock_estado,
-            'meds': unidades,
+            'abierta': sede.esta_abierta_ahora,
+            'horario': horario_texto,
         })
 
     context = {
