@@ -46,6 +46,9 @@
     .btn-primary{background:var(--bm);color:#fff;border:none;border-radius:9px;padding:11px 16px;font-size:13.5px;font-weight:600;cursor:pointer;grid-column:span 2;}
     .btn-primary:hover{background:var(--bmi);}
     .empty-state{text-align:center;padding:30px;color:var(--g400);font-size:13.5px;}
+    .messages{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+    .message{padding:11px 14px;border-radius:9px;font-size:13px;font-weight:600;background:var(--redp);border:1px solid #fecaca;color:#b91c1c;}
+    .message.success{background:var(--grnp);border-color:#bbf7d0;color:#15803d;}
 </style>
 </head>
 <body>
@@ -64,6 +67,14 @@
     <h1>Inventario — {{ sede.nombre }}</h1>
     <p class="subtitle">{{ sede.ciudad }} · {{ sede.eps.nombre }}</p>
 
+    {% if messages %}
+    <div class="messages" role="alert">
+        {% for message in messages %}
+        <div class="message {% if message.tags == 'success' %}success{% endif %}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     <div class="card">
         <div class="card-head">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="6" width="14" height="10" rx="1.5"/><path d="M3 6l2-3h10l2 3" stroke-linejoin="round"/></svg>
@@ -72,7 +83,7 @@
         <div class="card-body">
             <table>
                 <thead>
-                    <tr><th>Medicamento</th><th>Lote</th><th>Cantidad</th><th>Mínima</th><th>Vencimiento</th><th>Estado</th><th></th></tr>
+                    <tr><th>Medicamento</th><th>Lote</th><th>Cantidad</th><th>Fecha de vencimiento</th><th>Estado</th><th></th></tr>
                 </thead>
                 <tbody>
                     {% for inv in inventarios %}
@@ -84,7 +95,6 @@
                                 {% csrf_token %}
                                 <input type="number" name="cantidad_disponible" value="{{ inv.cantidad_disponible }}">
                         </td>
-                        <td><input type="number" name="cantidad_minima" value="{{ inv.cantidad_minima }}" form="form-inv-{{ inv.id }}"></td>
                         <td><input type="date" name="fecha_vencimiento" value="{{ inv.fecha_vencimiento|date:'Y-m-d' }}" form="form-inv-{{ inv.id }}"></td>
                         <td><span class="badge badge-{{ inv.estado_stock }}">{{ inv.estado_stock }}</span></td>
                         <td>
@@ -102,7 +112,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="7" class="empty-state">Esta sede no tiene medicamentos en inventario todavía.</td></tr>
+                    <tr><td colspan="6" class="empty-state">Esta sede no tiene medicamentos en inventario todavía.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -137,8 +147,7 @@
                 </select>
                 <input type="text" name="lote" placeholder="Lote">
                 <input type="number" name="cantidad_disponible" placeholder="Cantidad disponible" min="0" required>
-                <input type="number" name="cantidad_minima" placeholder="Cantidad mínima" min="0">
-                <input type="date" name="fecha_vencimiento">
+                <label>Fecha de vencimiento<input type="date" name="fecha_vencimiento"></label>
                 <button type="submit" class="btn-primary">Agregar al inventario</button>
             </form>
 
@@ -153,8 +162,7 @@
                 <input type="text" name="forma_farmaceutica" placeholder="Forma farmacéutica">
                 <input type="text" name="lote" placeholder="Lote">
                 <input type="number" name="cantidad_disponible" placeholder="Cantidad disponible" min="0" required>
-                <input type="number" name="cantidad_minima" placeholder="Cantidad mínima" min="0">
-                <input type="date" name="fecha_vencimiento">
+                <label>Fecha de vencimiento<input type="date" name="fecha_vencimiento"></label>
                 <label style="grid-column:span 2;font-size:13px;display:flex;align-items:center;gap:6px;"><input type="checkbox" name="requiere_formula" style="width:auto;"> Requiere fórmula médica</label>
                 <button type="submit" class="btn-primary">Crear y agregar al inventario</button>
             </form>
