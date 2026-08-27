@@ -109,3 +109,5 @@ htmlcov/
 ### ---------- Sistema operativo ----------
 .DS_Store
 Thumbs.db
+
+Pharmony/turnos/static
