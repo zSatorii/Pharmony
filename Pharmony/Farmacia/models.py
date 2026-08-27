@@ -24,6 +24,11 @@ class Medicamento(models.Model):
         verbose_name = "Medicamento"
         verbose_name_plural = "Medicamentos"
 
+    def save(self, *args, **kwargs):
+        if self.codigo_cum:
+            self.codigo_cum = self.codigo_cum.strip().upper()
+        super().save(*args, **kwargs)    
+
     def __str__(self):
         return f"{self.nombre_comercial} ({self.nombre_generico})"
     

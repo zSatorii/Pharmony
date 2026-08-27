@@ -360,8 +360,11 @@ def crear_inventario(request, sede_id):
         modo = request.POST.get('modo', 'existente')
 
         if modo == 'nuevo':
-            codigo_cum = request.POST.get('codigo_cum', '').strip()
-            if Medicamento.objects.filter(codigo_cum=codigo_cum).exists():
+            codigo_cum = request.POST.get('codigo_cum', '').strip().upper()
+            if not codigo_cum:
+                messages.error(request, 'Debes ingresar el código CUM original del producto.')
+                return redirect('inventario_por_sede', sede_id=sede.id)
+            if Medicamento.objects.filter(codigo_cum__iexact=codigo_cum).exists():
                 messages.error(
                     request, 
                     f"El medicamento con código CUM '{codigo_cum}' ya existe en el sistema global. "
@@ -389,7 +392,6 @@ def crear_inventario(request, sede_id):
             sede=sede, 
             medicamento=medicamento,
             cantidad_disponible=request.POST.get('cantidad_disponible') or 0,
-            cantidad_minima=request.POST.get('cantidad_minima') or 10,
             lote=request.POST.get('lote', ''),
             fecha_vencimiento=request.POST.get('fecha_vencimiento') or None,
         )
@@ -409,7 +411,6 @@ def editar_inventario(request, pk):
         return HttpResponseForbidden("No tienes permiso para modificar este inventario.")
     if request.method == 'POST':
         inv.cantidad_disponible = request.POST.get('cantidad_disponible') or inv.cantidad_disponible
-        inv.cantidad_minima = request.POST.get('cantidad_minima') or inv.cantidad_minima
         inv.lote = request.POST.get('lote', inv.lote)
         inv.fecha_vencimiento = request.POST.get('fecha_vencimiento') or inv.fecha_vencimiento
         inv.save()
@@ -455,6 +456,8 @@ def _sync_solicitud_firestore(instance):
 @never_cache
 @login_required
 def api_medicamento_detalle(request, medicamento_id):
+    from turnos.cooldown import verificar_cooldown_medicamento
+
     medicamento = get_object_or_404(Medicamento, pk=medicamento_id)
     ciudad = request.GET.get('ciudad')
 
@@ -472,6 +475,9 @@ def api_medicamento_detalle(request, medicamento_id):
 
     disponible = any(s["cantidad_disponible"] > 0 for s in sedes_data)
 
+    # Verificar si el usuario ya reclamó este medicamento efectivamente en los últimos 30 días
+    en_cooldown, cooldown_fecha = verificar_cooldown_medicamento(request.user, medicamento)
+
     return JsonResponse({
         "id": medicamento.id,
         "nombre_comercial": medicamento.nombre_comercial,
@@ -485,6 +491,8 @@ def api_medicamento_detalle(request, medicamento_id):
         "requiere_formula": medicamento.requiere_formula,
         "disponible": disponible,
         "sedes": sedes_data,
+        "en_cooldown": en_cooldown,
+        "cooldown_fecha": cooldown_fecha,
     })
 
 @never_cache

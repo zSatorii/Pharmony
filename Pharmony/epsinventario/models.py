@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from Farmacia.models import Medicamento
 from .geo import coords_para_ciudad
+from django.utils import timezone
 
 class Eps(models.Model):
     nombre = models.CharField(max_length=150)
@@ -26,6 +27,19 @@ class Sede(models.Model):
 
     latitud = models.FloatField(null=True, blank=True)
     longitud = models.FloatField(null=True, blank=True)
+
+    hora_apertura = models.TimeField(null=True, blank=True)
+    hora_cierre = models.TimeField(null=True, blank=True)
+    atiende_fines_semana = models.BooleanField(default=False)
+
+    @property
+    def esta_abierta_ahora(self):
+        if not self.hora_apertura or not self.hora_cierre:
+            return None
+        ahora = timezone.localtime()
+        if ahora.weekday() >= 5 and not self.atiende_fines_semana:
+            return False
+        return self.hora_apertura <= ahora.time() <= self.hora_cierre
 
     def save(self, *args, **kwargs):
         if self.latitud is None or self.longitud is None:

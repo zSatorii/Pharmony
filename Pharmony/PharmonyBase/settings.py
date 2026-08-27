@@ -13,6 +13,8 @@ if not env_path.exists():
 dotenv.load_dotenv(env_path)
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    raise RuntimeError('Falta DJANGO_SECRET_KEY en el archivo .env.')
 DEBUG = True
 ALLOWED_HOSTS = []
 
@@ -31,6 +33,7 @@ INSTALLED_APPS = [
     'epsinventario',
     'DocsIA',
     'turnos',
+    'pedidos',
 ]
 
 MIDDLEWARE = [

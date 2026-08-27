@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pharmony — Mis Pedidos</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root{
+        --bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;
+        --w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;
+        --grn:#22c55e;--grnp:#f0fdf4;--grnb:#bbf7d0;
+        --blue:#0284c7;--bluep:#f0f9ff;--blueb:#bae6fd;
+        --amber:#f59e0b;--amberp:#fffbeb;--amberb:#fde68a;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
+    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;}
+    .topbar a{color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;}
+    .topbar a:hover{background:rgba(255,255,255,.25);}
+    .wrap{max-width:720px;margin:0 auto;padding:32px 20px 60px;}
+    
+    .head-section{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
+    .head-title h1{font-family:'Quicksand',sans-serif;font-size:24px;color:var(--bd);font-weight:700;}
+    .head-title p{font-size:13px;color:var(--g600);margin-top:2px;}
+
+    /* Buscador de código */
+    .search-box{background:var(--w);padding:16px 20px;border-radius:16px;box-shadow:0 4px 16px rgba(13,71,201,0.06);margin-bottom:24px;display:flex;gap:10px;align-items:center;}
+    .search-box input{flex:1;border:1.5px solid var(--g200);border-radius:10px;padding:10px 14px;font-size:13.5px;font-family:inherit;outline:none;}
+    .search-box input:focus{border-color:var(--bm);}
+    .btn-track{background:var(--bm);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13.5px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+    .btn-track:hover{background:var(--bdk);}
+
+    .pedido-list{display:flex;flex-direction:column;gap:16px;}
+    .pedido-card{background:var(--w);border-radius:18px;box-shadow:0 4px 16px rgba(13,71,201,0.07);overflow:hidden;border:1px solid var(--g200);transition:transform .15s,box-shadow .15s;}
+    .pedido-card:hover{box-shadow:0 8px 24px rgba(13,71,201,0.12);}
+    
+    .pedido-card-head{background:var(--g50);padding:14px 20px;border-bottom:1px solid var(--g200);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+    .pedido-codigo{font-family:'Quicksand',sans-serif;font-size:16px;font-weight:700;color:var(--bd);}
+    .pedido-fecha{font-size:12px;color:var(--g400);}
+    
+    .badge-estado{padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;text-transform:capitalize;}
+    .badge-preparando{background:var(--amberp);color:var(--amber);border:1px solid var(--amberb);}
+    .badge-en_camino{background:var(--bluep);color:var(--blue);border:1px solid var(--blueb);}
+    .badge-entregado{background:var(--grnp);color:var(--grn);border:1px solid var(--grnb);}
+
+    .pedido-card-body{padding:18px 20px;}
+    .pedido-dest{font-size:13px;color:var(--g600);margin-bottom:12px;}
+    .pedido-dest b{color:var(--g800);}
+    
+    .med-chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 16px;}
+    .med-chip{background:var(--bp);color:var(--bm);padding:5px 11px;border-radius:8px;font-size:12px;font-weight:600;}
+
+    .pedido-actions{display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--g100);padding-top:14px;}
+    .btn-action{padding:8px 16px;border-radius:10px;font-size:12.5px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .btn-action.primary{background:var(--bm);color:#fff;}
+    .btn-action.primary:hover{background:var(--bdk);}
+    .btn-action.secondary{background:var(--g100);color:var(--g600);}
+    .btn-action.secondary:hover{background:var(--g200);}
+
+    .vacio{text-align:center;padding:60px 20px;background:var(--w);border-radius:18px;color:var(--g400);border:1px dashed var(--g300);}
+</style>
+</head>
+<body>
+<div class="topbar">
+    <span>PHARMONY</span>
+    <a href="{% url 'dashboard_cliente' %}">← Volver al Dashboard</a>
+</div>
+
+<div class="wrap">
+    <div class="head-section">
+        <div class="head-title">
+            <h1>Mis Pedidos de Medicamentos</h1>
+            <p>Rastreo y estado de entrega de tus fórmulas despachadas</p>
+        </div>
+    </div>
+
+    <!-- Buscador directo con código de factura -->
+    <form action="{% url 'pedidos:seguimiento_publico' %}" method="get" class="search-box">
+        <input type="text" name="codigo" placeholder="Ingresa tu código de factura (ej: TRN-XXXXXXXX)..." required>
+        <button type="submit" class="btn-track">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Rastrear
+        </button>
+    </form>
+
+    <div class="pedido-list">
+        {% for p in pedidos %}
+        <div class="pedido-card">
+            <div class="pedido-card-head">
+                <div>
+                    <span class="pedido-codigo">{{ p.turno.codigo_ticket }}</span>
+                    <span class="pedido-fecha">&middot; {{ p.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                </div>
+                <span class="badge-estado badge-{{ p.estado }}">{{ p.get_estado_display }}</span>
+            </div>
+            <div class="pedido-card-body">
+                <div class="pedido-dest">
+                    <b>Sede de despacho:</b> {{ p.turno.sede.nombre }} ({{ p.turno.sede.ciudad }})<br>
+                    <b>Dirección de entrega:</b> {{ p.turno.direccion_envio }}, {{ p.turno.ciudad_envio }}
+                </div>
+
+                <div style="font-size:12px;font-weight:700;color:var(--g400);text-transform:uppercase;">Medicamentos incluidos:</div>
+                <div class="med-chips">
+                    {% for it in p.turno.items_entregados.all %}
+                    <span class="med-chip">{{ it.cantidad }}x {{ it.medicamento.nombre_comercial }} ({{ it.medicamento.concentracion }})</span>
+                    {% empty %}
+                    <span class="med-chip">{{ p.turno.cantidad_entregada|default:1 }}x {{ p.turno.medicamento.nombre_comercial }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="pedido-actions">
+                    <a href="{% url 'turnos:factura_turno' p.turno.codigo_ticket %}" class="btn-action secondary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Ver Factura
+                    </a>
+                    <a href="{% url 'pedidos:seguimiento_con_codigo' p.turno.codigo_ticket %}" class="btn-action primary">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        Rastrear Pedido &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="vacio">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px;opacity:0.6;"><rect x="2" y="4" width="14" height="11" rx="1.5"/><path d="M6 4V3a3 3 0 0 1 6 0v1M2 8h14M7 11h4"/></svg>
+            <div style="font-size:16px;font-weight:700;color:var(--g600);margin-bottom:4px;">No tienes pedidos registrados todavía</div>
+            <div style="font-size:13px;">Cuando solicites un turno y sea aprobado por el farmacéutico, aparecerá aquí tu pedido para entrega.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+</body>
+</html>

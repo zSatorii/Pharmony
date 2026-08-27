@@ -168,6 +168,27 @@ input::placeholder{color:var(--gray-400);}
     </a>
 
     <span class="nav-group-label" style="margin-top:6px;">Usuario</span>
+    <a class="nav-item" href="{% url 'turnos:mis_turnos' %}">
+      <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="2" y="3" width="14" height="12" rx="1.5" fill="none"/>
+        <path d="M5 7h8M5 10h8M5 13h5" stroke-linecap="round"/>
+      </svg>
+      Mis Turnos
+    </a>
+    <a class="nav-item" href="{% url 'pedidos:mis_pedidos' %}">
+      <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+        <rect x="2" y="4" width="14" height="11" rx="1.5"/>
+        <path d="M6 4V3a3 3 0 0 1 6 0v1M2 8h14M7 11h4"/>
+      </svg>
+      Mis Pedidos
+    </a>
+    <a class="nav-item" href="{% url 'pedidos:seguimiento_publico' %}">
+      <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+        <circle cx="7.5" cy="7.5" r="5"/>
+        <path d="M11 11l4.5 4.5M7.5 5v2.5h2.5"/>
+      </svg>
+      Rastrear Pedido
+    </a>
     <a class="nav-item active" href="{% url 'mi_cuenta' %}">
       <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="6" r="3"/><path d="M2 15a7 7 0 0 1 14 0"/></svg>
       Mi Cuenta

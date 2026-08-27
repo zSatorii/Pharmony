@@ -6,24 +6,72 @@
 <title>Pharmony — Atender turno</title>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-    :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;}
+    :root{
+        --bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;
+        --w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;
+        --grn:#22c55e;--grnp:#f0fdf4;--grnb:#bbf7d0;
+        --red:#ef4444;--redp:#fef2f2;--redb:#fecaca;
+        --amber:#f59e0b;--amberp:#fffbeb;--amberb:#fde68a;
+        --purp:#8b5cf6;--purpp:#f5f3ff;
+    }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
     .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;}
     .topbar .ticket-id{font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;}
-    .wrap{max-width:680px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:20px;}
+    .wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:20px;}
     .card{background:var(--w);border-radius:18px;box-shadow:0 6px 20px rgba(13,71,201,0.08);overflow:hidden;}
-    .card-head{background:linear-gradient(135deg,var(--bd) 0%,var(--bdk) 100%);color:#fff;padding:14px 20px;font-family:'Quicksand',sans-serif;font-size:14.5px;font-weight:600; text-align: center;}
+    .card-head{background:linear-gradient(135deg,var(--bd) 0%,var(--bdk) 100%);color:#fff;padding:14px 20px;font-family:'Quicksand',sans-serif;font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
     .card-body{padding:18px 20px;}
-    .doc-list{display:flex;gap:12px;flex-wrap:wrap;}
+    
+    /* Panel de Credenciales */
+    .user-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;background:var(--g50);border:1px solid var(--g200);border-radius:14px;padding:16px;}
+    .user-field{font-size:12.5px;}
+    .user-field-label{color:var(--g400);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.5px;margin-bottom:3px;}
+    .user-field-val{color:var(--g800);font-weight:600;font-size:13.5px;}
+
+    /* Verificación de Coincidencia */
+    .match-banner{margin-top:14px;padding:12px 16px;border-radius:12px;display:flex;align-items:flex-start;gap:12px;font-size:12.5px;line-height:1.45;}
+    .match-banner.ok{background:var(--grnp);border:1px solid var(--grnb);color:#15803d;}
+    .match-banner.warn{background:var(--amberp);border:1px solid var(--amberb);color:#92620a;}
+    .match-banner.err{background:var(--redp);border:1px solid var(--redb);color:#b91c1c;}
+    .match-icon{font-size:18px;font-weight:700;flex-shrink:0;}
+
+    /* Documentos */
+    .doc-list{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;}
     .doc-item{flex:1;min-width:140px;background:var(--g50);border:1.5px solid var(--g200);border-radius:12px;padding:14px;cursor:pointer;text-align:center;transition:.15s;}
     .doc-item:hover{border-color:var(--bs);background:var(--bp);}
     .doc-item svg{margin-bottom:6px;}
     .doc-item span{display:block;font-size:12.5px;font-weight:600;color:var(--g800);}
-    .info-row{font-size:13.5px;color:var(--g600);margin-top:12px;}
-    .info-row b{color:var(--g800);}
 
-    .chat-scroll{padding:16px 18px;max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--g50);}
+    /* IA Card & Tabla de Medicamentos */
+    .ia-badge{background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
+    .ia-meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:16px;background:var(--purpp);border:1px solid #ddd6fe;padding:12px 14px;border-radius:12px;}
+    .ia-meta-item{font-size:12px;}
+    .ia-meta-label{color:#6d28d9;font-weight:700;font-size:10px;text-transform:uppercase;}
+    .ia-meta-val{color:#4c1d95;font-weight:600;margin-top:2px;}
+
+    .meds-table-wrap{border:1px solid var(--g200);border-radius:12px;overflow:hidden;margin-top:10px;}
+    .med-item-card{padding:14px 16px;border-bottom:1px solid var(--g200);background:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:14px;}
+    .med-item-card:last-child{border-bottom:none;}
+    .med-item-card.principal{background:#f8fafc;border-left:4px solid var(--bm);}
+    .med-item-card.agotado{background:#fff8f8;opacity:0.85;}
+    
+    .med-check-col{display:flex;align-items:center;padding-top:4px;}
+    .med-check-col input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--bm);}
+    .med-info-col{flex:1;}
+    .med-title{font-size:14px;font-weight:700;color:var(--g800);}
+    .med-sub{font-size:12px;color:var(--g600);margin-top:2px;}
+    .med-posologia{font-size:11.5px;color:var(--bdk);background:var(--bp);padding:3px 8px;border-radius:6px;display:inline-block;margin-top:6px;}
+    .med-stock-tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;margin-top:4px;}
+    .med-stock-tag.in-stock{background:var(--grnp);color:#15803d;}
+    .med-stock-tag.out-stock{background:var(--redp);color:var(--red);}
+
+    .med-qty-col{text-align:right;min-width:110px;}
+    .med-qty-col label{display:block;font-size:11px;color:var(--g400);font-weight:700;margin-bottom:3px;}
+    .med-qty-col input{width:75px;padding:6px 8px;border:1.5px solid var(--g300);border-radius:8px;font-size:13px;font-weight:700;text-align:center;}
+
+    /* Chat */
+    .chat-scroll{padding:16px 18px;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--g50);}
     .bubble{max-width:78%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.4;}
     .bubble.own{align-self:flex-end;background:var(--bm);color:#fff;border-bottom-right-radius:4px;}
     .bubble.other{align-self:flex-start;background:var(--w);border:1px solid var(--g200);color:var(--g800);border-bottom-left-radius:4px;}
@@ -38,14 +86,18 @@
     .btn-send:hover{background:var(--bdk);}
     .archivo-preview{font-size:11.5px;color:var(--bm);padding:0 14px 8px;}
 
-    .finalizar-form label{margin-right:18px;font-size:13.5px;display:inline-flex;align-items:center;gap:6px;}
-    .finalizar-form textarea{width:100%;margin:12px 0;padding:11px;border:1.5px solid var(--g200);border-radius:10px;font-family:inherit;min-height:74px;font-size:13.5px;}
-    .btn-confirmar{background:var(--bm);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;}
+    /* Finalizar */
+    .finalizar-form label.radio-lbl{margin-right:20px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+    .finalizar-form textarea{width:100%;margin:14px 0 10px;padding:12px;border:1.5px solid var(--g200);border-radius:10px;font-family:inherit;min-height:74px;font-size:13.5px;}
+    .btn-confirmar{background:var(--bm);color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:14.5px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(13,71,201,0.25);}
     .btn-confirmar:hover{background:var(--bdk);}
+    .btn-rescan{background:#fff;color:var(--purp);border:1px solid #c4b5fd;padding:4px 10px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+    .btn-rescan:hover{background:var(--purpp);}
 
-    .doc-modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,32,96,0.6);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:24px;}
+    /* Modal Visor */
+    .doc-modal-overlay{display:none;position:fixed;inset:0;background:rgba(5,32,96,0.65);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;padding:24px;}
     .doc-modal-overlay.active{display:flex;}
-    .doc-modal{background:#fff;border-radius:16px;width:100%;max-width:780px;height:85vh;display:flex;flex-direction:column;overflow:hidden;}
+    .doc-modal{background:#fff;border-radius:16px;width:100%;max-width:780px;height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
     .doc-modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--g200);}
     .doc-modal-head h3{font-size:14.5px;color:var(--bd);}
     .doc-modal-close{background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--g600);}
@@ -57,34 +109,226 @@
 </style>
 </head>
 <body>
-<div class="topbar"><span>PHARMONY</span><span class="ticket-id">{{ turno.codigo_ticket }} — {{ turno.usuario.username }}</span></div>
+<div class="topbar">
+    <span>PHARMONY</span>
+    <span class="ticket-id">{{ turno.codigo_ticket }} &middot; Sede {{ turno.sede.nombre }}</span>
+</div>
+
 <div class="wrap">
 
+    <!-- Tarjeta 1: Credenciales del Usuario Atendido (Punto 5) -->
     <div class="card">
-        <div class="card-head">Documentos del usuario</div>
+        <div class="card-head">
+            <span>Credenciales e Identificación del Usuario</span>
+            <span style="font-size:12px;opacity:0.85;">Usuario ID #{{ turno.usuario.id }}</span>
+        </div>
         <div class="card-body">
+            <div class="user-grid">
+                <div class="user-field">
+                    <div class="user-field-label">Nombre registrado</div>
+                    <div class="user-field-val">{{ usuario_info.nombre_completo }}</div>
+                </div>
+                <div class="user-field">
+                    <div class="user-field-label">Cédula / Documento</div>
+                    <div class="user-field-val">{{ usuario_info.cedula }}</div>
+                </div>
+                <div class="user-field">
+                    <div class="user-field-label">EPS Asignada</div>
+                    <div class="user-field-val">{{ usuario_info.eps }}</div>
+                </div>
+                <div class="user-field">
+                    <div class="user-field-label">Teléfono</div>
+                    <div class="user-field-val">{{ usuario_info.telefono }}</div>
+                </div>
+                <div class="user-field">
+                    <div class="user-field-label">Correo electrónico</div>
+                    <div class="user-field-val">{{ usuario_info.email }}</div>
+                </div>
+                <div class="user-field">
+                    <div class="user-field-label">Dirección de entrega</div>
+                    <div class="user-field-val">{{ usuario_info.direccion_envio }}</div>
+                </div>
+            </div>
+
+            <!-- Comparación visual de coincidencia -->
+            {% if cedula_detectada and usuario_tiene_cedula %}
+                {% if cedula_coincide %}
+                <div class="match-banner ok">
+                    <span class="match-icon" aria-hidden="true"></span>
+                    <div>
+                        <strong>Coincidencia confirmada:</strong> La cédula detectada por IA en la fórmula (<b>{{ cedula_detectada }}</b>) coincide con el documento registrado del usuario (<b>{{ usuario_info.cedula }}</b>).
+                        {% if paciente_detectado %}<br>Paciente prescrito: <b>{{ paciente_detectado }}</b>.{% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div class="match-banner warn">
+                    <span class="match-icon" aria-hidden="true"></span>
+                    <div>
+                        <strong>Revisión manual requerida:</strong> La cédula detectada en la fórmula (<b>{{ cedula_detectada }}</b>) difiere o tiene formato distinto al registrado (<b>{{ usuario_info.cedula }}</b>). Por favor verifica los documentos adjuntos antes de aprobar.
+                    </div>
+                </div>
+                {% endif %}
+            {% else %}
+            <div class="match-banner warn">
+                <span class="match-icon" aria-hidden="true"></span>
+                <div>
+                    <strong>Verificación de documento:</strong> Cédula registrada: <b>{{ usuario_info.cedula }}</b>. Abre la fórmula y cédula adjuntas abajo para verificar los datos del titular.
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Botones de Documentos Adjuntos -->
             <div class="doc-list">
                 <div class="doc-item" onclick="abrirDocumento('{{ turno.formula_medica.url }}')">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d47c9" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    <span>Fórmula médica</span>
+                    <span>Ver Fórmula médica</span>
                 </div>
                 <div class="doc-item" onclick="abrirDocumento('{{ turno.cedula_ciudadania.url }}')">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d47c9" stroke-width="1.6"><rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h5M14 14h3"/></svg>
-                    <span>Cédula de ciudadanía</span>
+                    <span>Ver Cédula subida</span>
                 </div>
             </div>
-            <div class="info-row"><b>Dirección de envío:</b> {{ turno.direccion_envio }}, {{ turno.ciudad_envio }}</div>
         </div>
     </div>
 
+    <!-- Tarjeta 2: Escáner y Detección de Fórmulas con IA + Selección Multi-Medicamento (Puntos 2 y 4) -->
     <div class="card">
-        <div class="card-head">Chat con el usuario</div>
+        <div class="card-head">
+            <span>Análisis de Fórmula con IA</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span class="ia-badge">IA Activa</span>
+                <a href="#" class="btn-rescan" title="Forzar nuevo análisis" onclick="iniciarAnalisis(true); return false;">Re-analizar</a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div id="analisisFormulaBody" data-pendiente="{% if analisis_ia %}0{% else %}1{% endif %}">
+            {% if analisis_ia %}{% include 'turnos/_analisis_formula.html' %}{% else %}
+            <div class="doc-modal-fallback">Cargando análisis de la fórmula...</div>
+            {% endif %}
+            </div>
+            {% comment %}
+            <div class="ia-meta-grid">
+                <div class="ia-meta-item">
+                    <div class="ia-meta-label">Médico / Institución</div>
+                    <div class="ia-meta-val">{{ medico_detectado|default:"No especificado" }}</div>
+                </div>
+                <div class="ia-meta-item">
+                    <div class="ia-meta-label">Folio / No. Fórmula</div>
+                    <div class="ia-meta-val">{{ codigo_formula_detectado|default:"Sin folio" }}</div>
+                </div>
+                <div class="ia-meta-item">
+                    <div class="ia-meta-label">Paciente en fórmula</div>
+                    <div class="ia-meta-val">{{ paciente_detectado|default:"No detectado" }}</div>
+                </div>
+            </div>
+            {% if analisis_ia.observaciones %}
+            <p style="font-size:12px;color:var(--g600);margin-bottom:12px;background:var(--g50);padding:8px 12px;border-radius:8px;">
+                <b>Observaciones / Diagnóstico:</b> {{ analisis_ia.observaciones }}
+            </p>
+            {% endif %}
+            {% endif %}
+
+            <h4 style="font-size:13.5px;color:var(--bd);margin-bottom:6px;font-family:'Quicksand',sans-serif;font-weight:700;">
+                Medicamentos detectados en la prescripción médica:
+            </h4>
+            <p style="font-size:12px;color:var(--g400);margin-bottom:10px;">
+                Marca los medicamentos que deseas entregar en este turno e indica la cantidad de unidades. Los ítems seleccionados saldrán del stock de esta sede.
+            </p>
+
+            <form method="post" id="finalizarForm" class="finalizar-form">
+                {% csrf_token %}
+                <input type="hidden" name="accion" value="finalizar">
+
+                <div class="meds-table-wrap">
+                    {% for item in analisis_ia.medicamentos %}
+                    <div class="med-item-card {% if item.es_principal %}principal{% endif %} {% if not item.disponible %}agotado{% endif %}">
+                        <div class="med-check-col">
+                            {% if item.disponible and item.medicamento_db %}
+                            <input type="checkbox" name="med_ids_entregar" value="{{ item.medicamento_db.id }}" id="chk_{{ item.medicamento_db.id }}" checked>
+                            {% else %}
+                            <input type="checkbox" disabled title="Sin stock en esta sede">
+                            {% endif %}
+                        </div>
+                        <div class="med-info-col">
+                            <div class="med-title">
+                                {{ item.nombre_mostrar }}
+                                {% if item.nombre_generico %}
+                                    <span style="font-size:12px;font-weight:400;color:var(--g600);">({{ item.nombre_generico }})</span>
+                                {% elif not item.medicamento_db %}
+                                    <span style="font-size:11px;color:var(--red);">(No catalogado en Pharmony)</span>
+                                {% endif %}
+                                {% if item.es_principal %}<span style="background:var(--bm);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;">Solicitado por cliente</span>{% endif %}
+                            </div>
+                            <div class="med-sub">
+                                Concentración: {{ item.concentracion_mostrar }} &middot; 
+                                Forma: {{ item.forma_mostrar }}
+                            </div>
+                            {% if item.posologia_mostrar %}
+                            <div class="med-posologia">Indicaciones: {{ item.posologia_mostrar }}</div>
+                            {% if item.medicamento_db %}
+                            <input type="hidden" name="indicaciones_{{ item.medicamento_db.id }}" value="{{ item.posologia_mostrar }}">
+                            {% endif %}
+                            {% endif %}
+                            <div>
+                                {% if item.disponible %}
+                                <span class="med-stock-tag in-stock">{{ item.stock_disponible }} disponibles en sede</span>
+                                {% else %}
+                                <span class="med-stock-tag out-stock">Sin stock en esta sede (0 disponibles)</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="med-qty-col">
+                            {% if item.disponible and item.medicamento_db %}
+                            <label for="cant_{{ item.medicamento_db.id }}">Entregar:</label>
+                            <input type="number" name="cantidad_entregada_{{ item.medicamento_db.id }}" id="cant_{{ item.medicamento_db.id }}" min="1" max="{{ item.stock_disponible }}" value="1" required>
+                            {% else %}
+                            <span style="font-size:11.5px;color:var(--g400);display:block;margin-top:14px;">No disponible</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="padding:20px;text-align:center;color:var(--g400);font-size:13px;">
+                        No se detectaron medicamentos automáticamente. Revisa la fórmula manual.
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Tarjeta 3: Resolución del Turno -->
+                <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--g200);">
+                    <div style="margin-bottom:12px;">
+                        <label class="radio-lbl">
+                            <input type="radio" name="estado_final" value="correcto" checked required onchange="toggleFormEstado()"> 
+                            <span style="color:#15803d;">Aprobar y despachar medicamentos seleccionados</span>
+                        </label>
+                        <label class="radio-lbl">
+                            <input type="radio" name="estado_final" value="rechazado" onchange="toggleFormEstado()"> 
+                            <span style="color:var(--red);">Rechazar turno</span>
+                        </label>
+                    </div>
+
+                    <textarea name="motivo" placeholder="Motivo u observaciones (se registrará en la factura del usuario)..."></textarea>
+                    
+                    <button type="submit" class="btn-confirmar" id="btnConfirmarTurno">
+                        Confirmar Despacho y Finalizar Turno
+                    </button>
+                </div>
+            </form>
+            {% endcomment %}
+        </div>
+    </div>
+
+    <!-- Tarjeta 4: Chat en vivo con el usuario -->
+    <div class="card">
+        <div class="card-head">
+            <span>Chat directo con el usuario</span>
+            <span style="font-size:11.5px;opacity:0.8;">Tiempo real</span>
+        </div>
         <div id="chatBoxAdmin" class="chat-scroll">
             {% for m in mensajes %}
             <div class="bubble {% if m.remitente == request.user %}own{% else %}other{% endif %}">
                 {% if m.remitente != request.user %}<span class="autor">{{ m.remitente.nombre_para_mostrar }}</span>{% endif %}
                 {{ m.contenido }}
-                {% if m.archivo %}<br><a class="adjunto" href="#" onclick="abrirDocumento('{{ m.archivo.url }}'); return false;">📎 Ver archivo</a>{% endif %}
+                {% if m.archivo %}<br><a class="adjunto" href="#" onclick="abrirDocumento('{{ m.archivo.url }}'); return false;">Ver archivo</a>{% endif %}
             </div>
             {% empty %}
             <p style="color:#94a3b8;font-size:13px;">Sin mensajes todavía.</p>
@@ -106,26 +350,12 @@
             <div class="archivo-preview" id="archivoPreviewAdmin"></div>
         </form>
     </div>
-
-    <div class="card">
-        <div class="card-head">Finalizar turno</div>
-        <div class="card-body">
-            <form method="post" class="finalizar-form">
-                {% csrf_token %}
-                <input type="hidden" name="accion" value="finalizar">
-                <label><input type="radio" name="estado_final" value="correcto" required> Correcto / aprobado</label>
-                <label><input type="radio" name="estado_final" value="rechazado"> Rechazado</label>
-                <textarea name="motivo" placeholder="Motivo (aparecerá en la factura del usuario)"></textarea>
-                <button type="submit" class="btn-confirmar">Confirmar y continuar</button>
-            </form>
-        </div>
-    </div>
 </div>
 
 <div class="doc-modal-overlay" id="docModalOverlay">
     <div class="doc-modal">
         <div class="doc-modal-head">
-            <h3>Documento</h3>
+            <h3>Documento Adjunto</h3>
             <button class="doc-modal-close" onclick="cerrarDocumento()">×</button>
         </div>
         <div class="doc-modal-body" id="docModalBody"></div>
@@ -144,9 +374,45 @@
     const codigoTurno = "{{ turno.codigo_ticket }}";
     const miUsername = "{{ request.user.username }}";
 
+    async function iniciarAnalisis(forzar) {
+        const body = document.getElementById('analisisFormulaBody');
+        const boton = document.querySelector('.btn-rescan');
+        if (!body || body.dataset.cargando === '1') return;
+        body.dataset.cargando = '1';
+        if (boton) { boton.style.pointerEvents = 'none'; boton.textContent = 'Analizando...'; }
+        body.innerHTML = '<div class="doc-modal-fallback">Analizando la fórmula médica...</div>';
+        try {
+            const url = "{% url 'turnos:analizar_formula_turno' turno.codigo_ticket %}" + (forzar ? '?reanalizar=1' : '');
+            const respuesta = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            const datos = await respuesta.json();
+            if (!respuesta.ok || !datos.ok) throw new Error(datos.error || 'No fue posible analizar la fórmula.');
+            body.innerHTML = datos.html;
+            body.dataset.pendiente = '0';
+        } catch (error) {
+            body.innerHTML = `<div class="match-banner warn"><span class="match-icon" aria-hidden="true"></span><div><strong>Análisis no disponible:</strong> ${error.message} Verifica la fórmula manualmente.</div></div>`;
+        } finally {
+            body.dataset.cargando = '0';
+            if (boton) { boton.style.pointerEvents = ''; boton.textContent = 'Re-analizar'; }
+        }
+    }
+
+    if (document.getElementById('analisisFormulaBody')?.dataset.pendiente === '1') iniciarAnalisis(false);
+
+    function toggleFormEstado() {
+        const aprobado = document.querySelector('input[name="estado_final"][value="correcto"]').checked;
+        const btn = document.getElementById('btnConfirmarTurno');
+        if (aprobado) {
+            btn.textContent = 'Confirmar Despacho y Finalizar Turno';
+            btn.style.background = 'var(--bm)';
+        } else {
+            btn.textContent = 'Confirmar Rechazo de Turno';
+            btn.style.background = 'var(--red)';
+        }
+    }
+
     function mostrarArchivoAdmin() {
         const input = document.getElementById('archivoInputAdmin');
-        document.getElementById('archivoPreviewAdmin').textContent = input.files.length ? `📎 ${input.files[0].name}` : '';
+        document.getElementById('archivoPreviewAdmin').textContent = input.files.length ? input.files[0].name : '';
     }
 
     async function abrirDocumento(url) {
@@ -176,7 +442,7 @@
                 const resultado = await mammoth.convertToHtml({ arrayBuffer: buffer }, opciones);
                 body.innerHTML = `<div class="doc-modal-docx">${resultado.value}</div>`;
             } else {
-                body.innerHTML = `<div class="doc-modal-fallback">Este tipo de archivo no se puede previsualizar aquí.<br><a href="${url}" target="_blank" style="color:#0d47c9;font-weight:700;">Abrir en una pestaña nueva →</a></div>`;
+                body.innerHTML = `<div class="doc-modal-fallback">Este archivo no se puede previsualizar en línea.<br><a href="${url}" target="_blank" style="color:#0d47c9;font-weight:700;">Abrir en una pestaña nueva →</a></div>`;
             }
         } catch (e) {
             console.error('[turnos] error al cargar documento:', e);
@@ -199,7 +465,7 @@
             const esMio = m.remitente_username === miUsername;
             const hora = m.fecha && m.fecha.toDate ? m.fecha.toDate().toLocaleTimeString().slice(0, 5) : '';
             let contenido = m.contenido ? m.contenido.replace(/</g, '&lt;') : '';
-            let adjunto = m.archivo_url ? `<br><a class="adjunto" href="#" onclick="abrirDocumento('${m.archivo_url}'); return false;">📎 Ver archivo</a>` : '';
+            let adjunto = m.archivo_url ? `<br><a class="adjunto" href="#" onclick="abrirDocumento('${m.archivo_url}'); return false;">Ver archivo</a>` : '';
             html.push(`<div class="bubble ${esMio ? 'own' : 'other'}">${!esMio ? `<span class="autor">${m.remitente_nombre}</span>` : ''}${contenido}${adjunto}<span class="hora">${hora}</span></div>`);
         });
         chatBox.innerHTML = html.join('');
@@ -210,11 +476,6 @@
         if (!firebaseCustomToken) { console.warn('[turnos] sin token de Firebase, no hay tiempo real'); return; }
         try { await firebase.auth().signInWithCustomToken(firebaseCustomToken); }
         catch (e) { console.error('[turnos] no se pudo autenticar con Firebase:', e); return; }
-
-        dbFirestore.collection('turnos').doc(codigoTurno).collection('mensajes').orderBy('fecha').onSnapshot(
-            snapshot => pintarMensajesAdmin(snapshot),
-            error => console.error('[turnos] error listener mensajes (admin):', error)
-        );
 
         dbFirestore.collection('turnos').doc(codigoTurno).collection('mensajes').orderBy('fecha').onSnapshot(
             snapshot => pintarMensajesAdmin(snapshot),

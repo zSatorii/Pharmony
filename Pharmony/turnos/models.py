@@ -4,6 +4,7 @@ from epsinventario.models import Sede, Eps, SolicitudMedicamento
 from Farmacia.models import Medicamento
 from django.core.exceptions import ValidationError
 
+
 EXTENSIONES_DOCUMENTO_PERMITIDAS = ('.pdf', '.docx', '.jpg', '.jpeg', '.png', '.webp')
 
 
@@ -67,9 +68,15 @@ class Turno(models.Model):
     
     estado = models.CharField(max_length=15, choices=ESTADO_CHOICES, default='pendiente')
     motivo_estado = models.TextField(blank=True, null=True)
+    cantidad_entregada = models.PositiveIntegerField(null=True, blank=True)
 
     posicion_cola = models.PositiveIntegerField(default=0)
     firestore_id = models.CharField(max_length=100, blank=True, null=True)
+
+    resultado_ia = models.JSONField(null=True, blank=True)
+    cedula_detectada_ia = models.CharField(max_length=30, blank=True, null=True)
+    paciente_detectado_ia = models.CharField(max_length=150, blank=True, null=True)
+    medico_detectado_ia = models.CharField(max_length=150, blank=True, null=True)
 
     fecha_solicitud = models.DateTimeField(auto_now_add=True)
     fecha_inicio_atencion = models.DateTimeField(null=True, blank=True)
@@ -83,6 +90,17 @@ class Turno(models.Model):
 
     def __str__(self):
         return f"{self.codigo_ticket} - {self.usuario.username} ({self.estado})"
+
+
+class ItemEntregaTurno(models.Model):
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE, related_name='items_entregados')
+    medicamento = models.ForeignKey(Medicamento, on_delete=models.CASCADE, related_name='entregas_turno')
+    cantidad = models.PositiveIntegerField(default=1)
+    indicaciones = models.CharField(max_length=255, blank=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.cantidad}x {self.medicamento.nombre_comercial} (Turno {self.turno.codigo_ticket})"
 
 
 class MensajeTurno(models.Model):
