@@ -91,8 +91,8 @@ def escanear_documento_api(request):
             'total_detectados': len(medicamentos_procesados)
         })
 
-    except Exception as e:
+    except Exception:
         return JsonResponse({
             'success': False,
-            'error': f"Error durante el escaneo con IA: {str(e)}"
+            'error': 'No fue posible analizar el documento. Verifica la fórmula manualmente.'
         }, status=500)
