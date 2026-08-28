@@ -1,18 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pharmony — Portal de Gestión Farmacéutica & Salud Digital</title>
-  <meta name="description" content="Pharmony es la plataforma de gestión farmacéutica y salud digital líder en Colombia. Innovación con IA para fórmulas médicas, turnos virtuales y noticias del sector.">
+  <meta name="description"
+    content="Pharmony es la plataforma de gestión farmacéutica y salud digital líder en Colombia. Innovación con IA para fórmulas médicas, turnos virtuales y noticias del sector.">
 
   <!-- Tipografía Google Fonts moderna -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
 
   <!-- Leaflet Maps CSS & JS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 
   <!-- Librerías Vía CDN -->
@@ -25,7 +29,9 @@
 
   <style>
     /* ── RESET & TOKENS DE DISEÑO ── */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -159,7 +165,8 @@
       padding: 6px 0;
     }
 
-    .nav-link:hover, .nav-link.active {
+    .nav-link:hover,
+    .nav-link.active {
       color: var(--white);
     }
 
@@ -175,7 +182,8 @@
       transition: width 0.25s ease;
     }
 
-    .nav-link:hover::after, .nav-link.active::after {
+    .nav-link:hover::after,
+    .nav-link.active::after {
       width: 100%;
     }
 
@@ -257,18 +265,39 @@
     }
 
     @keyframes s1 {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-18px) rotate(5deg); }
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-18px) rotate(5deg);
+      }
     }
 
     @keyframes s2 {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-14px) rotate(-6deg); }
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-14px) rotate(-6deg);
+      }
     }
 
     @keyframes s3 {
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      50% { transform: translateY(-20px) rotate(4deg); }
+
+      0%,
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+
+      50% {
+        transform: translateY(-20px) rotate(4deg);
+      }
     }
 
     .hero-content {
@@ -292,7 +321,7 @@
       font-weight: 600;
       letter-spacing: 0.4px;
       margin-bottom: 24px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     }
 
     .pulse-dot {
@@ -305,8 +334,17 @@
     }
 
     @keyframes livePulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: 0.6; }
+
+      0%,
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      50% {
+        transform: scale(1.4);
+        opacity: 0.6;
+      }
     }
 
     .hero-title {
@@ -674,10 +712,21 @@
       color: var(--white);
     }
 
-    .icon-bg-blue { background: linear-gradient(135deg, var(--brand-main), var(--brand-light)); }
-    .icon-bg-cyan { background: linear-gradient(135deg, #0891b2, var(--brand-cyan)); }
-    .icon-bg-emerald { background: linear-gradient(135deg, #059669, var(--emerald)); }
-    .icon-bg-purple { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .icon-bg-blue {
+      background: linear-gradient(135deg, var(--brand-main), var(--brand-light));
+    }
+
+    .icon-bg-cyan {
+      background: linear-gradient(135deg, #0891b2, var(--brand-cyan));
+    }
+
+    .icon-bg-emerald {
+      background: linear-gradient(135deg, #059669, var(--emerald));
+    }
+
+    .icon-bg-purple {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    }
 
     .bento-card-title {
       font-size: 20px;
@@ -1146,28 +1195,36 @@
       .stats-card-wrap {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .colombia-map-card {
         grid-template-columns: 1fr;
       }
+
       .map-sidebar-cities {
         border-left: none;
         border-top: 1px solid var(--surface-2);
       }
+
       .bento-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .bento-card.span-2 {
         grid-column: span 2;
       }
+
       .featured-news-card {
         grid-template-columns: 1fr;
       }
+
       .health-tab-content-card {
         grid-template-columns: 1fr;
       }
+
       .news-grid-container {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .footer-inner {
         grid-template-columns: 1fr 1fr;
       }
@@ -1177,34 +1234,43 @@
       .navbar {
         padding: 0 20px;
       }
+
       .nav-links {
         display: none;
       }
+
       .hero {
         padding: 110px 20px 60px;
       }
+
       .stats-card-wrap {
         grid-template-columns: 1fr;
         padding: 24px;
       }
+
       .bento-grid {
         grid-template-columns: 1fr;
       }
+
       .bento-card.span-2 {
         grid-column: span 1;
       }
+
       .news-grid-container {
         grid-template-columns: 1fr;
       }
+
       .footer-inner {
         grid-template-columns: 1fr;
       }
+
       .health-tab-content-card {
         padding: 24px;
       }
     }
   </style>
 </head>
+
 <body>
 
   <!-- ── 1. NAVBAR MODERNA CON GLASSMORPHISM ── -->
@@ -1227,19 +1293,19 @@
 
     <div class="nav-actions">
       {% if user.is_authenticated %}
-        <a class="btn-nav-cta" href="{% url 'login' %}">
-          <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
-          Mi Panel
-        </a>
+      <a class="btn-nav-cta" href="{% url 'login' %}">
+        <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
+        Mi Panel
+      </a>
       {% else %}
-        <a class="btn-nav-login" href="{% url 'login' %}">
-          <i data-lucide="log-in" style="width: 15px; height: 15px;"></i>
-          Iniciar sesión
-        </a>
-        <a class="btn-nav-cta" href="{% url 'registro' %}">
-          <i data-lucide="user-plus" style="width: 15px; height: 15px;"></i>
-          Registrarse
-        </a>
+      <a class="btn-nav-login" href="{% url 'login' %}">
+        <i data-lucide="log-in" style="width: 15px; height: 15px;"></i>
+        Iniciar sesión
+      </a>
+      <a class="btn-nav-cta" href="{% url 'registro' %}">
+        <i data-lucide="user-plus" style="width: 15px; height: 15px;"></i>
+        Registrarse
+      </a>
       {% endif %}
     </div>
   </nav>
@@ -1251,36 +1317,39 @@
       <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="g1" cx="40%" cy="30%" r="65%">
-            <stop offset="0%" stop-color="#5ba8ff"/>
-            <stop offset="55%" stop-color="#1a5fd4"/>
-            <stop offset="100%" stop-color="#062272"/>
+            <stop offset="0%" stop-color="#5ba8ff" />
+            <stop offset="55%" stop-color="#1a5fd4" />
+            <stop offset="100%" stop-color="#062272" />
           </radialGradient>
           <radialGradient id="g2" cx="35%" cy="28%" r="60%">
-            <stop offset="0%" stop-color="#7ac0ff"/>
-            <stop offset="50%" stop-color="#1d4ed8"/>
-            <stop offset="100%" stop-color="#051e7a"/>
+            <stop offset="0%" stop-color="#7ac0ff" />
+            <stop offset="50%" stop-color="#1d4ed8" />
+            <stop offset="100%" stop-color="#051e7a" />
           </radialGradient>
           <radialGradient id="g3" cx="45%" cy="32%" r="70%">
-            <stop offset="0%" stop-color="#93c5fd"/>
-            <stop offset="45%" stop-color="#3b82f6"/>
-            <stop offset="100%" stop-color="#1e3a8a"/>
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="45%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#1e3a8a" />
           </radialGradient>
         </defs>
         <!-- Top right spiral -->
         <g opacity=".65" style="animation:s1 8s ease-in-out infinite;transform-origin:1100px 80px">
-          <path d="M1100 -30 C1200 40 1280 160 1220 280 C1170 380 1060 410 980 360 C910 315 900 200 970 130" stroke="url(#g1)" stroke-width="70" fill="none" stroke-linecap="round"/>
+          <path d="M1100 -30 C1200 40 1280 160 1220 280 C1170 380 1060 410 980 360 C910 315 900 200 970 130"
+            stroke="url(#g1)" stroke-width="70" fill="none" stroke-linecap="round" />
         </g>
         <!-- Bottom left curves -->
         <g opacity=".3" style="animation:s2 10s ease-in-out infinite 1.5s;transform-origin:120px 700px">
-          <path d="M30 580 C140 520 300 520 360 580 C420 640 390 740 310 768 C240 792 120 758 80 690" stroke="url(#g2)" stroke-width="55" fill="none" stroke-linecap="round"/>
+          <path d="M30 580 C140 520 300 520 360 580 C420 640 390 740 310 768 C240 792 120 758 80 690" stroke="url(#g2)"
+            stroke-width="55" fill="none" stroke-linecap="round" />
         </g>
         <!-- Center accent -->
         <g opacity=".15" style="animation:s3 12s ease-in-out infinite 3s;">
-          <ellipse cx="720" cy="820" rx="300" ry="80" fill="url(#g3)" transform="rotate(-5 720 820)"/>
+          <ellipse cx="720" cy="820" rx="300" ry="80" fill="url(#g3)" transform="rotate(-5 720 820)" />
         </g>
         <!-- Small accent top left -->
         <g opacity=".4" style="animation:s1 9s ease-in-out infinite 2s;transform-origin:180px 180px">
-          <path d="M80 100 C140 60 220 72 240 120 C258 164 224 210 180 210 C138 210 96 174 100 134" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
+          <path d="M80 100 C140 60 220 72 240 120 C258 164 224 210 180 210 C138 210 96 174 100 134" stroke="url(#g2)"
+            stroke-width="36" fill="none" stroke-linecap="round" />
         </g>
       </svg>
     </div>
@@ -1296,7 +1365,8 @@
       </h1>
 
       <p class="hero-subtitle">
-        El sistema de gestión farmacéutica que conecta al paciente, su EPS y su farmacia con tecnología de punta, inteligencia artificial y atención sin filas.
+        El sistema de gestión farmacéutica que conecta al paciente, su EPS y su farmacia con tecnología de punta,
+        inteligencia artificial y atención sin filas.
       </p>
 
       <div class="hero-actions">
@@ -1305,15 +1375,15 @@
           Ver Cobertura Nacional
         </a>
         {% if not user.is_authenticated %}
-          <a class="btn-hero-secondary" href="{% url 'registro' %}">
-            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
-            Crear cuenta gratis
-          </a>
+        <a class="btn-hero-secondary" href="{% url 'registro' %}">
+          <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+          Crear cuenta gratis
+        </a>
         {% else %}
-          <a class="btn-hero-secondary" href="{% url 'login' %}">
-            <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
-            Ir a mi Dashboard
-          </a>
+        <a class="btn-hero-secondary" href="{% url 'login' %}">
+          <i data-lucide="arrow-right" style="width: 18px; height: 18px;"></i>
+          Ir a mi Dashboard
+        </a>
         {% endif %}
       </div>
 
@@ -1393,7 +1463,8 @@
       </div>
       <h2 class="section-title">Red de Cobertura Nacional en Colombia</h2>
       <p class="section-subtitle">
-        Conectamos las principales ciudades y municipios del país a la red digital de Pharmony para una atención rápida y georreferenciada.
+        Conectamos las principales ciudades y municipios del país a la red digital de Pharmony para una atención rápida
+        y georreferenciada.
       </p>
     </div>
 
@@ -1426,7 +1497,8 @@
       </div>
       <h2 class="section-title">Tecnología al servicio de la salud y el bienestar</h2>
       <p class="section-subtitle">
-        Una suite integral diseñada para conectar a pacientes, regentes de farmacia y entidades de salud en un entorno digital seguro.
+        Una suite integral diseñada para conectar a pacientes, regentes de farmacia y entidades de salud en un entorno
+        digital seguro.
       </p>
     </div>
 
@@ -1438,7 +1510,8 @@
         </div>
         <h3 class="bento-card-title">DocsIA: Digitalización Inteligente de Fórmulas</h3>
         <p class="bento-card-desc">
-          Procesamiento de recetas médicas manuscritas y digitales con modelos de Visión Artificial. Detecta dosis, posología y principios activos en segundos para validar la prescripción médica de forma automática.
+          Procesamiento de recetas médicas manuscritas y digitales con modelos de Visión Artificial. Detecta dosis,
+          posología y principios activos en segundos para validar la prescripción médica de forma automática.
         </p>
         <div class="bento-card-badge">
           <i data-lucide="sparkles" style="width: 15px; height: 15px;"></i>
@@ -1453,7 +1526,8 @@
         </div>
         <h3 class="bento-card-title">Turnos Virtuales</h3>
         <p class="bento-card-desc">
-          Solicitud de turno anticipado desde el móvil, visualización de pantalla en sala de espera y avisos de llamado a ventanilla en tiempo real.
+          Solicitud de turno anticipado desde el móvil, visualización de pantalla en sala de espera y avisos de llamado
+          a ventanilla en tiempo real.
         </p>
         <div class="bento-card-badge">
           <i data-lucide="check-circle-2" style="width: 15px; height: 15px; color: var(--brand-cyan);"></i>
@@ -1468,7 +1542,8 @@
         </div>
         <h3 class="bento-card-title">Red EPS & Sedes</h3>
         <p class="bento-card-desc">
-          Administración centralizada de sedes farmacéuticas por ciudad, gestión de inventario y consulta de disponibilidad georreferenciada.
+          Administración centralizada de sedes farmacéuticas por ciudad, gestión de inventario y consulta de
+          disponibilidad georreferenciada.
         </p>
         <div class="bento-card-badge">
           <i data-lucide="map-pin" style="width: 15px; height: 15px; color: var(--emerald);"></i>
@@ -1483,7 +1558,8 @@
         </div>
         <h3 class="bento-card-title">Farmacovigilancia & Trazabilidad Segura</h3>
         <p class="bento-card-desc">
-          Control estricto de fechas de vencimiento, lotes y alertas sanitarias emitidas por el INVIMA y el Ministerio de Salud, garantizando la seguridad en cada entrega de medicamentos.
+          Control estricto de fechas de vencimiento, lotes y alertas sanitarias emitidas por el INVIMA y el Ministerio
+          de Salud, garantizando la seguridad en cada entrega de medicamentos.
         </p>
         <div class="bento-card-badge">
           <i data-lucide="lock" style="width: 15px; height: 15px; color: #8b5cf6;"></i>
@@ -1503,7 +1579,8 @@
         </div>
         <h2 class="section-title">Guía de Autocuidado & Uso Seguro de Medicamentos</h2>
         <p class="section-subtitle">
-          Recomendaciones avaladas para el correcto almacenamiento, administración y desecho de tus tratamientos médicos.
+          Recomendaciones avaladas para el correcto almacenamiento, administración y desecho de tus tratamientos
+          médicos.
         </p>
       </div>
 
@@ -1532,20 +1609,24 @@
         <div class="tab-left">
           <h3 id="tab-title">Conservación de Medicamentos en Cadena de Frío</h3>
           <p id="tab-desc">
-            Medicamentos biológicos, insulinas y ciertas vacunas requieren mantenerse estrictamente entre <strong>2°C y 8°C</strong> para no perder su eficacia terapéutica.
+            Medicamentos biológicos, insulinas y ciertas vacunas requieren mantenerse estrictamente entre <strong>2°C y
+              8°C</strong> para no perder su eficacia terapéutica.
           </p>
           <ul class="tab-tips-list" id="tab-list">
             <li>
               <i data-lucide="check-circle" class="check-icon" style="width: 18px; height: 18px;"></i>
-              <span>Guarda los medicamentos en los estantes centrales del refrigerador, nunca en la puerta ni en el congelador.</span>
+              <span>Guarda los medicamentos en los estantes centrales del refrigerador, nunca en la puerta ni en el
+                congelador.</span>
             </li>
             <li>
               <i data-lucide="check-circle" class="check-icon" style="width: 18px; height: 18px;"></i>
-              <span>Al transportarlos, utiliza siempre una nevera portátil o bolsa térmica con geles refrigerantes.</span>
+              <span>Al transportarlos, utiliza siempre una nevera portátil o bolsa térmica con geles
+                refrigerantes.</span>
             </li>
             <li>
               <i data-lucide="check-circle" class="check-icon" style="width: 18px; height: 18px;"></i>
-              <span>Si la insulina se congela accidentalmente, pierde su efecto y debe ser descartada de inmediato.</span>
+              <span>Si la insulina se congela accidentalmente, pierde su efecto y debe ser descartada de
+                inmediato.</span>
             </li>
           </ul>
         </div>
@@ -1588,18 +1669,19 @@
     {% if noticia_destacada %}
     <div class="featured-news-wrapper" id="featured-news-container">
       {% with n=noticia_destacada %}
-      <div class="featured-news-card news-entry" data-category="{{ n.categoria }}" onclick="window.open('{{ n.link }}', '_blank')">
+      <div class="featured-news-card news-entry" data-category="{{ n.categoria }}"
+        onclick="window.open('{{ n.link }}', '_blank')">
         <div class="featured-img-container">
           <span class="featured-badge-tag">Destacada</span>
           {% if n.image_webp_url %}
-            <picture style="width: 100%; height: 100%;">
-              <source srcset="{{ n.image_webp_url }}" type="image/webp">
-              <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
-            </picture>
-          {% elif n.image_url %}
+          <picture style="width: 100%; height: 100%;">
+            <source srcset="{{ n.image_webp_url }}" type="image/webp">
             <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
+          </picture>
+          {% elif n.image_url %}
+          <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
           {% else %}
-            <div style="font-size: 64px;">{{ n.icono }}</div>
+          <div style="font-size: 64px;">{{ n.icono }}</div>
           {% endif %}
         </div>
         <div class="featured-news-body">
@@ -1626,17 +1708,18 @@
     <!-- Grilla de Noticias Secundarias con AutoAnimate -->
     <div class="news-grid-container" id="news-grid">
       {% for n in noticias_secundarias %}
-      <div class="news-card-item news-entry" data-category="{{ n.categoria }}" onclick="window.open('{{ n.link }}', '_blank')">
+      <div class="news-card-item news-entry" data-category="{{ n.categoria }}"
+        onclick="window.open('{{ n.link }}', '_blank')">
         <div class="news-card-thumb">
           {% if n.image_webp_url %}
-            <picture style="width: 100%; height: 100%;">
-              <source srcset="{{ n.image_webp_url }}" type="image/webp">
-              <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
-            </picture>
-          {% elif n.image_url %}
+          <picture style="width: 100%; height: 100%;">
+            <source srcset="{{ n.image_webp_url }}" type="image/webp">
             <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
+          </picture>
+          {% elif n.image_url %}
+          <img src="{{ n.image_url }}" alt="{{ n.titulo }}" loading="lazy" decoding="async">
           {% else %}
-            <div style="font-size: 42px;">{{ n.icono }}</div>
+          <div style="font-size: 42px;">{{ n.icono }}</div>
           {% endif %}
         </div>
         <div class="news-card-body">
@@ -1646,7 +1729,8 @@
           </div>
           <h4 class="news-card-title">{{ n.titulo }}</h4>
           <p class="news-card-excerpt">{{ n.resumen|truncatewords:18 }}</p>
-          <div class="news-meta-row" style="margin-top: auto; padding-top: 10px; border-top: 1px solid var(--surface-1);">
+          <div class="news-meta-row"
+            style="margin-top: auto; padding-top: 10px; border-top: 1px solid var(--surface-1);">
             <span class="news-reading-time">
               <i data-lucide="clock" style="width: 13px; height: 13px;"></i>
               {{ n.lectura }}
@@ -1673,7 +1757,8 @@
           <span class="logo-text">PHARMONY</span>
         </div>
         <p>
-          Plataforma tecnológica de gestión farmacéutica, digitalización de recetas con inteligencia artificial y atención sin filas en Colombia.
+          Plataforma tecnológica de gestión farmacéutica, digitalización de recetas con inteligencia artificial y
+          atención sin filas en Colombia.
         </p>
       </div>
 
@@ -1970,10 +2055,13 @@
     }
 
     // 6. Filtrado Dinámico de Noticias
-    function filterNews(category) {
+    function filterNews(category, el) {
       const filterBtns = document.querySelectorAll('.news-filter-btn');
       filterBtns.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      const activeBtn = el || (window.event ? window.event.target : null);
+      if (activeBtn && activeBtn.classList) {
+        activeBtn.classList.add('active');
+      }
 
       const allCards = document.querySelectorAll('.news-entry');
       const catLower = category.toLowerCase();
@@ -1989,4 +2077,5 @@
     }
   </script>
 </body>
+
 </html>
