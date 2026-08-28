@@ -2,6 +2,7 @@ import urllib.parse
 import xml.etree.ElementTree as ET
 import requests
 
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.cache import never_cache
 
@@ -176,4 +177,41 @@ def home(request):
     }
     return render(request, "home/index.html", context)
 
+@never_cache
+def home_api(request):
+    """
+    Versión JSON de la vista 'home', pensada para Flutter.
+    Reutiliza exactamente la misma lógica que la vista HTML
+    (obtener_noticias_salud + sedes activas), solo que en vez de
+    renderizar un template, devuelve un JsonResponse.
+    """
+    noticias = obtener_noticias_salud()
 
+    sedes_db = []
+    try:
+        sedes_qs = Sede.objects.filter(estado=True).select_related('eps')
+        for s in sedes_qs:
+            lat = s.latitud
+            lng = s.longitud
+            if lat is not None and lng is not None:
+                sedes_db.append({
+                    "id": s.id,
+                    "nombre": s.nombre,
+                    "ciudad": s.ciudad,
+                    "direccion": s.direccion or "Dirección no especificada",
+                    "telefono": s.telefono or "",
+                    "eps": s.eps.nombre if s.eps else "Pharmony",
+                    "lat": float(lat),
+                    "lng": float(lng),
+                })
+    except Exception:
+        sedes_db = []
+
+    return JsonResponse({
+        "success": True,
+        "noticias": noticias,
+        "noticia_destacada": noticias[0] if noticias else None,
+        "noticias_secundarias": noticias[1:] if len(noticias) > 1 else [],
+        "sedes": sedes_db,
+        "total_sedes": len(sedes_db),
+    })

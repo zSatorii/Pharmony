@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'DocsIA',
     'turnos',
     'pedidos',
+    'api'
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,13 @@ if FIREBASE_CREDENTIALS_PATH:
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 CSRF_COOKIE_HTTPONLY = False
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'api.authentication.JWTAuthentication',
+        # Se dejan las de sesión como respaldo, para que el admin de
+        # Django y cualquier prueba manual desde el navegador (con
+        # sesión iniciada) sigan funcionando sin problema.
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+}

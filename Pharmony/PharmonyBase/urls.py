@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/', cerrar_sesion, name='logout'),
     path('api/validar-rostro/', validar_rostro, name='validar_rostro'),
     path('api/login-face/', login_face, name='login_face'),
+    path('api/v1/', include('api.urls')),
     path('api/', include('Farmacia.urls')),
     path('', include('epsinventario.urls')),
     path('docs-ia/', include('DocsIA.urls')),
