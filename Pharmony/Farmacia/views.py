@@ -331,12 +331,18 @@ def dashboard_cliente(request):
         for p in DerechoPeticion.objects.filter(usuario=request.user, estado__in=['radicado', 'en_tramite']).select_related('medicamento')
     }
 
+    from .derecho_peticion_cooldown import verificar_cooldown_derecho_peticion
+
     for med in medicamentos:
         med.disponibilidad = disponibilidad_por_medicamento.get(med.id, {
             'cantidad_total': 0, 'sedes_count': 0, 'estado': 'agotado'
         })
         med.tiene_peticion_activa = med.id in peticiones_activas
         med.peticion_activa = peticiones_activas.get(med.id)
+        med.cooldown_dp = verificar_cooldown_derecho_peticion(request.user, med)
+        med.en_cooldown_dp = med.cooldown_dp['en_cooldown']
+        med.cooldown_dp_fecha = med.cooldown_dp['fecha_disponible']
+        med.cooldown_dp_dias_restantes = med.cooldown_dp['dias_restantes']
         med.asignacion_usuario = mis_meds_dict.get(med.id)
         med.es_mi_medicamento = med.id in mis_meds_dict
 
@@ -922,7 +928,21 @@ def generar_derecho_peticion(request):
     }
     fecha_str = f"{ciudad}, {fecha_actual.day} de {meses[fecha_actual.month]} de {fecha_actual.year}"
 
-    # Control de duplicidad: Verificar si ya tiene un derecho de petición activo
+    from .derecho_peticion_cooldown import (
+        verificar_cooldown_derecho_peticion,
+        verificar_limite_descargas,
+        registrar_descarga,
+        DIAS_COOLDOWN_DERECHO_PETICION
+    )
+
+    # 1. Verificar límite diario de descargas para proteger el servidor
+    puede_descargar, msg_limite = verificar_limite_descargas(user.id, medicamento.id)
+    if not puede_descargar:
+        return HttpResponse(msg_limite, status=429)
+
+    # 2. Control de duplicidad y término legal (15 días de cooldown)
+    cooldown_info = verificar_cooldown_derecho_peticion(user, medicamento)
+    
     peticion_existente = DerechoPeticion.objects.filter(
         usuario=user,
         medicamento=medicamento,
@@ -938,8 +958,11 @@ def generar_derecho_peticion(request):
             estado='radicado'
         )
         sync_derecho_peticion_firestore(peticion)
+        cooldown_info = verificar_cooldown_derecho_peticion(user, medicamento)
     else:
         peticion = peticion_existente
+
+    registrar_descarga(user.id, medicamento.id)
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -973,7 +996,13 @@ def generar_derecho_peticion(request):
     )
     
     story = [
-        Paragraph(f"<b>RADICADO OFICIAL:</b> {peticion.numero_radicado}<br/><b>ESTADO DEL TRÁMITE:</b> {peticion.get_estado_display().upper()}<br/><b>FECHA DE EXPEDICIÓN:</b> {fecha_str}", style_normal),
+        Paragraph(
+            f"<b>RADICADO OFICIAL:</b> {peticion.numero_radicado}<br/>"
+            f"<b>ESTADO DEL TRÁMITE:</b> {peticion.get_estado_display().upper()}<br/>"
+            f"<b>TÉRMINO LEGAL DE ATENCIÓN:</b> {DIAS_COOLDOWN_DERECHO_PETICION} DÍAS HÁBILES (VENCE: {cooldown_info.get('fecha_disponible') or fecha_str})<br/>"
+            f"<b>FECHA DE EXPEDICIÓN:</b> {fecha_str}",
+            style_normal
+        ),
         Spacer(1, 15),
         Paragraph(f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D.", style_normal),
         Spacer(1, 15),

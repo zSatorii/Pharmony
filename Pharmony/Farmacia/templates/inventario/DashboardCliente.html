@@ -2009,7 +2009,19 @@
                 if (solicitudMsg) solicitudMsg.innerHTML = '';
             }, 5000);
         } else if (!med.disponible) {
-            if (med.tiene_peticion) {
+            if (med.en_cooldown_dp) {
+                solicitudMsg.innerHTML = `
+                    <div class="dp-alert dp-active" style="border-left:4px solid #f59e0b; background:#fffbeb; padding:12px 14px; border-radius:12px;">
+                        <div class="dp-title" style="color:#b45309; font-weight:800; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                            <i data-lucide="clock" style="width:16px;height:16px;color:#f59e0b;"></i>
+                            Petición en Trámite Legal: ${med.peticion_radicado}
+                        </div>
+                        <div class="dp-desc" style="color:#78350f; font-size:12.5px; line-height:1.4;">
+                            Término legal de respuesta de la EPS: <strong>15 días hábiles</strong>.
+                            <br/>Plazo de atención hasta el <strong>${med.cooldown_dp_fecha}</strong> (quedan <strong>${med.cooldown_dp_dias_restantes} días</strong>). Puedes descargar la copia oficial de tu radicado.
+                        </div>
+                    </div>`;
+            } else if (med.tiene_peticion) {
                 solicitudMsg.innerHTML = `
                     <div class="dp-alert dp-active">
                         <div class="dp-title">
@@ -2059,7 +2071,10 @@
             btn.style.background = '#94a3b8';
         } else if (!disponibleGeneral) {
             btn.disabled = false;
-            if (_activeMedData && _activeMedData.tiene_peticion) {
+            if (_activeMedData && _activeMedData.en_cooldown_dp) {
+                btn.textContent = `📄 Descargar Copia Radicado (${_activeMedData.peticion_radicado})`;
+                btn.style.background = '#d97706';
+            } else if (_activeMedData && _activeMedData.tiene_peticion) {
                 btn.textContent = `📄 Descargar Derecho de Petición (${_activeMedData.peticion_radicado})`;
                 btn.style.background = 'var(--brand-main)';
             } else {

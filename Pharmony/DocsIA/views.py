@@ -3,6 +3,7 @@ import re
 import uuid
 import unicodedata
 import threading
+import logging
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,6 +12,8 @@ from django.db.models import Q
 from Farmacia.models import Medicamento, MedicamentoUsuario
 from Farmacia.firestore_sync import sync_medicamento_usuario_firestore
 from .services.gemini_scanner import escanear_documento_medico
+
+logger = logging.getLogger(__name__)
 
 
 def normalizar_texto(texto):
@@ -167,10 +170,21 @@ def escanear_documento_api(request):
             'usuario_autenticado': request.user.is_authenticated
         })
 
-    except Exception:
+    except Exception as e:
+        logger.exception("Error al procesar escaneo con IA en DocsIA: %s", e)
+        error_msg = str(e)
+        if "API Key" in error_msg:
+            user_msg = "Error de configuración: Clave de Gemini no válida o ausente."
+        elif "saturado" in error_msg or "429" in error_msg or "quota" in error_msg.lower():
+            user_msg = "El servicio de IA alcanzó temporalmente el límite de consultas por minuto. Por favor reintenta en unos segundos."
+        elif "vacío" in error_msg.lower():
+            user_msg = "El archivo adjunto está vacío o dañado."
+        else:
+            user_msg = f"No se pudo extraer la información del documento: {error_msg}"
+
         return JsonResponse({
             'success': False,
-            'error': 'No fue posible analizar el documento. Verifica la fórmula manualmente.'
+            'error': user_msg
         }, status=500)
 
 

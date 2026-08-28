@@ -1,6 +1,7 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views
+from . import api_client
 
 router = DefaultRouter()
 router.register(
@@ -10,6 +11,14 @@ router.register(
 )
 
 urlpatterns = [
+    # Endpoints REST para Flutter
+    path('auth/login/', api_client.api_login, name='api_auth_login'),
+    path('auth/register/', api_client.api_register, name='api_auth_register'),
+    path('client/dashboard/', api_client.api_client_dashboard, name='api_client_dashboard'),
+    path('client/derecho-peticion/', api_client.api_crear_derecho_peticion, name='api_client_derecho_peticion'),
+    path('client/epss/', api_client.api_epss_list, name='api_client_epss'),
+
+    # Vistas Web tradicionales
     path('dashboard-inventario/', views.dashboard_inventario, name='dashboard_inventario'),
     path('dashboard-cliente/', views.dashboard_cliente, name='dashboard_cliente'),
     path('inventario/crear/', views.crear_medicamento, name='crear_medicamento'),
