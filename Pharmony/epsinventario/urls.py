@@ -7,6 +7,8 @@ router.register(r'eps', views.EpsViewSet, basename='eps-api')
 router.register(r'sedes', views.SedeViewSet, basename='sede-api')
 router.register(r'inventario', views.InventarioSedeViewSet, basename='inventario-api')
 
+from Farmacia.views import generar_derecho_peticion
+
 urlpatterns = [
     path('api/', include(router.urls)),
 
@@ -25,6 +27,7 @@ urlpatterns = [
     path('ciudad/<str:ciudad>/medicamentos/', views.medicamentos_por_ciudad, name='medicamentos_por_ciudad'),
     path('medicamentos/buscar/', views.buscar_medicamentos, name='buscar_medicamentos'),
 
-     path('api/medicamentos/<int:medicamento_id>/detalle/', views.api_medicamento_detalle, name='api_medicamento_detalle'),
+    path('api/medicamentos/<int:medicamento_id>/detalle/', views.api_medicamento_detalle, name='api_medicamento_detalle'),
     path('medicamentos/solicitar/', views.solicitar_medicamento, name='solicitar_medicamento'),
+    path('medicamentos/derecho-peticion/', generar_derecho_peticion, name='generar_derecho_peticion_alias'),
 ]

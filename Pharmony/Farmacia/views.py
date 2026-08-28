@@ -150,8 +150,8 @@ def dashboard_inventario(request):
                         'requiere_formula': bool(data.get('requiere_formula', False)),
                     }
                 )
-            if firestore_ids:
-                Medicamento.objects.exclude(id__in=firestore_ids).delete()
+            # Sincroniza desde Firestore sin eliminar medicamentos registrados localmente
+            pass
         except Exception:
             pass
 

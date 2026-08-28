@@ -714,6 +714,84 @@
             border-radius: var(--radius-pill);
         }
 
+        /* ── LISTA EXTENSIBLE DE MEDICAMENTOS (CON BOTÓN DE EXTENSIÓN) ── */
+        .med-extension-wrapper {
+            position: relative;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .med-extension-wrapper.collapsed-preview {
+            max-height: 290px;
+            overflow: hidden;
+        }
+
+        .med-extension-wrapper.collapsed-preview::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.9) 70%, rgba(255, 255, 255, 1) 100%);
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .med-extension-wrapper.expanded {
+            max-height: 600px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--surface-2) transparent;
+        }
+
+        .med-extension-wrapper.expanded::after {
+            display: none;
+        }
+
+        .med-expand-footer {
+            padding: 12px 20px;
+            background: var(--surface-0);
+            border-top: 1px solid var(--surface-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-extender-lista {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 11px 20px;
+            background: var(--white);
+            color: var(--brand-main);
+            border: 1.5px solid var(--surface-2);
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(13, 71, 201, 0.05);
+        }
+
+        .btn-extender-lista:hover {
+            background: var(--brand-pale);
+            border-color: #bfdbfe;
+            color: var(--brand-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.12);
+        }
+
+        .btn-extender-lista .chevron-icon {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-extender-lista.active .chevron-icon {
+            transform: rotate(180deg);
+        }
+
         /* Med List */
         .med-list {
             display: flex;
@@ -1085,6 +1163,119 @@
             min-height: 18px;
         }
 
+        .dp-alert {
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-top: 14px;
+            font-size: 12.5px;
+            line-height: 1.45;
+            text-align: left;
+        }
+        .dp-alert.dp-warning {
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            color: #92400e;
+        }
+        .dp-alert.dp-active {
+            background: #eff6ff;
+            border: 1.5px solid #bfdbfe;
+            color: #1e40af;
+        }
+        .dp-title {
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dp-desc {
+            font-size: 12px;
+            opacity: 0.95;
+        }
+
+        .dp-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-top: 14px;
+            text-align: left;
+        }
+        @media (max-width: 640px) {
+            .dp-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .dp-field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            text-align: left;
+        }
+        .dp-field.full-width {
+            grid-column: 1 / -1;
+        }
+        .dp-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-heading);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .dp-input, .dp-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-subtle);
+            background: var(--surface-0);
+            color: var(--text-heading);
+            font-size: 13px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: all 0.15s ease;
+        }
+        .dp-input:focus, .dp-select:focus {
+            outline: none;
+            border-color: var(--brand-electric);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .dp-med-badge {
+            background: var(--brand-pale);
+            border: 1px solid #bfdbfe;
+            color: var(--brand-main);
+            padding: 8px 12px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dp-btn-submit {
+            background: linear-gradient(135deg, #0284c7 0%, var(--brand-main) 100%);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 13px 20px;
+            font-size: 14.5px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 18px;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.25);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .dp-btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
+        }
+
         .empty-state {
             padding: 30px 20px;
             text-align: center;
@@ -1325,7 +1516,7 @@
         <div class="main-grid">
             <div class="left-col">
                 <!-- SECCIÓN 1: MI TRATAMIENTO (MEDICAMENTOS ASIGNADOS / IA) -->
-                <div class="section-card" style="border-left: 4px solid var(--brand-main);">
+                <div class="section-card" id="cardMyMed" style="border-left: 4px solid var(--brand-main);">
                     <div class="section-head">
                         <div class="section-head-left">
                             <h2>
@@ -1343,48 +1534,48 @@
                         </div>
                     </div>
                     <div class="med-list" id="myMedList">
-                        {% for med in mis_medicamentos %}
-                        <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
-                            <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
-                            <div class="med-main">
-                                <div class="med-name">
-                                    {{ med.nombre_comercial }}
-                                    <span class="med-name-generic">({{ med.nombre_generico }})</span>
-                                    {% if med.asignacion_usuario.fuente_asignacion == 'ia_formula' %}
-                                    <span class="tag-tratamiento">
-                                        <i data-lucide="sparkles" style="width: 10px; height: 10px;"></i>
-                                        IA
-                                    </span>
-                                    {% endif %}
+                            {% for med in mis_medicamentos %}
+                            <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
+                                <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
+                                <div class="med-main">
+                                    <div class="med-name">
+                                        {{ med.nombre_comercial }}
+                                        <span class="med-name-generic">({{ med.nombre_generico }})</span>
+                                        {% if med.asignacion_usuario.fuente_asignacion == 'ia_formula' %}
+                                        <span class="tag-tratamiento">
+                                            <i data-lucide="sparkles" style="width: 10px; height: 10px;"></i>
+                                            IA
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="med-cat">
+                                        {% if med.asignacion_usuario.dosis %}Dosis: {{ med.asignacion_usuario.dosis }} &middot; {% endif %}
+                                        {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}
+                                    </div>
                                 </div>
-                                <div class="med-cat">
-                                    {% if med.asignacion_usuario.dosis %}Dosis: {{ med.asignacion_usuario.dosis }} &middot; {% endif %}
-                                    {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}
+                                <div class="med-right">
+                                    <span class="med-sedes-count">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</span>
+                                </div>
+                                <div>
+                                    <div class="mini-bar">
+                                        <div class="mini-fill" style="width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}36%{% else %}10%{% endif %};background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="med-right">
-                                <span class="med-sedes-count">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</span>
+                            {% empty %}
+                            <div class="empty-state" style="padding:24px 18px; text-align:center;">
+                                <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Aún no tienes medicamentos asignados a tu tratamiento.</p>
+                                <a href="{% url 'DocsIA:escaner_ui' %}" class="btn-scan-ia-mini">
+                                    <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
+                                    Escanear mi fórmula médica con IA
+                                </a>
                             </div>
-                            <div>
-                                <div class="mini-bar">
-                                    <div class="mini-fill" style="width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}36%{% else %}10%{% endif %};background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
-                                </div>
-                            </div>
+                            {% endfor %}
                         </div>
-                        {% empty %}
-                        <div class="empty-state" style="padding:24px 18px; text-align:center;">
-                            <p style="font-size:13px; color:var(--text-muted); margin-bottom:10px;">Aún no tienes medicamentos asignados a tu tratamiento.</p>
-                            <a href="{% url 'DocsIA:escaner_ui' %}" class="btn-scan-ia-mini">
-                                <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
-                                Escanear mi fórmula médica con IA
-                            </a>
-                        </div>
-                        {% endfor %}
-                    </div>
                 </div>
 
-                <!-- SECCIÓN 2: CATÁLOGO DE MEDICAMENTOS DISPONIBLES -->
-                <div class="section-card">
+                <!-- SECCIÓN 2: CATÁLOGO DE MEDICAMENTOS (LISTA EXTENSIBLE CON BOTÓN) -->
+                <div class="section-card" id="cardCatalogo">
                     <div class="section-head">
                         <div class="section-head-left">
                             <h2>
@@ -1393,38 +1584,52 @@
                             </h2>
                             <p>Haz clic en cualquier medicamento para ver disponibilidad y solicitar turno</p>
                         </div>
-                        <span class="section-count">{{ medicamentos|length }}</span>
+                        <span class="section-count">{{ medicamentos|length }} disponibles</span>
                     </div>
-                    <div class="med-list" id="clientMedList">
-                        {% for med in medicamentos %}
-                        <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
-                            <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
-                            <div class="med-main">
-                                <div class="med-name">
-                                    {{ med.nombre_comercial }}
-                                    <span class="med-name-generic">({{ med.nombre_generico }})</span>
-                                    {% if med.es_mi_medicamento %}<span class="tag-tratamiento">Mi tratamiento</span>{% endif %}
+
+                    <!-- Contenedor con altura colapsada/extendida mediante botón -->
+                    <div class="med-extension-wrapper collapsed-preview" id="catalogoExtensionWrap">
+                        <div class="med-list" id="clientMedList">
+                            {% for med in medicamentos %}
+                            <div class="med-row" onclick="abrirDetalle({{ med.id }})" data-comercial="{{ med.nombre_comercial|lower }}" data-generico="{{ med.nombre_generico|lower }}" data-laboratorio="{{ med.laboratorio|lower }}">
+                                <div class="med-status-dot" style="background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
+                                <div class="med-main">
+                                    <div class="med-name">
+                                        {{ med.nombre_comercial }}
+                                        <span class="med-name-generic">({{ med.nombre_generico }})</span>
+                                        {% if med.es_mi_medicamento %}<span class="tag-tratamiento">Mi tratamiento</span>{% endif %}
+                                    </div>
+                                    <div class="med-cat">{{ med.laboratorio }} &middot; {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}</div>
                                 </div>
-                                <div class="med-cat">{{ med.laboratorio }} &middot; {{ med.forma_farmaceutica }} &middot; {{ med.concentracion }}</div>
-                            </div>
-                            <div class="med-right">
-                                {% if med.requiere_formula %}
-                                    <span class="pill pill-formula">F&oacute;rmula</span>
-                                {% else %}
-                                    <span class="pill pill-libre">Venta Libre</span>
-                                {% endif %}
-                                <span class="med-sedes-count">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</span>
-                            </div>
-                            <div>
-                                <div class="mini-bar">
-                                    <div class="mini-fill" style="width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}36%{% else %}10%{% endif %};background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
+                                <div class="med-right">
+                                    {% if med.requiere_formula %}
+                                        <span class="pill pill-formula">F&oacute;rmula</span>
+                                    {% else %}
+                                        <span class="pill pill-libre">Venta Libre</span>
+                                    {% endif %}
+                                    <span class="med-sedes-count">{{ med.disponibilidad.sedes_count }} sede{{ med.disponibilidad.sedes_count|pluralize }}</span>
+                                </div>
+                                <div>
+                                    <div class="mini-bar">
+                                        <div class="mini-fill" style="width:{% if med.disponibilidad.estado == 'disponible' %}80%{% elif med.disponibilidad.estado == 'stock_bajo' %}36%{% else %}10%{% endif %};background:{% if med.disponibilidad.estado == 'disponible' %}var(--emerald){% elif med.disponibilidad.estado == 'stock_bajo' %}var(--amber){% else %}var(--rose){% endif %};"></div>
+                                    </div>
                                 </div>
                             </div>
+                            {% empty %}
+                            <div class="empty-state">No hay medicamentos registrados en el sistema.</div>
+                            {% endfor %}
                         </div>
-                        {% empty %}
-                        <div class="empty-state">No hay medicamentos registrados en el sistema.</div>
-                        {% endfor %}
                     </div>
+
+                    <!-- Pie con Botón de Extensión -->
+                    {% if medicamentos|length > 3 %}
+                    <div class="med-expand-footer">
+                        <button class="btn-extender-lista" id="btnExtenderCatalogo" onclick="toggleExtenderCatalogo()">
+                            <span id="labelExtenderCatalogo">Ver todos los medicamentos ({{ medicamentos|length }} en total)</span>
+                            <i data-lucide="chevron-down" class="chevron-icon" id="chevronExtender" style="width:16px; height:16px;"></i>
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -1484,6 +1689,93 @@
         </div>
         <button class="btn-solicitar" id="medModalBtn" onclick="solicitarMedicamento()">Solicitar medicamento</button>
         <div class="solicitud-msg" id="solicitudMsg"></div>
+    </div>
+</div>
+
+<!-- ── MODAL: FORMULARIO DERECHO DE PETICIÓN ── -->
+<div class="modal-overlay" id="dpModalOverlay" role="dialog" aria-modal="true" aria-labelledby="dpModalTitle">
+    <div class="modal-box" style="max-width: 600px;">
+        <div class="modal-top">
+            <div>
+                <div class="modal-drug-name" id="dpModalTitle" style="display:flex;align-items:center;gap:8px;">
+                    <i data-lucide="scale" style="width:22px;height:22px;color:var(--brand-main);"></i>
+                    Derecho de Petición Oficial
+                </div>
+                <div class="modal-drug-sub">Ley 1755 de 2015 y Ley Estatutaria de Salud 1751 de 2015</div>
+            </div>
+            <button class="modal-close" onclick="cerrarModalDP()" aria-label="Cerrar">&times;</button>
+        </div>
+
+        <div class="dp-alert dp-warning" style="margin-top:4px;margin-bottom:14px;">
+            <div class="dp-title">
+                <i data-lucide="info" style="width:16px;height:16px;"></i>
+                Requisito Legal para Radicación
+            </div>
+            <div class="dp-desc">
+                Verifica tus datos de contacto para expedir el documento formal con número de radicado oficial ante tu EPS.
+            </div>
+        </div>
+
+        <form id="dpForm" method="POST" action="{% url 'generar_derecho_peticion' %}" onsubmit="handleDPSubmit(event)">
+            {% csrf_token %}
+            <input type="hidden" name="medicamento_id" id="dp_medicamento_id" value="">
+
+            <div class="dp-field full-width" style="margin-bottom:8px;">
+                <label class="dp-label">Medicamento Solicitado (Agotado)</label>
+                <div class="dp-med-badge" id="dpMedBadge">
+                    <i data-lucide="pill" style="width:16px;height:16px;"></i>
+                    <span id="dpMedNombre">—</span>
+                </div>
+            </div>
+
+            <div class="dp-form-grid">
+                <div class="dp-field full-width">
+                    <label class="dp-label" for="dp_nombre_usuario">Nombre Completo del Solicitante *</label>
+                    <input type="text" class="dp-input" id="dp_nombre_usuario" name="nombre_usuario" value="{{ request.user.get_full_name|default:request.user.username }}" required>
+                </div>
+
+                <div class="dp-field">
+                    <label class="dp-label" for="dp_tipo_documento">Tipo de Documento *</label>
+                    <select class="dp-select" id="dp_tipo_documento" name="tipo_documento" required>
+                        <option value="Cédula de Ciudadanía" selected>Cédula de Ciudadanía</option>
+                        <option value="Tarjeta de Identidad">Tarjeta de Identidad</option>
+                        <option value="Cédula de Extranjería">Cédula de Extranjería</option>
+                        <option value="Pasaporte">Pasaporte</option>
+                        <option value="Permiso por Protección Temporal (PPT)">Permiso por Protección Temporal (PPT)</option>
+                    </select>
+                </div>
+
+                <div class="dp-field">
+                    <label class="dp-label" for="dp_numero_documento">Número de Cédula / Documento *</label>
+                    <input type="text" class="dp-input" id="dp_numero_documento" name="numero_documento" value="{{ request.user.cedula|default:'' }}" placeholder="Ej: 1020304050" required>
+                </div>
+
+                <div class="dp-field">
+                    <label class="dp-label" for="dp_eps_nombre">EPS a la que se dirige *</label>
+                    <input type="text" class="dp-input" id="dp_eps_nombre" name="eps_nombre" value="{{ request.user.eps.nombre|default:'ENTIDAD PROMOTORA DE SALUD (EPS)' }}" placeholder="Ej: Sanitas, Compensar, Famisanar" required>
+                </div>
+
+                <div class="dp-field">
+                    <label class="dp-label" for="dp_telefono">Teléfono de Contacto *</label>
+                    <input type="text" class="dp-input" id="dp_telefono" name="telefono" value="{{ request.user.telefono|default:'' }}" placeholder="Ej: 3101234567" required>
+                </div>
+
+                <div class="dp-field full-width">
+                    <label class="dp-label" for="dp_direccion">Dirección de Notificaciones *</label>
+                    <input type="text" class="dp-input" id="dp_direccion" name="direccion" value="{{ request.user.direccion|default:'' }}" placeholder="Ej: Calle 45 # 12-34, Apto 301" required>
+                </div>
+
+                <div class="dp-field full-width">
+                    <label class="dp-label" for="dp_ciudad">Ciudad de Radicación *</label>
+                    <input type="text" class="dp-input" id="dp_ciudad" name="ciudad" value="Bogotá D.C." placeholder="Ej: Bogotá D.C." required>
+                </div>
+            </div>
+
+            <button type="submit" class="dp-btn-submit" id="dpBtnSubmit">
+                <i data-lucide="file-down" style="width:18px;height:18px;"></i>
+                Generar y Descargar PDF Oficial
+            </button>
+        </form>
     </div>
 </div>
 
@@ -1676,8 +1968,11 @@
         }
     }
 
+    let _activeMedData = null;
+
     function rellenarModal(med) {
         _activeMedId = med.id;
+        _activeMedData = med;
         document.getElementById('medModalTitle').textContent = med.nombre_comercial;
         document.getElementById('medModalSub').textContent = `${med.nombre_generico} \u00b7 ${med.laboratorio}`;
         document.getElementById('medModalTags').innerHTML = `<span class="modal-tag ${med.requiere_formula ? 'formula' : 'libre'}">${med.requiere_formula ? 'Requiere fórmula médica' : 'Venta libre'}</span>${med.concentracion ? `<span class="modal-tag">${med.concentracion}</span>` : ''}${med.forma_farmaceutica ? `<span class="modal-tag">${med.forma_farmaceutica}</span>` : ''}`;
@@ -1713,6 +2008,27 @@
             _solicitudMsgTimer = window.setTimeout(() => {
                 if (solicitudMsg) solicitudMsg.innerHTML = '';
             }, 5000);
+        } else if (!med.disponible) {
+            if (med.tiene_peticion) {
+                solicitudMsg.innerHTML = `
+                    <div class="dp-alert dp-active">
+                        <div class="dp-title">
+                            <i data-lucide="file-check" style="width:16px;height:16px;"></i>
+                            Derecho de Petición Radicado: ${med.peticion_radicado}
+                        </div>
+                        <div class="dp-desc">Trámite activo (${med.peticion_estado}). Puedes volver a descargar tu documento oficial en PDF con el botón de abajo.</div>
+                    </div>`;
+            } else {
+                solicitudMsg.innerHTML = `
+                    <div class="dp-alert dp-warning">
+                        <div class="dp-title">
+                            <i data-lucide="alert-triangle" style="width:16px;height:16px;"></i>
+                            Medicamento no disponible en ninguna sede
+                        </div>
+                        <div class="dp-desc">Conforme a la Ley 1755 de 2015 y Ley 1751 de 2015, puedes generar y descargar un Derecho de Petición legal con radicado oficial ante tu EPS para exigir su suministro inmediato.</div>
+                    </div>`;
+            }
+            if (window.lucide) lucide.createIcons();
         } else {
             solicitudMsg.textContent = med.sedes.some(s => s.cantidad_disponible > 0) ? 'Selecciona la sede donde deseas reclamar tu turno.' : '';
         }
@@ -1723,7 +2039,7 @@
         document.querySelectorAll('#medModalSedes .sede-row').forEach(row => {
             row.classList.toggle('sede-row-selected', parseInt(row.dataset.sedeId) === sedeId);
         });
-        if (!_activeMedCooldown) {
+        if (!_activeMedCooldown && _activeMedData && _activeMedData.disponible) {
             document.getElementById('solicitudMsg').innerHTML = '';
         }
         actualizarBotonSolicitar(true, _activeMedCooldown, _activeMedCooldownFecha);
@@ -1742,9 +2058,14 @@
             btn.textContent = `Reclamado (Disponible ${_activeMedCooldownFecha})`;
             btn.style.background = '#94a3b8';
         } else if (!disponibleGeneral) {
-            btn.disabled = true;
-            btn.textContent = 'No disponible actualmente';
-            btn.style.background = '';
+            btn.disabled = false;
+            if (_activeMedData && _activeMedData.tiene_peticion) {
+                btn.textContent = `📄 Descargar Derecho de Petición (${_activeMedData.peticion_radicado})`;
+                btn.style.background = 'var(--brand-main)';
+            } else {
+                btn.textContent = '⚖️ Generar Derecho de Petición (PDF Oficial)';
+                btn.style.background = '#0284c7';
+            }
         } else if (!_activeSedeId) {
             btn.disabled = true;
             btn.textContent = 'Selecciona una sede primero';
@@ -1760,15 +2081,42 @@
         document.getElementById('medModalOverlay').classList.remove('active');
     }
 
+    function abrirModalDP(medId, medNombre) {
+        cerrarModalDetalle();
+        document.getElementById('dp_medicamento_id').value = medId;
+        document.getElementById('dpMedNombre').textContent = medNombre;
+        document.getElementById('dpModalOverlay').classList.add('active');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function cerrarModalDP() {
+        document.getElementById('dpModalOverlay').classList.remove('active');
+    }
+
+    function handleDPSubmit(e) {
+        setTimeout(() => {
+            cerrarModalDP();
+            window.location.reload();
+        }, 2000);
+    }
+
     function solicitarMedicamento() {
-        if (!_activeMedId || !_activeSedeId) return;
+        if (!_activeMedId) return;
+        if (_activeMedData && !_activeMedData.disponible) {
+            abrirModalDP(_activeMedId, `${_activeMedData.nombre_comercial} (${_activeMedData.concentracion || ''})`);
+            return;
+        }
+        if (!_activeSedeId) return;
         window.location.href = `/turnos/solicitar/${_activeSedeId}/${_activeMedId}/`;
     }
 
-    // 5. Búsqueda y Filtrado en Tiempo Real con Debounce
+    // 5. Búsqueda y Filtrado en Tiempo Real con Debounce y Auto-Extensión
     function filterMeds(query) {
         const q = query.toLowerCase().trim();
-        document.querySelectorAll('.med-row').forEach(row => {
+        if (q.length > 0) {
+            toggleExtenderCatalogo(true);
+        }
+        document.querySelectorAll('#clientMedList .med-row, #myMedList .med-row').forEach(row => {
             const comercial = (row.dataset.comercial || '').toLowerCase();
             const generico = (row.dataset.generico || '').toLowerCase();
             const laboratorio = (row.dataset.laboratorio || '').toLowerCase();
@@ -1794,7 +2142,33 @@
         filterMeds(document.getElementById('heroSearchInput')?.value || '');
     }
 
-    // 6. Accesibilidad y Escape Key
+    // 6. Función de Extensión / Despliegue de Lista de Medicamentos
+    function toggleExtenderCatalogo(forceExpand = null) {
+        const wrap = document.getElementById('catalogoExtensionWrap');
+        const btn = document.getElementById('btnExtenderCatalogo');
+        const label = document.getElementById('labelExtenderCatalogo');
+        if (!wrap || !btn) return;
+
+        const isCurrentlyExpanded = wrap.classList.contains('expanded');
+        const shouldExpand = forceExpand !== null ? forceExpand : !isCurrentlyExpanded;
+
+        if (shouldExpand) {
+            wrap.classList.remove('collapsed-preview');
+            wrap.classList.add('expanded');
+            btn.classList.add('active');
+            if (label) label.textContent = 'Contraer lista de medicamentos';
+        } else {
+            wrap.classList.remove('expanded');
+            wrap.classList.add('collapsed-preview');
+            btn.classList.remove('active');
+            const totalCount = document.querySelectorAll('#clientMedList .med-row').length;
+            if (label) label.textContent = `Ver todos los medicamentos (${totalCount} en total)`;
+        }
+
+        if (window.lucide) lucide.createIcons();
+    }
+
+    // 7. Accesibilidad y Escape Key
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') {
             cerrarModalDetalle();

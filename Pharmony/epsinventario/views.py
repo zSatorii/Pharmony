@@ -478,6 +478,13 @@ def api_medicamento_detalle(request, medicamento_id):
     # Verificar si el usuario ya reclamó este medicamento efectivamente en los últimos 30 días
     en_cooldown, cooldown_fecha = verificar_cooldown_medicamento(request.user, medicamento)
 
+    from Farmacia.models import DerechoPeticion
+    peticion = DerechoPeticion.objects.filter(
+        usuario=request.user,
+        medicamento=medicamento,
+        estado__in=['radicado', 'en_tramite']
+    ).first()
+
     return JsonResponse({
         "id": medicamento.id,
         "nombre_comercial": medicamento.nombre_comercial,
@@ -493,6 +500,9 @@ def api_medicamento_detalle(request, medicamento_id):
         "sedes": sedes_data,
         "en_cooldown": en_cooldown,
         "cooldown_fecha": cooldown_fecha,
+        "tiene_peticion": bool(peticion),
+        "peticion_radicado": peticion.numero_radicado if peticion else "",
+        "peticion_estado": peticion.get_estado_display() if peticion else "",
     })
 
 @never_cache
