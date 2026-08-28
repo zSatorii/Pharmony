@@ -18,6 +18,7 @@ urlpatterns = [
     path('panel/cola/<int:sede_id>/', views.cola_turnos, name='cola_turnos'),
     path('panel/siguiente/<int:sede_id>/', views.tomar_siguiente_turno, name='tomar_siguiente_turno'),
     path('panel/atender/<str:codigo>/', views.atender_turno, name='atender_turno'),
+    path('panel/atender/<str:codigo>/analizar/', views.analizar_formula_turno_ajax, name='analizar_formula_turno'),
     path('panel/cerrar-caja/<int:sede_id>/', views.cerrar_caja, name='cerrar_caja'),
     path('sede/<int:sede_id>/auxiliares/', views.gestionar_auxiliares, name='gestionar_auxiliares'),
     path('mis-turnos/', views.mis_turnos, name='mis_turnos'),

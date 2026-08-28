@@ -575,11 +575,21 @@
             <span>DocsIA: Escáner de Fórmulas</span>
         </a>
 
-        <span class="nav-group-label">Usuario</span>
+        <span class="nav-group-label">Pedidos & Turnos</span>
         <a class="nav-item" href="{% url 'turnos:mis_turnos' %}">
             <i data-lucide="ticket" style="width: 16px; height: 16px;"></i>
             <span>Mis turnos</span>
         </a>
+        <a class="nav-item" href="{% url 'pedidos:mis_pedidos' %}">
+            <i data-lucide="package" style="width: 16px; height: 16px;"></i>
+            <span>Mis pedidos</span>
+        </a>
+        <a class="nav-item" href="{% url 'pedidos:seguimiento_publico' %}">
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+            <span>Rastrear Pedido</span>
+        </a>
+
+        <span class="nav-group-label">Usuario</span>
         <a class="nav-item active" href="{% url 'mi_cuenta' %}">
             <i data-lucide="user-check" style="width: 16px; height: 16px;"></i>
             <span>Mi Cuenta</span>
@@ -597,6 +607,7 @@
                 <i data-lucide="log-out" style="width: 16px; height: 16px;"></i>
             </a>
         </div>
+    </div>
     </div>
 </aside>
 

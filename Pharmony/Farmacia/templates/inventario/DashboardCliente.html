@@ -1156,6 +1156,20 @@
             <i data-lucide="ticket" style="width: 16px; height: 16px;"></i>
             <span>Mis turnos</span>
         </a>
+        <a class="nav-item" href="{% url 'pedidos:mis_pedidos' %}">
+            <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+                <rect x="2" y="4" width="14" height="11" rx="1.5"/>
+                <path d="M6 4V3a3 3 0 0 1 6 0v1M2 8h14M7 11h4"/>
+            </svg>
+            Mis pedidos
+        </a>
+        <a class="nav-item" href="{% url 'pedidos:seguimiento_publico' %}">
+            <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
+                <circle cx="7.5" cy="7.5" r="5"/>
+                <path d="M11 11l4.5 4.5M7.5 5v2.5h2.5"/>
+            </svg>
+            Rastrear pedido
+        </a>
         <a class="nav-item" href="{% url 'mi_cuenta' %}">
             <i data-lucide="user" style="width: 16px; height: 16px;"></i>
             <span>Mi Cuenta</span>
@@ -1202,7 +1216,9 @@
                 </div>
                 <div class="notif-body">
                     <div class="notif-item unread">
-                        <div class="notif-icon-box green">✓</div>
+                        <div class="notif-icon-box green" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg>
+                        </div>
                         <div class="notif-content">
                             <div class="notif-title">Solicitud Aprobada</div>
                             <div class="notif-desc">Tu medicamento Paracetamol está disponible en Sede Chapinero.</div>
@@ -1210,7 +1226,9 @@
                         </div>
                     </div>
                     <div class="notif-item">
-                        <div class="notif-icon-box">ℹ</div>
+                        <div class="notif-icon-box" aria-hidden="true">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+                        </div>
                         <div class="notif-content">
                             <div class="notif-title">Actualización de Sedes</div>
                             <div class="notif-desc">Nuevos puntos de atención habilitados en Medellín y Cali.</div>
@@ -1227,7 +1245,34 @@
         </div>
     </div>
 
+<<<<<<< HEAD
     <!-- Hero Search -->
+=======
+    {% if messages %}
+    <div id="messagesContainer" style="max-width:1100px;margin:18px 28px 0;display:flex;flex-direction:column;gap:10px;transition:opacity 0.5s ease, transform 0.5s ease;">
+        {% for message in messages %}
+        <div style="background:#fef2f2;border:1.5px solid #fecaca;color:#b91c1c;padding:12px 18px;border-radius:12px;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 12px rgba(239,68,68,0.1);">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>{{ message }}</span>
+            </div>
+            <button onclick="document.getElementById('messagesContainer').remove()" style="background:none;border:none;color:#b91c1c;cursor:pointer;font-size:18px;font-weight:bold;line-height:1;opacity:0.7;">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        setTimeout(function() {
+            var mc = document.getElementById('messagesContainer');
+            if (mc) {
+                mc.style.opacity = '0';
+                mc.style.transform = 'translateY(-10px)';
+                setTimeout(function() { if (mc.parentNode) mc.parentNode.removeChild(mc); }, 500);
+            }
+        }, 5000);
+    </script>
+    {% endif %}
+
+>>>>>>> origin/SantiagoTest
     <section class="hero-search">
         <div class="hero-shape hero-shape-1"></div>
         <div class="hero-shape hero-shape-2"></div>
@@ -1411,10 +1456,17 @@
                         </div>
                     </div>
                     <p>Toca un punto para ver detalles y stock disponible</p>
+<<<<<<< HEAD
                     <div class="map-legend">
                         <div class="leg"><div class="leg-dot" style="background:var(--emerald);"></div>Disponible</div>
                         <div class="leg"><div class="leg-dot" style="background:var(--amber);"></div>Stock bajo</div>
                         <div class="leg"><div class="leg-dot" style="background:var(--rose);"></div>Agotado</div>
+=======
+                        <div class="map-legend">
+                        <div class="leg"><div class="leg-dot" style="background:var(--grn);"></div>Abierta ahora</div>
+                        <div class="leg"><div class="leg-dot" style="background:var(--red);"></div>Cerrada</div>
+                        <div class="leg"><div class="leg-dot" style="background:#94a3b8;"></div>Sin horario</div>
+>>>>>>> origin/SantiagoTest
                     </div>
                 </div>
                 <div class="map-container-wrap">
@@ -1497,7 +1549,6 @@
             zoomControl: true,
             scrollWheelZoom: false
         });
-
         L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap &copy; CARTO',
             subdomains: 'abcd',
@@ -1507,8 +1558,16 @@
         }).addTo(map);
 
         const sedesData = {{ sedes_map_json|safe }};
-        const mapColors = { ok: '#10b981', low: '#f59e0b', out: '#ef4444' };
-        const mapLabels = { ok: 'Disponible', low: 'Stock Bajo', out: 'Agotado' };
+        function colorSede(s) {
+            if (s.abierta === true) return '#10b981';
+            if (s.abierta === false) return '#ef4444';
+            return '#94a3b8';
+        }
+        function labelSede(s) {
+            if (s.abierta === true) return 'Abierta ahora';
+            if (s.abierta === false) return 'Cerrada';
+            return 'Horario no disponible';
+        }
 
         sedesBounds = [];
 
@@ -1518,9 +1577,9 @@
                 const lng = parseFloat(s.lng);
                 if (isNaN(lat) || isNaN(lng)) return;
 
-                const color = mapColors[s.stock] || '#0d47c9';
+                const color = colorSede(s);
                 const marker = L.circleMarker([lat, lng], {
-                    radius: s.stock === 'out' ? 9 : 11,
+                    radius: 10,
                     fillColor: color,
                     color: '#ffffff',
                     weight: 2.5,
@@ -1532,11 +1591,12 @@
                     <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:190px;padding:3px 2px;">
                         <div style="font-weight:700;font-size:14px;color:#052060;margin-bottom:3px;line-height:1.2;">${s.nombre}</div>
                         <div style="font-size:12px;color:#64748b;margin-bottom:8px;">${s.addr} (${s.ciudad})</div>
-                        ${s.meds > 0
+                        ${s.horario ? `<div style="font-size:12px;color:#334155;margin-bottom:6px;">Horario: <strong style="color:#0f172a;">${s.horario}</strong></div>` : ''}
+                        ${s.meds !== undefined ? (s.meds > 0
                             ? `<div style="font-size:12px;color:#334155;margin-bottom:6px;">Stock disponible: <strong style="color:#0f172a;">${s.meds} unidades</strong></div>`
-                            : `<div style="font-size:12px;color:#ef4444;font-weight:700;margin-bottom:6px;">Sin stock disponible</div>`}
+                            : `<div style="font-size:12px;color:#ef4444;font-weight:700;margin-bottom:6px;">Sin stock disponible</div>`) : ''}
                         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;gap:6px;">
-                            <span style="display:inline-block;padding:2px 10px;border-radius:10px;background:${color}18;color:${color};font-weight:700;font-size:11px;">${mapLabels[s.stock]}</span>
+                            <span style="display:inline-block;padding:2px 10px;border-radius:10px;background:${color}18;color:${color};font-weight:700;font-size:11px;">${labelSede(s)}</span>
                         </div>
                     </div>
                 `);
@@ -1615,6 +1675,7 @@
 
     // 4. Modal Detalle de Medicamento & Turnos
     let _activeMedId = null, _activeSedeId = null;
+    let _solicitudMsgTimer = null;
 
     async function abrirDetalle(medId) {
         try {
@@ -1659,8 +1720,21 @@
         } else {
             sedesEl.innerHTML = '<p style="color:var(--text-muted);font-size:12.5px;padding:8px 0;">No hay stock registrado en ninguna sede.</p>';
         }
-        actualizarBotonSolicitar(med.disponible);
-        document.getElementById('solicitudMsg').textContent = med.sedes.some(s => s.cantidad_disponible > 0) ? 'Selecciona la sede donde deseas reclamar tu turno.' : '';
+        actualizarBotonSolicitar(med.disponible, med.en_cooldown, med.cooldown_fecha);
+        const solicitudMsg = document.getElementById('solicitudMsg');
+        if (_solicitudMsgTimer) window.clearTimeout(_solicitudMsgTimer);
+        if (med.en_cooldown) {
+            solicitudMsg.innerHTML = `
+                <div style="background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:600;margin-top:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.4;text-align:left;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span>Ya realizaste una solicitud para este medicamento que fue aprobada y despachada. Puedes revisar el estado en <strong>Mis Pedidos</strong> (Disponible nuevamente el ${med.cooldown_fecha}).</span>
+                </div>`;
+            _solicitudMsgTimer = window.setTimeout(() => {
+                if (solicitudMsg) solicitudMsg.innerHTML = '';
+            }, 5000);
+        } else {
+            solicitudMsg.textContent = med.sedes.some(s => s.cantidad_disponible > 0) ? 'Selecciona la sede donde deseas reclamar tu turno.' : '';
+        }
     }
 
     function seleccionarSede(sedeId) {
@@ -1668,15 +1742,37 @@
         document.querySelectorAll('#medModalSedes .sede-row').forEach(row => {
             row.classList.toggle('sede-row-selected', parseInt(row.dataset.sedeId) === sedeId);
         });
-        document.getElementById('solicitudMsg').textContent = '';
-        actualizarBotonSolicitar(true);
+        if (!_activeMedCooldown) {
+            document.getElementById('solicitudMsg').innerHTML = '';
+        }
+        actualizarBotonSolicitar(true, _activeMedCooldown, _activeMedCooldownFecha);
     }
 
-    function actualizarBotonSolicitar(disponibleGeneral) {
+    let _activeMedCooldown = false, _activeMedCooldownFecha = '';
+
+    function actualizarBotonSolicitar(disponibleGeneral, enCooldown, cooldownFecha) {
+        if (enCooldown !== undefined) {
+            _activeMedCooldown = enCooldown;
+            _activeMedCooldownFecha = cooldownFecha;
+        }
         const btn = document.getElementById('medModalBtn');
-        if (!disponibleGeneral) { btn.disabled = true; btn.textContent = 'No disponible actualmente'; }
-        else if (!_activeSedeId) { btn.disabled = true; btn.textContent = 'Selecciona una sede primero'; }
-        else { btn.disabled = false; btn.textContent = 'Solicitar Turno en esta Sede →'; }
+        if (_activeMedCooldown) {
+            btn.disabled = true;
+            btn.textContent = `Reclamado (Disponible ${_activeMedCooldownFecha})`;
+            btn.style.background = '#94a3b8';
+        } else if (!disponibleGeneral) {
+            btn.disabled = true;
+            btn.textContent = 'No disponible actualmente';
+            btn.style.background = '';
+        } else if (!_activeSedeId) {
+            btn.disabled = true;
+            btn.textContent = 'Selecciona una sede primero';
+            btn.style.background = '';
+        } else {
+            btn.disabled = false;
+            btn.textContent = 'Solicitar Turno en esta Sede →';
+            btn.style.background = '';
+        }
     }
 
     function cerrarModalDetalle() {
