@@ -1,56 +1,433 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Pharmony — Mis turnos</title>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-    :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--grn:#22c55e;--grnp:#f0fdf4;--red:#ef4444;--redp:#fef2f2;--amber:#f59e0b;--amberp:#fffbeb;}
-    *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
-    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;}
-    .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px;}
-    h1{font-family:'Quicksand',sans-serif;font-size:22px;color:var(--bd);margin-bottom:20px;}
-    .lista{display:flex;flex-direction:column;gap:14px;}
-    .item{background:var(--w);border-radius:16px;box-shadow:0 4px 16px rgba(13,71,201,0.08);padding:18px 20px;display:flex;justify-content:space-between;align-items:center;gap:14px;}
-    .item .codigo{font-family:'Quicksand',sans-serif;font-weight:700;color:var(--bd);font-size:15px;}
-    .item .med{font-size:12.5px;color:var(--g600);margin-top:2px;}
-    .item .fecha{font-size:11.5px;color:var(--g400);margin-top:2px;}
-    .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11.5px;font-weight:700;text-transform:capitalize;margin-top:6px;}
-    .badge-pendiente{background:var(--amberp);color:var(--amber);}
-    .badge-en_atencion{background:var(--bp);color:var(--bm);}
-    .badge-correcto{background:var(--grnp);color:var(--grn);}
-    .badge-rechazado{background:var(--redp);color:var(--red);}
-    .badge-finalizado{background:var(--bp);color:var(--bm);}
-    .badge-cancelado{background:var(--g100);color:var(--g600);}
-    .item a{background:var(--bm);color:#fff;text-decoration:none;font-size:12.5px;font-weight:700;padding:9px 16px;border-radius:10px;white-space:nowrap;}
-    .item a:hover{background:var(--bdk);}
-    .vacio{text-align:center;padding:60px 20px;color:var(--g400);}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Historial de Mis Turnos</title>
+    <meta name="description" content="Consulta y realiza seguimiento de todos tus turnos de dispensación en farmacias Pharmony.">
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --brand-dark: #062272;
+            --brand-deep: #0a3a8c;
+            --brand-navy: #0d47c9;
+            --brand-main: #1a5fd4;
+            --brand-electric: #3b82f6;
+            --brand-cyan: #0ea5e9;
+            --brand-pale: #eff6ff;
+
+            --white: #ffffff;
+            --surface-0: #f8fafc;
+            --surface-1: #f1f5f9;
+            --surface-2: #e2e8f0;
+            --surface-3: #cbd5e1;
+            --text-muted: #64748b;
+            --text-main: #1e293b;
+            --text-heading: #0f172a;
+
+            --emerald: #10b981;
+            --emerald-pale: #ecfdf5;
+            --emerald-border: #a7f3d0;
+            --amber: #f59e0b;
+            --amber-pale: #fffbeb;
+            --amber-border: #fde68a;
+            --rose: #ef4444;
+            --rose-pale: #fef2f2;
+            --rose-border: #fecaca;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-pill: 9999px;
+            --shadow-card: 0 6px 20px rgba(13, 71, 201, 0.06), 0 2px 4px rgba(0, 0, 0, 0.02);
+            --shadow-hover: 0 12px 30px rgba(13, 71, 201, 0.12);
+        }
+
+        html, body {
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f6fa;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Topbar */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .topbar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-electric) 0%, var(--brand-cyan) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+
+        .brand-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 19px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--brand-dark);
+            line-height: 1;
+        }
+
+        .btn-back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--white);
+            color: var(--text-main);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-pill);
+            padding: 7px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back-nav:hover {
+            background: var(--surface-0);
+            transform: translateX(-2px);
+        }
+
+        /* Container */
+        .wrap {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 24px 70px;
+        }
+
+        .header-section {
+            margin-bottom: 26px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(14, 165, 233, 0.1);
+            border-radius: var(--radius-pill);
+            color: var(--brand-navy);
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--brand-dark);
+        }
+
+        .header-sub {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Lista de Turnos */
+        .lista-turnos {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .turno-card {
+            background: var(--white);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-lg);
+            padding: 20px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s ease;
+        }
+
+        .turno-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+            border-color: var(--brand-soft);
+        }
+
+        .turno-main-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            min-width: 0;
+        }
+
+        .turno-icon-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: var(--brand-pale);
+            color: var(--brand-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .turno-codigo {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            color: var(--brand-dark);
+            font-size: 17px;
+            letter-spacing: 0.5px;
+        }
+
+        .turno-med {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-top: 2px;
+        }
+
+        .turno-sede {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .turno-fecha {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .turno-right-actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .badge-pendiente { background: var(--amber-pale); color: var(--amber); border: 1px solid var(--amber-border); }
+        .badge-en_atencion { background: var(--brand-pale); color: var(--brand-main); border: 1px solid var(--brand-soft); }
+        .badge-correcto { background: var(--emerald-pale); color: var(--emerald); border: 1px solid var(--emerald-border); }
+        .badge-rechazado { background: var(--rose-pale); color: var(--rose); border: 1px solid var(--rose-border); }
+        .badge-finalizado { background: var(--surface-1); color: var(--text-muted); border: 1px solid var(--surface-3); }
+        .badge-cancelado { background: var(--surface-1); color: var(--text-muted); border: 1px solid var(--surface-3); }
+
+        .btn-action-turno {
+            background: linear-gradient(135deg, var(--brand-navy), var(--brand-mid));
+            color: var(--white);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 9px 18px;
+            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn-action-turno:hover {
+            background: linear-gradient(135deg, var(--brand-dark), var(--brand-navy));
+            transform: translateY(-1px);
+        }
+
+        .btn-action-secondary {
+            background: var(--surface-0);
+            color: var(--text-main);
+            border: 1px solid var(--surface-2);
+            box-shadow: none;
+        }
+
+        .btn-action-secondary:hover {
+            background: var(--surface-1);
+        }
+
+        /* Estado Vacío */
+        .empty-card {
+            background: var(--white);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-xl);
+            padding: 56px 24px;
+            text-align: center;
+            box-shadow: var(--shadow-card);
+        }
+
+        .empty-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--surface-0);
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 14px;
+        }
+
+        .empty-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+        }
+
+        .empty-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 18px;
+        }
+    </style>
 </head>
 <body>
-<div class="topbar">PHARMONY</div>
-<div class="wrap">
-    <h1>Mis turnos</h1>
-    <div class="lista">
+
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="topbar-left">
+            <a href="{% url 'dashboard_cliente' %}" class="brand-logo">
+                <div class="brand-icon-box">
+                    <i data-lucide="cross" style="width: 18px; height: 18px;"></i>
+                </div>
+                <span class="brand-name">PHARMONY</span>
+            </a>
+        </div>
+        <a href="{% url 'dashboard_cliente' %}" class="btn-back-nav">
+            <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
+            <span>Volver al Panel</span>
+        </a>
+    </div>
+</header>
+
+<main class="wrap">
+    <div class="header-section">
+        <div class="header-badge">
+            <i data-lucide="ticket" style="width: 12px; height: 12px;"></i>
+            Gestión de Turnos
+        </div>
+        <h1>Mis Turnos Solicitados</h1>
+        <p class="header-sub">Historial de tickets generados para dispensación de medicamentos y entregas.</p>
+    </div>
+
+    <div class="lista-turnos">
         {% for t in turnos %}
-        <div class="item">
-            <div>
-                <div class="codigo">{{ t.codigo_ticket }}</div>
-                <div class="med">{{ t.medicamento.nombre_comercial }} · {{ t.sede.nombre }}</div>
-                <div class="fecha">{{ t.fecha_solicitud|date:"d/m/Y H:i" }}</div>
-                <span class="badge badge-{{ t.estado }}">{{ t.get_estado_display }}</span>
+        <div class="turno-card">
+            <div class="turno-main-info">
+                <div class="turno-icon-badge">
+                    <i data-lucide="ticket" style="width: 22px; height: 22px;"></i>
+                </div>
+                <div>
+                    <div class="turno-codigo">{{ t.codigo_ticket }}</div>
+                    <div class="turno-med">{{ t.medicamento.nombre_comercial }}</div>
+                    <div class="turno-sede">
+                        <i data-lucide="map-pin" style="width: 13px; height: 13px;"></i>
+                        {{ t.sede.nombre }} &middot; {{ t.sede.ciudad }}
+                    </div>
+                    <div class="turno-fecha">{{ t.fecha_solicitud|date:"d/m/Y H:i" }}</div>
+                </div>
             </div>
-            {% if t.estado in "correcto,rechazado,finalizado,cancelado" %}
-            <a href="{% url 'turnos:factura_turno' t.codigo_ticket %}">Ver factura</a>
-            {% else %}
-            <a href="{% url 'turnos:ver_ticket' t.codigo_ticket %}">Ver turno</a>
-            {% endif %}
+
+            <div class="turno-right-actions">
+                <span class="badge-status badge-{{ t.estado }}">{{ t.get_estado_display }}</span>
+                {% if t.estado in "correcto,rechazado,finalizado,cancelado" %}
+                <a href="{% url 'turnos:factura_turno' t.codigo_ticket %}" class="btn-action-turno btn-action-secondary">
+                    <i data-lucide="file-text" style="width: 14px; height: 14px;"></i>
+                    Ver Factura
+                </a>
+                {% else %}
+                <a href="{% url 'turnos:ver_ticket' t.codigo_ticket %}" class="btn-action-turno">
+                    <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+                    Ver Turno en Vivo
+                </a>
+                {% endif %}
+            </div>
         </div>
         {% empty %}
-        <div class="vacio">Todavía no tienes turnos solicitados.</div>
+        <div class="empty-card">
+            <div class="empty-icon">
+                <i data-lucide="inbox" style="width: 28px; height: 28px;"></i>
+            </div>
+            <div class="empty-title">Aún no tienes turnos solicitados</div>
+            <div class="empty-sub">Selecciona un medicamento en el catálogo para solicitar tu primer turno de dispensación.</div>
+            <a href="{% url 'dashboard_cliente' %}" class="btn-action-turno" style="display:inline-flex;">
+                <i data-lucide="search" style="width: 14px; height: 14px;"></i>
+                Explorar Medicamentos
+            </a>
+        </div>
         {% endfor %}
     </div>
-</div>
+</main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    });
+</script>
+
 </body>
 </html>

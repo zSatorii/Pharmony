@@ -3,76 +3,1581 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmony — Solicitar medicamento</title>
+    <title>Pharmony — Solicitar Turno de Dispensación</title>
+    <meta name="description" content="Genera tu turno de dispensación de medicamentos en farmacias Pharmony de manera rápida y segura.">
+
+    <!-- Tipografía Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'DM Sans', sans-serif; max-width: 550px; margin: 60px auto; padding: 0 20px; color: #1e293b; }
-        h1 { font-size: 22px; margin-bottom: 4px; }
-        .sub { color: #94a3b8; font-size: 14px; margin-bottom: 24px; }
-        .resumen { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 24px; font-size: 14px; }
-        .resumen strong { color: #0d47c9; }
-        .campo { margin-bottom: 18px; }
-        .campo label { display: block; font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 6px; }
-        .campo input[type="file"], .campo input[type="text"], .campo select {
-            width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 10px;
-            font-size: 14px; font-family: 'DM Sans', sans-serif; box-sizing: border-box; background: #fff;
+        /* ── TOKENS & RESET ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            /* Colores Pharmony */
+            --brand-dark: #062272;
+            --brand-deep: #0a3a8c;
+            --brand-navy: #0d47c9;
+            --brand-main: #1a5fd4;
+            --brand-mid: #2563eb;
+            --brand-electric: #3b82f6;
+            --brand-cyan: #0ea5e9;
+            --brand-cyan-light: #e0f2fe;
+            --brand-soft: #93c5fd;
+            --brand-pale: #eff6ff;
+
+            /* Superficies & Grises */
+            --white: #ffffff;
+            --surface-0: #f8fafc;
+            --surface-1: #f1f5f9;
+            --surface-2: #e2e8f0;
+            --surface-3: #cbd5e1;
+            --text-muted: #64748b;
+            --text-main: #1e293b;
+            --text-heading: #0f172a;
+
+            /* Acentos */
+            --emerald: #10b981;
+            --emerald-pale: #ecfdf5;
+            --emerald-border: #a7f3d0;
+            --amber: #f59e0b;
+            --amber-pale: #fffbeb;
+            --amber-border: #fde68a;
+            --rose: #ef4444;
+            --rose-pale: #fef2f2;
+            --rose-border: #fecaca;
+
+            /* Redondeos & Sombras */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-pill: 9999px;
+            --shadow-subtle: 0 2px 8px rgba(13, 71, 201, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-card: 0 8px 24px rgba(13, 71, 201, 0.07), 0 2px 6px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 14px 36px rgba(13, 71, 201, 0.12), 0 4px 10px rgba(0, 0, 0, 0.04);
+            --shadow-glow: 0 0 24px rgba(14, 165, 233, 0.28);
         }
-        .hint { font-size: 11.5px; color: #94a3b8; margin-top: 4px; }
-        .errores { color: #ef4444; font-size: 12.5px; margin-top: 4px; }
-        .msg-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: 13.5px; }
-        .btn-enviar {
-            width: 100%; background: #0d47c9; color: #fff; border: none; border-radius: 10px;
-            padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px;
+
+        html, body {
+            min-height: 100vh;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4f6fa;
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
         }
-        .btn-enviar:hover { background: #0a3a8c; }
+
+        /* Fondo Decorativo Sutil */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 380px;
+            background: linear-gradient(135deg, rgba(13, 71, 201, 0.06) 0%, rgba(14, 165, 233, 0.04) 50%, transparent 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── TOPBAR NAVEGACIÓN ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .topbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .brand-icon-box {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-electric) 0%, var(--brand-cyan) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .brand-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            color: var(--brand-dark);
+            line-height: 1;
+        }
+
+        .breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            border-left: 1.5px solid var(--surface-2);
+            padding-left: 16px;
+        }
+
+        .breadcrumbs a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .breadcrumbs a:hover {
+            color: var(--brand-main);
+        }
+
+        .breadcrumbs .current {
+            color: var(--brand-navy);
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-back-nav {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--white);
+            color: var(--text-main);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-pill);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .btn-back-nav:hover {
+            background: var(--surface-0);
+            border-color: var(--surface-3);
+            transform: translateX(-2px);
+        }
+
+        .user-chip {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 12px 5px 5px;
+            background: var(--surface-0);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-pill);
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-main), var(--brand-cyan));
+            color: var(--white);
+            font-size: 11.5px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-chip-name {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text-heading);
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── CONTENEDOR PRINCIPAL ── */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 28px 24px 64px;
+        }
+
+        /* ── HERO HEADER ── */
+        .page-header {
+            margin-bottom: 26px;
+        }
+
+        .badge-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 12px;
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.25);
+            border-radius: var(--radius-pill);
+            color: var(--brand-navy);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--brand-cyan);
+            box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.6);
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.6); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(14, 165, 233, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(14, 165, 233, 0); }
+        }
+
+        .page-title {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .page-subtitle {
+            font-size: 14.5px;
+            color: var(--text-muted);
+            max-width: 680px;
+            line-height: 1.5;
+        }
+
+        /* ── MENSAJES / ALERTAS ── */
+        .alerts-wrapper {
+            margin-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert-card {
+            background: var(--rose-pale);
+            border: 1.5px solid var(--rose-border);
+            color: #991b1b;
+            border-radius: var(--radius-md);
+            padding: 14px 18px;
+            font-size: 13.5px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: var(--shadow-subtle);
+        }
+
+        .alert-card-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: #991b1b;
+            cursor: pointer;
+            font-size: 18px;
+            opacity: 0.7;
+            transition: opacity 0.15s;
+        }
+
+        .alert-close:hover { opacity: 1; }
+
+        /* ── BENTO GRID PRINCIPAL ── */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        @media (max-width: 960px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ── COLUMNA IZQUIERDA: FORMULARIO BENTO ── */
+        .form-bento-card {
+            background: var(--white);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-card);
+            padding: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Stepper de Progreso */
+        .stepper-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--surface-1);
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-bubble {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--brand-pale);
+            border: 2px solid var(--brand-main);
+            color: var(--brand-main);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .step-bubble.active {
+            background: linear-gradient(135deg, var(--brand-navy), var(--brand-electric));
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(13, 71, 201, 0.25);
+            border-color: transparent;
+        }
+
+        .step-text {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .step-subtext {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .step-divider {
+            flex: 1;
+            height: 2px;
+            background: var(--surface-2);
+            margin: 0 12px;
+        }
+
+        /* Secciones del Formulario */
+        .form-section {
+            margin-bottom: 26px;
+        }
+
+        .section-label-group {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 14px;
+        }
+
+        .section-icon-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: var(--brand-cyan-light);
+            color: var(--brand-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .section-heading-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .field-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 7px;
+        }
+
+        .field-label {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field-required-star {
+            color: var(--rose);
+            font-size: 14px;
+        }
+
+        .btn-autofill {
+            background: none;
+            border: none;
+            color: var(--brand-main);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            transition: all 0.15s;
+        }
+
+        .btn-autofill:hover {
+            background: var(--brand-pale);
+            color: var(--brand-dark);
+        }
+
+        /* Inputs estilizados */
+        .input-with-icon {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-control-styled {
+            width: 100%;
+            height: 46px;
+            padding: 10px 14px 10px 42px;
+            background: var(--surface-0);
+            border: 1.5px solid var(--surface-2);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .form-control-styled:focus {
+            background: var(--white);
+            border-color: var(--brand-electric);
+            box-shadow: 0 0 0 3.5px rgba(59, 130, 246, 0.15);
+        }
+
+        select.form-control-styled {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 38px;
+            cursor: pointer;
+        }
+
+        .field-hint {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .field-errors {
+            color: var(--rose);
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ── DROPZONES MODERNOS DE ARCHIVOS ── */
+        .dropzone-container {
+            position: relative;
+            background: var(--surface-0);
+            border: 2px dashed var(--surface-3);
+            border-radius: var(--radius-lg);
+            padding: 22px 18px;
+            text-align: center;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .dropzone-container:hover {
+            border-color: var(--brand-electric);
+            background: var(--brand-pale);
+            transform: translateY(-1px);
+        }
+
+        .dropzone-container.dragover {
+            border-color: var(--brand-navy);
+            background: rgba(14, 165, 233, 0.08);
+            border-style: solid;
+            box-shadow: var(--shadow-glow);
+            transform: scale(1.01);
+        }
+
+        .dropzone-icon-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--white);
+            color: var(--brand-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            box-shadow: var(--shadow-subtle);
+            transition: transform 0.2s;
+        }
+
+        .dropzone-container:hover .dropzone-icon-circle {
+            transform: scale(1.1);
+            background: var(--brand-main);
+            color: var(--white);
+        }
+
+        .dropzone-prompt {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 3px;
+        }
+
+        .dropzone-prompt span {
+            color: var(--brand-main);
+            text-decoration: underline;
+        }
+
+        .dropzone-sub {
+            font-size: 11.5px;
+            color: var(--text-muted);
+        }
+
+        .dropzone-formats-tag {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 8px;
+            background: rgba(100, 116, 139, 0.08);
+            border-radius: var(--radius-pill);
+            font-size: 10.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        /* Ocultar input nativo visualmente pero mantenerlo funcional */
+        .dropzone-input-native {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* Tarjeta de Archivo Seleccionado */
+        .file-selected-box {
+            display: none;
+            background: var(--white);
+            border: 1.5px solid var(--emerald-border);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            margin-top: 10px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.08);
+            animation: fadeInScale 0.2s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .file-selected-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .file-type-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: var(--radius-sm);
+            background: var(--emerald-pale);
+            color: var(--emerald);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-name-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-heading);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 260px;
+        }
+
+        .file-size-text {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .btn-remove-file {
+            background: var(--surface-1);
+            border: none;
+            color: var(--text-muted);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .btn-remove-file:hover {
+            background: var(--rose-pale);
+            color: var(--rose);
+        }
+
+        /* Caja de Garantía y Seguridad */
+        .security-notice {
+            background: linear-gradient(135deg, rgba(240, 249, 255, 0.9) 0%, rgba(224, 242, 254, 0.6) 100%);
+            border: 1px solid rgba(186, 230, 253, 0.8);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .security-notice-icon {
+            color: var(--brand-main);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .security-notice-text {
+            font-size: 12px;
+            color: #0369a1;
+            line-height: 1.45;
+        }
+
+        /* Botón de Envío Primario */
+        .btn-submit-turno {
+            width: 100%;
+            height: 52px;
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-mid) 100%);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 15.5px;
+            font-weight: 700;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(13, 71, 201, 0.28);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit-turno:hover {
+            background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand-navy) 100%);
+            box-shadow: 0 10px 28px rgba(13, 71, 201, 0.38);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit-turno:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit-turno:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .spinner-loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            border-top-color: #ffffff;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── COLUMNA DERECHA: BENTO SIDEBAR CARDS ── */
+        .sidebar-bento-col {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .bento-card {
+            background: var(--white);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .bento-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        .bento-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--surface-1);
+        }
+
+        .bento-card-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Tarjeta Medicamento */
+        .med-header-pill {
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .pill-formula {
+            background: var(--rose-pale);
+            color: #b91c1c;
+            border: 1px solid var(--rose-border);
+        }
+
+        .pill-libre {
+            background: var(--emerald-pale);
+            color: #15803d;
+            border: 1px solid var(--emerald-border);
+        }
+
+        .med-name-primary {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-dark);
+            margin-bottom: 2px;
+        }
+
+        .med-name-generic {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .med-specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .spec-box {
+            background: var(--surface-0);
+            border: 1px solid var(--surface-2);
+            border-radius: var(--radius-sm);
+            padding: 8px 10px;
+        }
+
+        .spec-box-label {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .spec-box-val {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        /* Tarjeta Sede */
+        .sede-info-box {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .sede-icon-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-electric), var(--brand-navy));
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .sede-details-main .sede-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 2px;
+        }
+
+        .sede-details-main .sede-location {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stock-badge-live {
+            background: var(--emerald-pale);
+            border: 1.5px solid var(--emerald-border);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #065f46;
+        }
+
+        .stock-count-highlight {
+            font-size: 14px;
+            font-weight: 800;
+            color: #047857;
+        }
+
+        /* Tarjeta Paciente */
+        .paciente-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .paciente-avatar-big {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-cyan) 100%);
+            color: var(--white);
+            font-size: 15px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(13, 71, 201, 0.2);
+            flex-shrink: 0;
+        }
+
+        .paciente-meta .paciente-name {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+
+        .paciente-meta .paciente-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 1px;
+        }
+
+        /* Tarjeta Flujo / Proceso */
+        .flow-steps-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .flow-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .flow-step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--surface-1);
+            border: 1px solid var(--surface-3);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .flow-step-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .flow-step-desc strong {
+            color: var(--text-heading);
+        }
     </style>
 </head>
 <body>
-    <h1>Solicitar medicamento</h1>
-    <p class="sub">Completa tus documentos para generar tu turno de dispensación.</p>
 
-    {% if messages %}
-        {% for message in messages %}
-        <div class="msg-error">{{ message }}</div>
-        {% endfor %}
-    {% endif %}
+<div class="bg-mesh"></div>
 
-    <div class="resumen">
-        <div><strong>Medicamento:</strong> {{ medicamento.nombre_comercial }} ({{ medicamento.nombre_generico }})</div>
-        <div><strong>Sede:</strong> {{ sede.nombre }} — {{ sede.ciudad }}</div>
-        <div><strong>Disponibilidad actual:</strong> {{ inventario.cantidad_disponible }} unidades</div>
+<!-- ── TOPBAR DE NAVEGACIÓN ── -->
+<header class="topbar">
+    <div class="topbar-inner">
+        <div class="topbar-left">
+            <a href="{% url 'dashboard_cliente' %}" class="brand-logo" title="Ir al Panel Principal">
+                <div class="brand-icon-box">
+                    <i data-lucide="cross" style="width: 20px; height: 20px;"></i>
+                </div>
+                <span class="brand-name">PHARMONY</span>
+            </a>
+
+            <nav class="breadcrumbs" aria-label="Migas de pan">
+                <a href="{% url 'dashboard_cliente' %}">Panel</a>
+                <i data-lucide="chevron-right" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+                <span>Disponibilidad</span>
+                <i data-lucide="chevron-right" style="width: 14px; height: 14px; opacity: 0.5;"></i>
+                <span class="current">Solicitar Turno</span>
+            </nav>
+        </div>
+
+        <div class="topbar-right">
+            <a href="javascript:history.back()" class="btn-back-nav">
+                <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i>
+                <span>Volver</span>
+            </a>
+            <div class="user-chip">
+                <div class="user-avatar">{{ request.user.first_name|slice:":1"|default:request.user.username|slice:":1"|upper }}</div>
+                <span class="user-chip-name">{{ request.user.nombre_para_mostrar }}</span>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ── CONTENEDOR PRINCIPAL ── -->
+<main class="container">
+
+    <!-- ── CABECERA DE LA PÁGINA ── -->
+    <div class="page-header">
+        <div class="badge-header">
+            <div class="pulse-dot"></div>
+            Dispensación Digital EPS
+        </div>
+        <h1 class="page-title">Solicitud de Turno y Entrega</h1>
+        <p class="page-subtitle">
+            Completa los datos de destino y carga tus documentos médicos para generar tu turno en la sede <strong>{{ sede.nombre }}</strong>.
+        </p>
     </div>
 
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+    <!-- ── MENSAJES DEL SISTEMA ── -->
+    {% if messages %}
+    <div class="alerts-wrapper" id="alertsContainer">
+        {% for message in messages %}
+        <div class="alert-card">
+            <div class="alert-card-content">
+                <i data-lucide="alert-triangle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+                <span>{{ message }}</span>
+            </div>
+            <button class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        <div class="campo">
-            <label for="{{ form.formula_medica.id_for_label }}">Fórmula médica</label>
-            {{ form.formula_medica }}
-            <div class="hint">Solo PDF, DOCX o imagen (JPG/PNG).</div>
-            {% if form.formula_medica.errors %}<div class="errores">{{ form.formula_medica.errors|join:", " }}</div>{% endif %}
+    <!-- ── BENTO GRID PRINCIPAL ── -->
+    <div class="bento-grid">
+
+        <!-- ── COLUMNA IZQUIERDA: FORMULARIO INTERACTIVO ── -->
+        <div class="form-bento-card">
+
+            <!-- Stepper Visual -->
+            <div class="stepper-header">
+                <div class="step-item">
+                    <div class="step-bubble active">1</div>
+                    <div>
+                        <div class="step-text">Entrega</div>
+                        <div class="step-subtext">Ciudad y dirección</div>
+                    </div>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step-item">
+                    <div class="step-bubble active">2</div>
+                    <div>
+                        <div class="step-text">Documentos</div>
+                        <div class="step-subtext">Fórmula y cédula</div>
+                    </div>
+                </div>
+                <div class="step-divider"></div>
+                <div class="step-item">
+                    <div class="step-bubble">3</div>
+                    <div>
+                        <div class="step-text">Turno</div>
+                        <div class="step-subtext">Ticket en vivo</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario Django POST -->
+            <form method="post" enctype="multipart/form-data" id="turnoForm" onsubmit="handleFormSubmit(event)">
+                {% csrf_token %}
+
+                <!-- SECCIÓN 1: DATOS DE ENTREGA -->
+                <div class="form-section">
+                    <div class="section-label-group">
+                        <div class="section-icon-badge">
+                            <i data-lucide="map-pin" style="width: 15px; height: 15px;"></i>
+                        </div>
+                        <h2 class="section-heading-title">Lugar de Entrega del Medicamento</h2>
+                    </div>
+
+                    <!-- Campo Ciudad -->
+                    <div class="field-group">
+                        <div class="field-header">
+                            <label class="field-label" for="{{ form.ciudad_envio.id_for_label }}">
+                                Ciudad de entrega <span class="field-required-star">*</span>
+                            </label>
+                        </div>
+                        <div class="input-with-icon">
+                            <div class="input-icon-left">
+                                <i data-lucide="building" style="width: 17px; height: 17px;"></i>
+                            </div>
+                            <select name="{{ form.ciudad_envio.html_name }}" id="{{ form.ciudad_envio.id_for_label }}" class="form-control-styled" required>
+                                {% for val, label in form.fields.ciudad_envio.choices %}
+                                <option value="{{ val }}" {% if form.ciudad_envio.value == val %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="field-hint">
+                            <i data-lucide="info" style="width: 12px; height: 12px;"></i>
+                            Ciudades y municipios autorizados en el radio de cobertura de la sede {{ sede.nombre }}.
+                        </div>
+                        {% if form.ciudad_envio.errors %}
+                        <div class="field-errors">
+                            <i data-lucide="alert-circle" style="width: 13px; height: 13px;"></i>
+                            {{ form.ciudad_envio.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Campo Dirección -->
+                    <div class="field-group">
+                        <div class="field-header">
+                            <label class="field-label" for="{{ form.direccion_envio.id_for_label }}">
+                                Dirección exacta de entrega <span class="field-required-star">*</span>
+                            </label>
+                            {% if request.user.direccion %}
+                            <button type="button" class="btn-autofill" onclick="autollenarDireccion('{{ request.user.direccion|escapejs }}')">
+                                <i data-lucide="sparkles" style="width: 12px; height: 12px;"></i>
+                                Usar mi dirección registrada
+                            </button>
+                            {% endif %}
+                        </div>
+                        <div class="input-with-icon">
+                            <div class="input-icon-left">
+                                <i data-lucide="navigation" style="width: 17px; height: 17px;"></i>
+                            </div>
+                            <input type="text"
+                                   name="{{ form.direccion_envio.html_name }}"
+                                   id="{{ form.direccion_envio.id_for_label }}"
+                                   class="form-control-styled"
+                                   placeholder="Ej: Carrera 15 # 85-30 Apto 402, Barrio Chapinero"
+                                   value="{{ form.direccion_envio.value|default:'' }}"
+                                   required>
+                        </div>
+                        <div class="field-hint">
+                            <i data-lucide="shield-check" style="width: 12px; height: 12px;"></i>
+                            Utilizada exclusivamente para el despacho y entrega de la fórmula.
+                        </div>
+                        {% if form.direccion_envio.errors %}
+                        <div class="field-errors">
+                            <i data-lucide="alert-circle" style="width: 13px; height: 13px;"></i>
+                            {{ form.direccion_envio.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: DOCUMENTOS MÉDICOS -->
+                <div class="form-section">
+                    <div class="section-label-group">
+                        <div class="section-icon-badge">
+                            <i data-lucide="file-check-2" style="width: 15px; height: 15px;"></i>
+                        </div>
+                        <h2 class="section-heading-title">Documentos Requeridos</h2>
+                    </div>
+
+                    <!-- Dropzone 1: Fórmula médica -->
+                    <div class="field-group">
+                        <div class="field-header">
+                            <label class="field-label">
+                                Fórmula médica vigente <span class="field-required-star">*</span>
+                            </label>
+                        </div>
+
+                        <div class="dropzone-container" id="dropzoneFormula" onclick="triggerFileInput('formulaInput')">
+                            <input type="file"
+                                   name="{{ form.formula_medica.html_name }}"
+                                   id="formulaInput"
+                                   class="dropzone-input-native"
+                                   accept=".pdf,.docx,.jpg,.jpeg,.png,.webp"
+                                   required
+                                   onchange="handleFileChange(this, 'formulaBox', 'formulaName', 'formulaSize')">
+                            <div class="dropzone-icon-circle">
+                                <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div class="dropzone-prompt">
+                                Arrastra tu fórmula médica aquí o <span>haz clic para examinar</span>
+                            </div>
+                            <div class="dropzone-sub">Subir fórmula expedida por tu médico o EPS</div>
+                            <div class="dropzone-formats-tag">PDF, DOCX, JPG, PNG, WEBP &middot; Máx 5MB</div>
+                        </div>
+
+                        <!-- Miniatura / Info de archivo seleccionado -->
+                        <div class="file-selected-box" id="formulaBox">
+                            <div class="file-selected-info">
+                                <div class="file-type-badge">
+                                    <i data-lucide="file-check" style="width: 18px; height: 18px;"></i>
+                                </div>
+                                <div>
+                                    <div class="file-name-text" id="formulaName">documento.pdf</div>
+                                    <div class="file-size-text" id="formulaSize">0 KB</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" title="Cambiar archivo" onclick="removeFile('formulaInput', 'formulaBox', event)">
+                                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                            </button>
+                        </div>
+
+                        {% if form.formula_medica.errors %}
+                        <div class="field-errors">
+                            <i data-lucide="alert-circle" style="width: 13px; height: 13px;"></i>
+                            {{ form.formula_medica.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Dropzone 2: Cédula de ciudadanía -->
+                    <div class="field-group">
+                        <div class="field-header">
+                            <label class="field-label">
+                                Cédula de ciudadanía o documento de identidad <span class="field-required-star">*</span>
+                            </label>
+                        </div>
+
+                        <div class="dropzone-container" id="dropzoneCedula" onclick="triggerFileInput('cedulaInput')">
+                            <input type="file"
+                                   name="{{ form.cedula_ciudadania.html_name }}"
+                                   id="cedulaInput"
+                                   class="dropzone-input-native"
+                                   accept=".pdf,.docx,.jpg,.jpeg,.png,.webp"
+                                   required
+                                   onchange="handleFileChange(this, 'cedulaBox', 'cedulaName', 'cedulaSize')">
+                            <div class="dropzone-icon-circle">
+                                <i data-lucide="user-check" style="width: 20px; height: 20px;"></i>
+                            </div>
+                            <div class="dropzone-prompt">
+                                Arrastra tu documento de identidad o <span>haz clic para examinar</span>
+                            </div>
+                            <div class="dropzone-sub">Documento del paciente titular para verificación de identidad</div>
+                            <div class="dropzone-formats-tag">PDF, DOCX, JPG, PNG, WEBP &middot; Máx 5MB</div>
+                        </div>
+
+                        <!-- Miniatura / Info de archivo seleccionado -->
+                        <div class="file-selected-box" id="cedulaBox">
+                            <div class="file-selected-info">
+                                <div class="file-type-badge">
+                                    <i data-lucide="check" style="width: 18px; height: 18px;"></i>
+                                </div>
+                                <div>
+                                    <div class="file-name-text" id="cedulaName">cedula.pdf</div>
+                                    <div class="file-size-text" id="cedulaSize">0 KB</div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-file" title="Cambiar archivo" onclick="removeFile('cedulaInput', 'cedulaBox', event)">
+                                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                            </button>
+                        </div>
+
+                        {% if form.cedula_ciudadania.errors %}
+                        <div class="field-errors">
+                            <i data-lucide="alert-circle" style="width: 13px; height: 13px;"></i>
+                            {{ form.cedula_ciudadania.errors|join:", " }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- AVISO DE SEGURIDAD -->
+                <div class="security-notice">
+                    <div class="security-notice-icon">
+                        <i data-lucide="lock" style="width: 16px; height: 16px;"></i>
+                    </div>
+                    <div class="security-notice-text">
+                        Tus documentos son procesados con estricta confidencialidad médica, verificación asistida por IA y validación farmacéutica autorizada.
+                    </div>
+                </div>
+
+                <!-- BOTÓN PRINCIPAL DE GENERAR TURNO -->
+                <button type="submit" class="btn-submit-turno" id="submitBtn">
+                    <span id="btnText">Generar mi Turno de Dispensación &rarr;</span>
+                    <div class="spinner-loader" id="btnSpinner"></div>
+                </button>
+            </form>
         </div>
 
-        <div class="campo">
-            <label for="{{ form.cedula_ciudadania.id_for_label }}">Cédula de ciudadanía</label>
-            {{ form.cedula_ciudadania }}
-            <div class="hint">Solo PDF, DOCX o imagen (JPG/PNG).</div>
-            {% if form.cedula_ciudadania.errors %}<div class="errores">{{ form.cedula_ciudadania.errors|join:", " }}</div>{% endif %}
-        </div>
+        <!-- ── COLUMNA DERECHA: BENTO SIDEBAR CARDS ── -->
+        <aside class="sidebar-bento-col">
 
-        <div class="campo">
-            <label for="{{ form.ciudad_envio.id_for_label }}">Ciudad de entrega</label>
-            {{ form.ciudad_envio }}
-            <div class="hint">Solo se puede entregar en la ciudad de la sede o municipios cercanos.</div>
-            {% if form.ciudad_envio.errors %}<div class="errores">{{ form.ciudad_envio.errors|join:", " }}</div>{% endif %}
-        </div>
+            <!-- Card 1: Resumen Medicamento -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">
+                        <i data-lucide="pill" style="width: 14px; height: 14px; color: var(--brand-main);"></i>
+                        Medicamento
+                    </span>
+                    {% if medicamento.requiere_formula %}
+                    <span class="med-header-pill pill-formula">Requiere Fórmula</span>
+                    {% else %}
+                    <span class="med-header-pill pill-libre">Venta Libre</span>
+                    {% endif %}
+                </div>
 
-        <div class="campo">
-            <label for="{{ form.direccion_envio.id_for_label }}">Dirección exacta</label>
-            {{ form.direccion_envio }}
-            {% if form.direccion_envio.errors %}<div class="errores">{{ form.direccion_envio.errors|join:", " }}</div>{% endif %}
-        </div>
+                <div class="med-name-primary">{{ medicamento.nombre_comercial }}</div>
+                <div class="med-name-generic">{{ medicamento.nombre_generico }} &middot; {{ medicamento.laboratorio }}</div>
 
-        <button type="submit" class="btn-enviar">Generar turno</button>
-    </form>
+                <div class="med-specs-grid">
+                    <div class="spec-box">
+                        <div class="spec-box-label">Concentración</div>
+                        <div class="spec-box-val">{{ medicamento.concentracion|default:"Estándar" }}</div>
+                    </div>
+                    <div class="spec-box">
+                        <div class="spec-box-label">Presentación</div>
+                        <div class="spec-box-val">{{ medicamento.forma_farmaceutica|default:"Farmacéutica" }}</div>
+                    </div>
+                </div>
+
+                {% if medicamento.uso_indicado %}
+                <div style="font-size:12px;color:var(--text-muted);line-height:1.4;background:var(--surface-0);padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--surface-2);">
+                    <strong>Uso indicado:</strong> {{ medicamento.uso_indicado|truncatewords:14 }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Card 2: Sede & Stock -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">
+                        <i data-lucide="store" style="width: 14px; height: 14px; color: var(--brand-electric);"></i>
+                        Sede de Despacho
+                    </span>
+                    <span style="font-size:11px;font-weight:700;color:var(--emerald);display:flex;align-items:center;gap:4px;">
+                        <span style="width:6px;height:6px;border-radius:50%;background:var(--emerald);display:inline-block;"></span>
+                        Disponible
+                    </span>
+                </div>
+
+                <div class="sede-info-box">
+                    <div class="sede-icon-wrap">
+                        <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div class="sede-details-main">
+                        <div class="sede-title">{{ sede.nombre }}</div>
+                        <div class="sede-location">
+                            <i data-lucide="navigation" style="width: 12px; height: 12px;"></i>
+                            {{ sede.direccion|default:sede.ciudad }} ({{ sede.ciudad }})
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stock-badge-live">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <i data-lucide="layers" style="width: 16px; height: 16px;"></i>
+                        <span style="font-size:12.5px;font-weight:600;">Inventario en sede</span>
+                    </div>
+                    <span class="stock-count-highlight">{{ inventario.cantidad_disponible }} unidades</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Datos del Paciente -->
+            <div class="bento-card">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">
+                        <i data-lucide="user" style="width: 14px; height: 14px; color: var(--brand-cyan);"></i>
+                        Titular de la Solicitud
+                    </span>
+                </div>
+
+                <div class="paciente-row">
+                    <div class="paciente-avatar-big">
+                        {{ request.user.first_name|slice:":1"|default:request.user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="paciente-meta">
+                        <div class="paciente-name">{{ request.user.nombre_para_mostrar }}</div>
+                        <div class="paciente-sub">C.C. {{ request.user.cedula|default:"No registrada" }}</div>
+                        <div class="paciente-sub" style="color:var(--brand-main);font-weight:600;margin-top:2px;">
+                            {{ request.user.eps.nombre|default:"Particular / EPS Asignada" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Flujo de Atención -->
+            <div class="bento-card" style="background:linear-gradient(175deg, var(--white) 0%, var(--surface-0) 100%);">
+                <div class="bento-card-header">
+                    <span class="bento-card-title">
+                        <i data-lucide="workflow" style="width: 14px; height: 14px; color: var(--brand-navy);"></i>
+                        ¿Cómo funciona tu turno?
+                    </span>
+                </div>
+
+                <div class="flow-steps-list">
+                    <div class="flow-step-item">
+                        <div class="flow-step-num">1</div>
+                        <div class="flow-step-desc">
+                            <strong>Radicación del Turno:</strong> Se crea tu ticket y entras a la cola digital de la farmacia.
+                        </div>
+                    </div>
+                    <div class="flow-step-item">
+                        <div class="flow-step-num">2</div>
+                        <div class="flow-step-desc">
+                            <strong>Validación y Chat:</strong> El farmacéutico revisa tu fórmula en tiempo real y puede contactarte.
+                        </div>
+                    </div>
+                    <div class="flow-step-item">
+                        <div class="flow-step-num">3</div>
+                        <div class="flow-step-desc">
+                            <strong>Despacho o Entrega:</strong> Recibes tu factura y comprobante con número de guía de envío.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+
+</main>
+
+<!-- ── SCRIPTS & LÓGICA INTERACTIVA ── -->
+<script>
+    // Inicializar Lucide Icons
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+        setupDragAndDrop();
+    });
+
+    // Función para autollenar dirección registrada
+    function autollenarDireccion(direccion) {
+        const input = document.getElementById('{{ form.direccion_envio.id_for_label }}');
+        if (input && direccion) {
+            input.value = direccion;
+            input.focus();
+            input.style.backgroundColor = 'var(--brand-pale)';
+            setTimeout(() => {
+                input.style.backgroundColor = '';
+            }, 800);
+        }
+    }
+
+    // Disparar click en input de archivo oculto
+    function triggerFileInput(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) input.click();
+    }
+
+    // Manejar selección de archivos
+    function handleFileChange(input, boxId, nameId, sizeId) {
+        const box = document.getElementById(boxId);
+        const nameEl = document.getElementById(nameId);
+        const sizeEl = document.getElementById(sizeId);
+
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            nameEl.textContent = file.name;
+            sizeEl.textContent = formatBytes(file.size);
+            box.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+        } else {
+            box.style.display = 'none';
+        }
+    }
+
+    // Eliminar archivo seleccionado
+    function removeFile(inputId, boxId, event) {
+        if (event) event.stopPropagation();
+        const input = document.getElementById(inputId);
+        const box = document.getElementById(boxId);
+        if (input) input.value = '';
+        if (box) box.style.display = 'none';
+    }
+
+    // Formatear bytes a KB o MB
+    function formatBytes(bytes, decimals = 1) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    // Drag & Drop Listeners
+    function setupDragAndDrop() {
+        const dropzones = [
+            { dropzone: document.getElementById('dropzoneFormula'), input: document.getElementById('formulaInput'), box: 'formulaBox', name: 'formulaName', size: 'formulaSize' },
+            { dropzone: document.getElementById('dropzoneCedula'), input: document.getElementById('cedulaInput'), box: 'cedulaBox', name: 'cedulaName', size: 'cedulaSize' }
+        ];
+
+        dropzones.forEach(item => {
+            if (!item.dropzone || !item.input) return;
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                item.dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    item.dropzone.classList.add('dragover');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                item.dropzone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    item.dropzone.classList.remove('dragover');
+                }, false);
+            });
+
+            item.dropzone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files.length > 0) {
+                    item.input.files = files;
+                    handleFileChange(item.input, item.box, item.name, item.size);
+                }
+            }, false);
+        });
+    }
+
+    // Manejar envío del formulario con estado de carga
+    function handleFormSubmit(e) {
+        const btn = document.getElementById('submitBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+
+        if (btn) {
+            btn.disabled = true;
+            btnText.textContent = 'Generando tu turno...';
+            if (btnSpinner) btnSpinner.style.display = 'block';
+        }
+    }
+</script>
+
 </body>
 </html>

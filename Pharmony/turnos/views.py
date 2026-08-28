@@ -125,7 +125,10 @@ def solicitar_turno(request, sede_id, medicamento_id):
 
             return redirect('turnos:ver_ticket', codigo=turno.codigo_ticket)
     else:
-        form = SolicitarTurnoForm(initial={'ciudad_envio': sede.ciudad}, ciudades_permitidas=ciudades_permitidas)
+        initial_data = {'ciudad_envio': sede.ciudad}
+        if request.user.direccion:
+            initial_data['direccion_envio'] = request.user.direccion
+        form = SolicitarTurnoForm(initial=initial_data, ciudades_permitidas=ciudades_permitidas)
 
     return render(request, 'turnos/solicitar_turno.html', {
         'form': form, 'sede': sede, 'medicamento': medicamento, 'inventario': inventario,
