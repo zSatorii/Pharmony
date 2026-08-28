@@ -1,634 +1,1262 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pharmony — Registro</title>
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bmi:#1a5fd4;
-  --bl:#3b82f6;--bs:#93c5fd;--bp:#dbeafe;
-  --w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;
-  --g300:#cbd5e1;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;
-  --grn:#22c55e;--grnp:#f0fdf4;--grnb:#bbf7d0;
-  --red:#ef4444;--redp:#fef2f2;
-  --amb:#f59e0b;--ambp:#fffbeb;
-}
-html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--g100);overflow:hidden;}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmony — Registro de Cuenta</title>
+    <meta name="description" content="Crea tu cuenta en Pharmony para gestionar recetas, verificar disponibilidad de medicamentos y agilizar turnos de farmacia.">
 
-.page{display:grid;grid-template-columns:1fr 500px;height:100vh;}
+    <!-- Tipografía Google Fonts moderna -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-.left{
-  position:relative;
-  background:linear-gradient(150deg,var(--bdk) 0%,var(--bm) 55%,var(--bmi) 100%);
-  display:flex;flex-direction:column;justify-content:space-between;
-  padding:44px 50px;overflow:hidden;
-}
-.shapes{position:absolute;inset:0;pointer-events:none;z-index:0;}
-.shapes svg{width:100%;height:100%;}
-@keyframes s1{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-18px) rotate(5deg);}}
-@keyframes s2{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-14px) rotate(-6deg);}}
-@keyframes s3{0%,100%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(4deg);}}
-.left-top,.left-bottom{position:relative;z-index:5;}
-.logo{display:flex;align-items:center;gap:12px;}
-.logo-mark{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;}
-.logo-name{font-family:'Quicksand',sans-serif;font-size:24px;font-weight:300;letter-spacing:3px;color:#fff;}
-.hero-text{padding-top:60px;}
-.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:22px;}
-.hero-tag span{width:6px;height:6px;border-radius:50%;background:var(--bs);display:inline-block;}
-.hero-h1{font-size:40px;font-weight:500;color:#fff;line-height:1.15;letter-spacing:-0.5px;margin-bottom:14px;}
-.hero-h1 em{font-style:normal;color:var(--bs);}
-.hero-sub{font-size:15px;color:rgba(255,255,255,0.55);line-height:1.65;max-width:380px;margin-bottom:34px;}
-.features{display:flex;flex-wrap:wrap;gap:10px;}
-.feat{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:8px 14px;font-size:13px;color:rgba(255,255,255,0.75);}
-.feat svg{flex-shrink:0;opacity:.8;}
-.left-bottom{padding-top:30px;border-top:1px solid rgba(255,255,255,0.1);}
-.quote-text{font-size:13px;color:rgba(255,255,255,0.45);line-height:1.6;font-style:italic;margin-bottom:12px;}
-.quote-author{display:flex;align-items:center;gap:10px;}
-.q-avatar{width:30px;height:30px;border-radius:50%;background:var(--bl);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
-.q-name{font-size:12.5px;font-weight:500;color:rgba(255,255,255,0.7);}
-.q-role{font-size:11px;color:rgba(255,255,255,0.35);}
+    <!-- Librerías Vía CDN -->
+    <!-- 1. Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- 2. Motion One -->
+    <script src="https://cdn.jsdelivr.net/npm/motion@latest/dist/motion.js"></script>
 
-.right{background:var(--w);display:flex;flex-direction:column;border-left:1px solid var(--g200);overflow:hidden;}
+    <style>
+        /* ── RESET & TOKENS DE DISEÑO ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.step-bar{
-  padding:18px 40px 0;flex-shrink:0;
-  border-bottom:1px solid var(--g200);
-  background:var(--g50);
-}
-.step-bar-inner{display:flex;align-items:center;justify-content:center;padding-bottom:16px;gap:0;}
-.step-item{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;color:var(--g300);}
-.step-item.active{color:var(--bm);}
-.step-item.done{color:var(--grn);}
-.step-num{width:26px;height:26px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;transition:all .3s;}
-.step-item.active .step-num{background:var(--bm);border-color:var(--bm);color:#fff;}
-.step-item.done .step-num{background:var(--grn);border-color:var(--grn);color:#fff;}
-.step-line{width:60px;height:1.5px;background:var(--g200);margin:0 6px;flex-shrink:0;transition:background .3s;}
-.step-line.done{background:var(--grn);}
+        :root {
+            /* Azules médicos vibrantes y luminosos de Pharmony */
+            --brand-dark: #062272;
+            --brand-deep: #0a3a8c;
+            --brand-navy: #0d47c9;
+            --brand-main: #1a5fd4;
+            --brand-mid: #2563eb;
+            --brand-electric: #3b82f6;
+            --brand-light: #60a5fa;
+            --brand-cyan: #0ea5e9;
+            --brand-soft: #93c5fd;
+            --brand-pale: #e0f2fe;
 
-.right-scroll{flex:1;overflow-y:auto;padding:28px 40px 32px;}
-.right-scroll::-webkit-scrollbar{width:4px;}
-.right-scroll::-webkit-scrollbar-thumb{background:var(--g200);border-radius:2px;}
+            /* Superficies & Grises */
+            --white: #ffffff;
+            --surface-0: #f8fafc;
+            --surface-1: #f1f5f9;
+            --surface-2: #e2e8f0;
+            --surface-3: #cbd5e1;
+            --text-muted: #64748b;
+            --text-main: #1e293b;
+            --text-heading: #0f172a;
 
-.step-panel{display:none;}
-.step-panel.active{display:block;}
+            /* Acentos Médicos */
+            --emerald: #10b981;
+            --emerald-pale: #ecfdf5;
+            --emerald-border: #a7f3d0;
+            --rose: #ef4444;
+            --rose-pale: #fef2f2;
+            --rose-border: #fecaca;
+            --amber: #f59e0b;
+            --amber-pale: #fffbeb;
+            --amber-border: #fde68a;
 
-.panel-title{font-size:18px;font-weight:500;color:var(--g800);margin-bottom:3px;}
-.panel-sub{font-size:13px;color:var(--g400);margin-bottom:22px;line-height:1.5;}
+            /* Redondeo & Sombras */
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-xl: 24px;
+            --radius-pill: 9999px;
+            --shadow-card: 0 4px 20px rgba(13, 71, 201, 0.08), 0 1px 4px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 12px 32px rgba(13, 71, 201, 0.16);
+        }
 
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
-.field{margin-bottom:14px;}
-.field label{display:block;font-size:12.5px;font-weight:500;color:var(--g600);margin-bottom:5px;}
-.field input,.field select{
-  width:100%;height:44px;border:1.5px solid var(--g200);border-radius:11px;
-  padding:0 13px;font-size:14px;font-family:'DM Sans',sans-serif;
-  color:var(--g800);background:var(--g50);outline:none;
-  transition:border-color .15s,box-shadow .15s,background .15s;
-}
-.field input:focus,.field select:focus{border-color:var(--bl);box-shadow:0 0 0 3px rgba(59,130,246,0.1);background:var(--w);}
-.field input::placeholder{color:var(--g300);}
-.field select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
-.pw-wrap{position:relative;}
-.pw-toggle{position:absolute;right:13px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--g400);font-size:16px;padding:0;line-height:1;}
+        html, body {
+            height: 100%;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--surface-1);
+            color: var(--text-main);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
 
-.err-msg{font-size:12.5px;color:var(--red);min-height:18px;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+        .page {
+            display: grid;
+            grid-template-columns: 1.1fr 520px;
+            min-height: 100vh;
+        }
 
-.btn-row{display:flex;gap:10px;margin-top:4px;}
-.btn-next{
-  flex:1;height:46px;background:var(--bm);color:#fff;border:none;border-radius:11px;
-  font-size:14.5px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:7px;
-  box-shadow:0 4px 14px rgba(13,71,201,0.25);transition:background .15s,transform .1s;
-}
-.btn-next:hover{background:#1e40af;}
-.btn-next:active{transform:scale(0.99);}
-.btn-back{
-  height:46px;padding:0 20px;background:var(--w);color:var(--g600);
-  border:1.5px solid var(--g200);border-radius:11px;
-  font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;
-  transition:background .15s;
-}
-.btn-back:hover{background:var(--g100);}
+        /* ── LEFT HERO BRANDING ── */
+        .left {
+            position: relative;
+            background: linear-gradient(145deg, var(--brand-deep) 0%, var(--brand-navy) 45%, var(--brand-main) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 56px;
+            overflow: hidden;
+            color: var(--white);
+        }
 
-.optional-banner{
-  display:flex;align-items:center;gap:10px;
-  background:var(--ambp);border:1px solid #fde68a;border-radius:11px;
-  padding:11px 14px;margin-bottom:20px;
-}
-.optional-banner svg{flex-shrink:0;color:var(--amb);}
-.optional-banner p{font-size:13px;color:#92400e;line-height:1.45;}
-.optional-banner strong{font-weight:600;}
+        .shapes {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .shapes svg { width: 100%; height: 100%; }
 
-.cam-area{
-  position:relative;border-radius:14px;overflow:hidden;
-  background:#0f172a;border:2px solid var(--g200);
-  margin-bottom:16px;
-  aspect-ratio:4/3;
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:12px;
-}
-#videoEl{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none;}
-.cam-idle{display:flex;flex-direction:column;align-items:center;gap:10px;position:relative;z-index:2;}
-.cam-idle-icon{font-size:48px;opacity:.6;}
-.cam-idle-text{font-size:13px;color:rgba(255,255,255,0.5);text-align:center;}
+        @keyframes s1 { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-18px) rotate(5deg); } }
+        @keyframes s2 { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-14px) rotate(-6deg); } }
+        @keyframes s3 { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-20px) rotate(4deg); } }
 
-.face-frame{
-  position:absolute;inset:0;z-index:3;display:none;
-  align-items:center;justify-content:center;
-}
-.face-frame.visible{display:flex;}
-.face-oval{
-  width:160px;height:200px;border-radius:50%;
-  border:2.5px solid rgba(255,255,255,0.5);
-  position:relative;
-  box-shadow:0 0 0 2000px rgba(0,0,0,0.35);
-}
+        .left-top, .left-bottom, .hero-text {
+            position: relative;
+            z-index: 5;
+        }
 
-.face-oval::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
-.face-oval::after{content:'';position:absolute;bottom:-3px;left:50%;transform:translateX(-50%);width:40px;height:3px;background:var(--bs);border-radius:2px;}
-.scan-line{
-  position:absolute;left:10%;right:10%;height:2px;
-  background:linear-gradient(90deg,transparent,var(--bs),transparent);
-  border-radius:2px;
-  animation:scanDown 2.2s ease-in-out infinite;
-}
-@keyframes scanDown{0%{top:10%;}100%{top:88%;}}
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
 
-.cam-status{
-  text-align:center;font-size:13px;color:var(--g600);
-  line-height:1.5;min-height:20px;margin-bottom:10px;
-  animation:fadePulse 1.5s ease-in-out infinite;
-}
-@keyframes fadePulse{0%,100%{opacity:1;}50%{opacity:.4;}}
-.cam-status.static{animation:none;}
+        .logo-mark {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--brand-electric) 0%, var(--brand-cyan) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            flex-shrink: 0;
+        }
 
-.cam-controls{display:flex;gap:10px;}
-.btn-cam{
-  flex:1;height:42px;border-radius:11px;
-  font-size:13.5px;font-weight:500;font-family:'DM Sans',sans-serif;
-  cursor:pointer;transition:all .15s;
-  display:flex;align-items:center;justify-content:center;gap:7px;
-}
-.btn-cam.primary{background:var(--bm);color:#fff;border:none;box-shadow:0 3px 12px rgba(13,71,201,0.25);}
-.btn-cam.primary:hover{background:#1e40af;}
-.btn-cam.ghost{background:var(--w);color:var(--g600);border:1.5px solid var(--g200);}
-.btn-cam.ghost:hover{background:var(--g100);}
-.btn-cam:disabled{opacity:.45;cursor:not-allowed;}
+        .logo-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            color: var(--white);
+            line-height: 1;
+        }
 
-.face-success{
-  display:none;flex-direction:column;align-items:center;
-  gap:12px;padding:24px 0 16px;text-align:center;
-}
-.face-success.visible{display:flex;}
-.ok-circle{width:70px;height:70px;border-radius:50%;background:var(--grnp);border:2px solid var(--grnb);display:flex;align-items:center;justify-content:center;font-size:28px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);}
-@keyframes pop{from{transform:scale(.4);opacity:0;}to{transform:scale(1);opacity:1;}}
-.ok-label{font-size:15px;font-weight:500;color:var(--g800);}
-.ok-sub{font-size:13px;color:var(--g400);}
+        .hero-text {
+            margin-top: auto;
+            padding-top: 40px;
+            padding-bottom: 20px;
+        }
 
-.skip-link{display:flex;justify-content:center;margin-top:10px;}
-.skip-link a{font-size:12.5px;color:var(--g400);cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
-.skip-link a:hover{color:var(--g600);}
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: var(--radius-pill);
+            padding: 6px 14px;
+            font-size: 11.5px;
+            color: var(--brand-pale);
+            font-weight: 600;
+            margin-bottom: 18px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
 
-.confirm-success{display:flex;flex-direction:column;align-items:center;text-align:center;padding:20px 0;}
-.confirm-icon{font-size:68px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);margin-bottom:14px;}
-.confirm-success h2{font-size:22px;font-weight:500;color:var(--g800);margin-bottom:8px;}
-.confirm-success p{font-size:14px;color:var(--g400);line-height:1.65;margin-bottom:28px;max-width:300px;}
+        .hero-h1 {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--white);
+            line-height: 1.18;
+            letter-spacing: -0.5px;
+            margin-bottom: 16px;
+        }
 
-.login-link{text-align:center;font-size:13px;color:var(--g400);margin-top:18px;}
-.login-link a{color:var(--bm);font-weight:500;text-decoration:none;}
-.login-link a:hover{text-decoration:underline;}
+        .hero-h1 em {
+            font-style: normal;
+            color: var(--brand-cyan);
+        }
 
-.right-footer{padding:12px 40px;border-top:1px solid var(--g100);display:flex;align-items:center;justify-content:center;gap:6px;flex-shrink:0;background:var(--g50);}
-.right-footer svg{opacity:.35;}
-.right-footer span{font-size:11.5px;color:var(--g300);}
-</style>
+        .hero-sub {
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            max-width: 440px;
+            margin-bottom: 32px;
+        }
+
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .feat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: var(--radius-pill);
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            backdrop-filter: blur(8px);
+        }
+
+        .left-bottom {
+            padding-top: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .quote-text {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.75);
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .quote-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .q-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-electric) 0%, var(--brand-cyan) 100%);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .q-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+        }
+
+        .q-role {
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ── RIGHT REGISTER WIZARD ── */
+        .right {
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid var(--surface-2);
+            overflow: hidden;
+        }
+
+        /* Step Bar */
+        .step-bar {
+            padding: 24px 36px 0;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--surface-2);
+            background: var(--surface-0);
+        }
+
+        .step-bar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 18px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .step-item.active { color: var(--brand-main); }
+        .step-item.done { color: var(--emerald); }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+            transition: all 0.25s ease;
+        }
+
+        .step-item.active .step-num {
+            background: var(--brand-main);
+            border-color: var(--brand-main);
+            color: var(--white);
+            box-shadow: 0 2px 8px rgba(13, 71, 201, 0.25);
+        }
+
+        .step-item.done .step-num {
+            background: var(--emerald);
+            border-color: var(--emerald);
+            color: var(--white);
+        }
+
+        .step-line {
+            width: 50px;
+            height: 2px;
+            background: var(--surface-2);
+            margin: 0 8px;
+            flex-shrink: 0;
+            transition: background 0.3s;
+        }
+
+        .step-line.done { background: var(--emerald); }
+
+        .right-scroll {
+            flex: 1;
+            overflow-y: auto;
+            padding: 32px 40px 36px;
+        }
+
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+
+        .panel-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .panel-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .field {
+            margin-bottom: 15px;
+        }
+
+        .field label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            margin-bottom: 6px;
+        }
+
+        .field input, .field select {
+            width: 100%;
+            height: 46px;
+            border: 1.5px solid var(--surface-2);
+            border-radius: var(--radius-md);
+            padding: 0 14px;
+            font-size: 13.5px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-heading);
+            background: var(--surface-0);
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .field input:focus, .field select:focus {
+            border-color: var(--brand-electric);
+            box-shadow: 0 0 0 3.5px rgba(37, 99, 235, 0.15);
+            background: var(--white);
+        }
+
+        .field input::placeholder { color: var(--surface-3); }
+
+        .pw-wrap {
+            position: relative;
+        }
+
+        .pw-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .err-msg {
+            font-size: 12.5px;
+            color: var(--rose);
+            min-height: 18px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-next {
+            flex: 1;
+            height: 48px;
+            background: linear-gradient(135deg, var(--brand-deep) 0%, var(--brand-navy) 50%, var(--brand-main) 100%);
+            color: var(--white);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 14.5px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 16px rgba(13, 71, 201, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 71, 201, 0.4);
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-main) 50%, var(--brand-mid) 100%);
+        }
+
+        .btn-back {
+            height: 48px;
+            padding: 0 20px;
+            background: var(--white);
+            color: var(--text-main);
+            border: 1.5px solid var(--surface-2);
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-back:hover { background: var(--surface-0); border-color: var(--surface-3); }
+
+        .optional-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--amber-pale);
+            border: 1px solid var(--amber-border);
+            border-radius: var(--radius-md);
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            color: #92400e;
+            font-size: 12.5px;
+            line-height: 1.45;
+        }
+
+        .cam-area {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: #030d22;
+            border: 2px solid var(--brand-soft);
+            margin-bottom: 16px;
+            aspect-ratio: 4/3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            box-shadow: 0 8px 24px rgba(3, 13, 34, 0.25);
+        }
+
+        #videoEl {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .cam-idle {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .face-frame {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .face-frame.visible { display: flex; }
+
+        .face-oval {
+            width: 160px;
+            height: 200px;
+            border-radius: 50%;
+            border: 2.5px solid rgba(255, 255, 255, 0.6);
+            position: relative;
+            box-shadow: 0 0 0 2000px rgba(0, 0, 0, 0.45);
+        }
+
+        .scan-line {
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            height: 2.5px;
+            background: linear-gradient(90deg, transparent, var(--brand-cyan), transparent);
+            border-radius: 2px;
+            box-shadow: 0 0 10px var(--brand-cyan);
+            animation: scanDown 2.2s ease-in-out infinite;
+        }
+
+        @keyframes scanDown { 0% { top: 10%; } 100% { top: 88%; } }
+
+        .cam-status {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+            min-height: 20px;
+            margin-bottom: 12px;
+        }
+
+        /* Alerta de Error en Vivo de Registro Facial */
+        .reg-live-err {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: var(--rose-pale);
+            color: #991b1b;
+            border: 1px solid var(--rose-border);
+            border-radius: var(--radius-md);
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            line-height: 1.4;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.1);
+        }
+
+        .cam-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-cam {
+            flex: 1;
+            height: 44px;
+            border-radius: var(--radius-md);
+            font-size: 13.5px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        .btn-cam.primary {
+            background: var(--brand-main);
+            color: var(--white);
+            border: none;
+            box-shadow: 0 4px 12px rgba(13, 71, 201, 0.25);
+        }
+
+        .btn-cam.primary:hover { background: var(--brand-navy); }
+
+        .btn-cam.ghost {
+            background: var(--white);
+            color: var(--text-main);
+            border: 1.5px solid var(--surface-2);
+        }
+
+        .btn-cam.ghost:hover { background: var(--surface-0); }
+        .btn-cam:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .face-success {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            padding: 24px 0 16px;
+            text-align: center;
+        }
+
+        .face-success.visible { display: flex; }
+
+        .ok-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: var(--emerald-pale);
+            border: 2px solid var(--emerald-border);
+            color: var(--emerald);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .skip-link {
+            display: flex;
+            justify-content: center;
+            margin-top: 14px;
+        }
+
+        .skip-link a {
+            font-size: 12.5px;
+            color: var(--text-muted);
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+            font-weight: 600;
+        }
+
+        .skip-link a:hover { color: var(--brand-main); }
+
+        .confirm-success {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .confirm-success h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-heading);
+            margin-bottom: 8px;
+        }
+
+        .confirm-success p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+            max-width: 340px;
+        }
+
+        .login-link {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 18px;
+        }
+
+        .login-link a { color: var(--brand-main); font-weight: 700; text-decoration: none; }
+        .login-link a:hover { text-decoration: underline; }
+
+        .right-footer {
+            padding: 14px 40px;
+            border-top: 1px solid var(--surface-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            flex-shrink: 0;
+            background: var(--surface-0);
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 960px) {
+            .page { grid-template-columns: 1fr; }
+            .left { display: none; }
+            .right-scroll { padding: 24px 20px; }
+            .row2 { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
+
 <div class="page">
-
-  <div class="left">
-    <div class="shapes">
-      <svg viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="g1" cx="40%" cy="30%" r="65%"><stop offset="0%" stop-color="#5ba8ff"/><stop offset="55%" stop-color="#1a5fd4"/><stop offset="100%" stop-color="#062272"/></radialGradient>
-          <radialGradient id="g2" cx="35%" cy="28%" r="60%"><stop offset="0%" stop-color="#7ac0ff"/><stop offset="50%" stop-color="#1d4ed8"/><stop offset="100%" stop-color="#051e7a"/></radialGradient>
-          <radialGradient id="g3" cx="45%" cy="32%" r="70%"><stop offset="0%" stop-color="#93c5fd"/><stop offset="45%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1e3a8a"/></radialGradient>
-        </defs>
-        <g opacity=".88" style="animation:s1 8s ease-in-out infinite;transform-origin:520px 60px">
-          <path d="M520 -30 C580 20 620 90 590 160 C560 225 490 245 430 215 C375 185 360 115 400 70" stroke="url(#g1)" stroke-width="48" fill="none" stroke-linecap="round"/>
-        </g>
-        <g opacity=".2" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
-          <path d="M20 310 C75 272 165 268 200 302 C232 332 216 388 170 400 C130 410 68 384 52 348" stroke="url(#g2)" stroke-width="42" fill="none" stroke-linecap="round"/>
-          <path d="M45 420 C94 388 168 387 198 416 C224 442 210 488 176 498 C144 507 98 484 82 452" stroke="url(#g1)" stroke-width="35" fill="none" stroke-linecap="round"/>
-        </g>
-        <g opacity=".55" style="animation:s3 9s ease-in-out infinite 2.5s;transform-origin:740px 230px">
-          <path d="M700 140 C760 100 820 118 826 162 C832 200 798 230 762 220" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
-        </g>
-        <g opacity=".25" style="animation:s1 11s ease-in-out infinite 4s;transform-origin:120px 680px">
-          <path d="M50 630 C120 598 190 612 200 652 C210 688 164 716 124 706 C84 696 62 666 82 634 C102 602 158 592 196 608" stroke="url(#g3)" stroke-width="38" fill="none" stroke-linecap="round"/>
-        </g>
-        <g opacity=".12" style="animation:s2 12s ease-in-out infinite 3s;">
-          <ellipse cx="720" cy="750" rx="150" ry="65" fill="url(#g1)" transform="rotate(-10 720 750)"/>
-        </g>
-      </svg>
-    </div>
-
-    <div class="left-top">
-      <a href="{% url 'home:home' %}" class="logo" style="text-decoration:none;">
-        <div class="logo-mark">
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"><path d="M11 2C7.5 2 4.5 5 4.5 8.5c0 4.5 6.5 11.5 6.5 11.5s6.5-7 6.5-11.5C17.5 5 14.5 2 11 2z" stroke="white" stroke-width="1.8" fill="none"/><circle cx="11" cy="8.5" r="2.5" stroke="white" stroke-width="1.6" fill="none"/></svg>
-        </div>
-        <span class="logo-name">Pharmony</span>
-      </a>
-    </div>
-
-    <div class="hero-text">
-      <div class="hero-tag"><span></span>Nuevo acceso</div>
-      <h1 class="hero-h1">Únete a la red<br>de <em>farmacias</em><br>inteligentes</h1>
-      <p class="hero-sub">Crea tu cuenta como farmacéutico y accede a todas las herramientas de gestión de inventario en minutos.</p>
-      <div class="features">
-        <div class="feat">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="3" width="10" height="9" rx="1" stroke="rgba(255,255,255,.75)" stroke-width="1.4" fill="none"/><path d="M4 3V2.5a3 3 0 0 1 6 0V3" stroke="rgba(255,255,255,.75)" stroke-width="1.4" stroke-linecap="round"/><path d="M4 7h6M7 5.5v3" stroke="rgba(255,255,255,.75)" stroke-width="1.4" stroke-linecap="round"/></svg>
-          Control de inventario
-        </div>
-        <div class="feat">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1C3.69 1 1 3.69 1 7s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6z" stroke="rgba(255,255,255,.75)" stroke-width="1.4" fill="none"/><path d="M4.5 7l1.8 1.8 3.2-3.2" stroke="rgba(255,255,255,.75)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Face ID opcional
-        </div>
-        <div class="feat">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 10l3-4 3 3 3-5 2 3" stroke="rgba(255,255,255,.75)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-          Reportes en tiempo real
-        </div>
-      </div>
-    </div>
-
-    <div class="left-bottom">
-      <p class="quote-text">"El registro fue muy sencillo y el Face ID me da mucha más seguridad al acceder al sistema."</p>
-      <div class="quote-author">
-        <div class="q-avatar">CP</div>
-        <div>
-          <div class="q-name">Carlos Pineda</div>
-          <div class="q-role">Farmacéutico · Medellín</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="right">
-
-    <div class="step-bar">
-      <div class="step-bar-inner">
-        <div class="step-item active" id="si1">
-          <div class="step-num" id="sn1">1</div>
-          <span>Datos personales</span>
-        </div>
-        <div class="step-line" id="sl1"></div>
-        <div class="step-item" id="si2">
-          <div class="step-num" id="sn2">2</div>
-          <span>Face ID <span style="font-size:10.5px;opacity:.6;">(opcional)</span></span>
-        </div>
-        <div class="step-line" id="sl2"></div>
-        <div class="step-item" id="si3">
-          <div class="step-num" id="sn3">3</div>
-          <span>Confirmar</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="right-scroll">
-      {% csrf_token %}
-
-      <div class="step-panel active" id="panel1">
-        <div class="panel-title">Información personal</div>
-        <div class="panel-sub">Completa tus datos para crear tu cuenta.</div>
-
-        <div class="row2">
-          <div class="field"><label>Nombre *</label><input type="text" id="p1_nombre" placeholder="Juan"></div>
-          <div class="field"><label>Apellido *</label><input type="text" id="p1_apellido" placeholder="Pérez"></div>
+    <!-- ── LEFT HERO BRANDING ── -->
+    <div class="left">
+        <div class="shapes">
+            <svg viewBox="0 0 800 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="g1" cx="40%" cy="30%" r="65%">
+                        <stop offset="0%" stop-color="#7ac0ff"/>
+                        <stop offset="55%" stop-color="#1a5fd4"/>
+                        <stop offset="100%" stop-color="#062272"/>
+                    </radialGradient>
+                    <radialGradient id="g2" cx="35%" cy="28%" r="60%">
+                        <stop offset="0%" stop-color="#93c5fd"/>
+                        <stop offset="50%" stop-color="#2563eb"/>
+                        <stop offset="100%" stop-color="#0a3a8c"/>
+                    </radialGradient>
+                    <radialGradient id="g3" cx="45%" cy="32%" r="70%">
+                        <stop offset="0%" stop-color="#bfdbfe"/>
+                        <stop offset="45%" stop-color="#3b82f6"/>
+                        <stop offset="100%" stop-color="#1e40af"/>
+                    </radialGradient>
+                </defs>
+                <g opacity=".9" style="animation:s1 8s ease-in-out infinite;transform-origin:520px 60px">
+                    <path d="M520 -30 C580 20 620 90 590 160 C560 225 490 245 430 215 C375 185 360 115 400 70" stroke="url(#g1)" stroke-width="48" fill="none" stroke-linecap="round"/>
+                </g>
+                <g opacity=".25" style="animation:s2 10s ease-in-out infinite 1.2s;transform-origin:80px 370px">
+                    <path d="M20 310 C75 272 165 268 200 302 C232 332 216 388 170 400 C130 410 68 384 52 348" stroke="url(#g2)" stroke-width="42" fill="none" stroke-linecap="round"/>
+                    <path d="M45 420 C94 388 168 387 198 416 C224 442 210 488 176 498 C144 507 98 484 82 452" stroke="url(#g1)" stroke-width="35" fill="none" stroke-linecap="round"/>
+                </g>
+                <g opacity=".18" style="animation:s3 9s ease-in-out infinite 2.5s;transform-origin:740px 230px">
+                    <path d="M700 140 C760 100 820 118 826 162 C832 200 798 230 762 220" stroke="url(#g2)" stroke-width="36" fill="none" stroke-linecap="round"/>
+                </g>
+                <g opacity=".35" style="animation:s1 11s ease-in-out infinite 4s;transform-origin:120px 680px">
+                    <path d="M50 630 C120 598 190 612 200 652 C210 688 164 716 124 706 C84 696 62 666 82 634 C102 602 158 592 196 608" stroke="url(#g3)" stroke-width="38" fill="none" stroke-linecap="round"/>
+                </g>
+            </svg>
         </div>
 
-        <div class="field"><label>Correo electrónico *</label><input type="email" id="p1_email" placeholder="correo@farmacia.co" autocomplete="email"></div>
+        <div class="left-top">
+            <a href="{% url 'home:home' %}" class="logo">
+                <div class="logo-mark">
+                    <i data-lucide="shield-plus" style="width: 24px; height: 24px;"></i>
+                </div>
+                <span class="logo-name">Pharmony</span>
+            </a>
+        </div>
 
-        <div class="field"><label>Teléfono</label><input type="tel" id="p1_tel" placeholder="+57 300 000 0000"></div>
-
-        <div class="row2">
-          <div class="field"><label>Contraseña *</label>
-            <div class="pw-wrap">
-              <input type="password" id="p1_pw" placeholder="Mín. 8 caracteres, mayúscula, número y símbolo">
-              <button class="pw-toggle" onclick="tpw('p1_pw',this)" tabindex="-1">👁</button>
+        <div class="hero-text">
+            <div class="hero-tag">
+                <i data-lucide="user-plus" style="width: 13px; height: 13px;"></i>
+                Registro de Paciente & Usuario
             </div>
-          </div>
-          <div class="field"><label>Confirmar contraseña *</label>
-            <div class="pw-wrap">
-              <input type="password" id="p1_pw2" placeholder="Repite la contraseña">
-              <button class="pw-toggle" onclick="tpw('p1_pw2',this)" tabindex="-1">👁</button>
+            <h1 class="hero-h1">Únete a la red<br>de <em>salud digital</em><br>más conectada</h1>
+            <p class="hero-sub">Crea tu cuenta personal en minutos para consultar medicamentos en tiempo real, radicar peticiones y solicitar turnos presenciales.</p>
+            
+            <div class="features">
+                <div class="feat">
+                    <i data-lucide="heart-pulse" style="width: 15px; height: 15px; color: var(--brand-cyan);"></i>
+                    Historial de Tratamientos
+                </div>
+                <div class="feat">
+                    <i data-lucide="scan-face" style="width: 15px; height: 15px; color: var(--brand-cyan);"></i>
+                    Face ID Opcional
+                </div>
+                <div class="feat">
+                    <i data-lucide="shield-check" style="width: 15px; height: 15px; color: var(--brand-cyan);"></i>
+                    Sincronización EPS
+                </div>
             </div>
-          </div>
         </div>
 
-        <div class="err-msg" id="err1"></div>
-        <div class="btn-row">
-          <button class="btn-next" onclick="goStep2()">
-            Continuar
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-        <p class="login-link" style="margin-top:16px;">¿Ya tienes cuenta? <a href="{% url 'login' %}">Iniciar sesión</a></p>
-      </div>
-
-      <div class="step-panel" id="panel2">
-        <div class="panel-title">Face ID <span style="font-size:14px;font-weight:400;color:var(--g400);">— Opcional</span></div>
-        <div class="panel-sub">Activa el acceso biométrico por cámara para iniciar sesión más rápido y con mayor seguridad.</div>
-
-        <div class="optional-banner">
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="#f59e0b" stroke-width="1.5" fill="none"/><path d="M9 5.5v4M9 11.5v.5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <p>Este paso es <strong>completamente opcional</strong>. Puedes activar Face ID ahora o configurarlo después desde tu perfil. Tu cámara se usará solo para registrar tu rostro de forma segura.</p>
-        </div>
-
-        
-        <div class="cam-area" id="camArea">
-          <video id="videoEl" autoplay playsinline></video>
-          <div class="cam-idle" id="camIdle">
-            <div class="cam-idle-icon">📷</div>
-            <div class="cam-idle-text">Haz clic en "Activar cámara"<br>para comenzar el registro de Face ID</div>
-          </div>
-          
-          <div class="face-frame" id="faceFrame">
-            <div class="face-oval">
-              <div class="scan-line" id="scanLine"></div>
+        <div class="left-bottom">
+            <p class="quote-text">"El registro fue inmediato. Con el escáner de fórmulas pude ver qué farmacia tenía mi tratamiento sin salir de casa."</p>
+            <div class="quote-author">
+                <div class="q-avatar">CP</div>
+                <div>
+                    <div class="q-name">Carlos Pineda</div>
+                    <div class="q-role">Usuario Registrado &middot; Medellín</div>
+                </div>
             </div>
-          </div>
         </div>
-
-        
-        <div class="cam-status static" id="camStatus">Cámara inactiva</div>
-
-        
-        <div class="cam-controls" id="camControls">
-          <button class="btn-cam primary" id="btnActivate" onclick="activateCam()">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="8" rx="1.5" stroke="white" stroke-width="1.4" fill="none"/><path d="M10 5.5l3-2v7l-3-2V5.5z" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-            Activar cámara
-          </button>
-          <button class="btn-cam ghost" id="btnCapture" onclick="captureface()" disabled>
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="7" cy="7" r="2.5" fill="currentColor" opacity=".4"/></svg>
-            Capturar
-          </button>
-        </div>
-
-        
-        <div class="face-success" id="faceSuccess">
-          <div class="ok-circle">😊</div>
-          <div class="ok-label">Face ID registrado correctamente</div>
-          <div class="ok-sub">Tu rostro ha sido guardado de forma segura y encriptada.</div>
-        </div>
-
-        <div class="err-msg" id="err2"></div>
-
-        <div class="btn-row" style="margin-top:8px;">
-          <button class="btn-back" onclick="goStep1()">← Volver</button>
-          <button class="btn-next" id="btnStep2Next" onclick="goStep3()">
-            Continuar
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
-        </div>
-
-        <div class="skip-link">
-          <a onclick="skipFace()">Omitir este paso y configurar después →</a>
-        </div>
-      </div>
-
-      <div class="step-panel" id="panel3">
-        <div class="confirm-success">
-          <div class="confirm-icon">🎉</div>
-          <h2>¡Registro completado!</h2>
-          <p id="confirmMsg">Tu cuenta ha sido creada exitosamente con Face ID activado. Ya puedes acceder al panel farmacéutico de Pharmony.</p>
-          <button class="btn-next" style="width:100%;max-width:320px;" onclick="window.location.href='/login/'">
-            <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M6 2.5H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h3M10 11l3.5-3.5L10 4M13.5 7.5H5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Ir al panel
-          </button>
-        </div>
-
-        
-        <div style="background:var(--g50);border:1px solid var(--g200);border-radius:13px;padding:16px 20px;margin-top:16px;">
-          <div style="font-size:12.5px;font-weight:500;color:var(--g400);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Resumen de tu cuenta</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-            <div><div style="font-size:11px;color:var(--g400);margin-bottom:2px;">Nombre</div><div style="font-size:13.5px;font-weight:500;color:var(--g800);" id="sumName">—</div></div>
-            <div><div style="font-size:11px;color:var(--g400);margin-bottom:2px;">Correo</div><div style="font-size:13.5px;font-weight:500;color:var(--g800);" id="sumEmail">—</div></div>
-            <div><div style="font-size:11px;color:var(--g400);margin-bottom:2px;">Teléfono</div><div style="font-size:13.5px;font-weight:500;color:var(--g800);" id="sumTel">—</div></div>
-            <div><div style="font-size:11px;color:var(--g400);margin-bottom:2px;">Face ID</div><div id="sumFace" style="font-size:13.5px;font-weight:500;"></div></div>
-          </div>
-        </div>
-      </div>
-
     </div>
 
-    <div class="right-footer">
-      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="5.5" width="11" height="7" rx="1" stroke="#94a3b8" stroke-width="1.3" fill="none"/><path d="M3.5 5.5V3.5a3 3 0 0 1 6 0v2" stroke="#94a3b8" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>
-      <span>Conexión segura · Pharmony 2026</span>
+    <!-- ── RIGHT REGISTER WIZARD ── -->
+    <div class="right">
+        <!-- Barra de Pasos -->
+        <div class="step-bar">
+            <div class="step-bar-inner">
+                <div class="step-item active" id="si1">
+                    <div class="step-num" id="sn1">1</div>
+                    <span>Datos Personales</span>
+                </div>
+                <div class="step-line" id="sl1"></div>
+                <div class="step-item" id="si2">
+                    <div class="step-num" id="sn2">2</div>
+                    <span>Face ID <span style="font-size:11px;opacity:.7;">(Opcional)</span></span>
+                </div>
+                <div class="step-line" id="sl2"></div>
+                <div class="step-item" id="si3">
+                    <div class="step-num" id="sn3">3</div>
+                    <span>Confirmación</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-scroll">
+            {% csrf_token %}
+
+            <!-- PASO 1: DATOS PERSONALES -->
+            <div class="step-panel active" id="panel1">
+                <div class="panel-title">Información Personal</div>
+                <div class="panel-sub">Completa los campos obligatorios para crear tu cuenta de usuario.</div>
+
+                <div class="row2">
+                    <div class="field">
+                        <label for="p1_nombre">
+                            <i data-lucide="user" style="width: 12px; height: 12px;"></i>
+                            Nombre *
+                        </label>
+                        <input type="text" id="p1_nombre" placeholder="Ej: Juan" required>
+                    </div>
+                    <div class="field">
+                        <label for="p1_apellido">
+                            <i data-lucide="user" style="width: 12px; height: 12px;"></i>
+                            Apellido *
+                        </label>
+                        <input type="text" id="p1_apellido" placeholder="Ej: Pérez" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="p1_email">
+                        <i data-lucide="mail" style="width: 12px; height: 12px;"></i>
+                        Correo Electrónico *
+                    </label>
+                    <input type="email" id="p1_email" placeholder="correo@ejemplo.com" autocomplete="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="p1_tel">
+                        <i data-lucide="phone" style="width: 12px; height: 12px;"></i>
+                        Teléfono / Celular
+                    </label>
+                    <input type="tel" id="p1_tel" placeholder="+57 300 123 4567">
+                </div>
+
+                <div class="row2">
+                    <div class="field">
+                        <label for="p1_pw">
+                            <i data-lucide="lock" style="width: 12px; height: 12px;"></i>
+                            Contraseña *
+                        </label>
+                        <div class="pw-wrap">
+                            <input type="password" id="p1_pw" placeholder="Mín. 8 caracteres">
+                            <button type="button" class="pw-toggle" onclick="tpw('p1_pw', this)" tabindex="-1">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="p1_pw2">
+                            <i data-lucide="lock" style="width: 12px; height: 12px;"></i>
+                            Confirmar Contraseña *
+                        </label>
+                        <div class="pw-wrap">
+                            <input type="password" id="p1_pw2" placeholder="Repite tu contraseña">
+                            <button type="button" class="pw-toggle" onclick="tpw('p1_pw2', this)" tabindex="-1">
+                                <i data-lucide="eye" style="width: 16px; height: 16px;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="err-msg" id="err1"></div>
+
+                <div class="btn-row">
+                    <button class="btn-next" onclick="goStep2()">
+                        <span>Continuar a Biometría</span>
+                        <i data-lucide="arrow-right" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+
+                <p class="login-link">¿Ya tienes cuenta? <a href="{% url 'login' %}">Iniciar sesión aquí</a></p>
+            </div>
+
+            <!-- PASO 2: FACE ID BIOMÉTRICO -->
+            <div class="step-panel" id="panel2">
+                <div class="panel-title">Face ID <span style="font-size:13px;font-weight:600;color:var(--text-muted);">(Opcional)</span></div>
+                <div class="panel-sub">Registra tu rostro para acceder rápidamente a tu cuenta sin ingresar contraseñas.</div>
+
+                <div class="optional-banner">
+                    <i data-lucide="info" style="width: 20px; height: 20px; flex-shrink: 0; color: var(--amber);"></i>
+                    <p>Este paso es <strong>completamente opcional</strong>. Tu imagen se procesa con encriptación segura y puedes configurarlo después.</p>
+                </div>
+
+                <!-- Visor de Cámara -->
+                <div class="cam-area" id="camArea">
+                    <video id="videoEl" autoplay playsinline></video>
+                    <div class="cam-idle" id="camIdle">
+                        <i data-lucide="camera" style="width: 44px; height: 44px; opacity: 0.6;"></i>
+                        <div>Haz clic en "Activar Cámara"<br>para registrar tu rostro</div>
+                    </div>
+                    
+                    <div class="face-frame" id="faceFrame">
+                        <div class="face-oval">
+                            <div class="scan-line" id="scanLine"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cam-status" id="camStatus">Cámara inactiva</div>
+
+                <!-- Mensaje de Error en Vivo Dentro del Registro Facial -->
+                <div class="reg-live-err" id="regFaceLiveErr">
+                    <i data-lucide="alert-circle" style="width: 18px; height: 18px; flex-shrink: 0;"></i>
+                    <span id="regFaceLiveErrText"></span>
+                </div>
+
+                <div class="cam-controls" id="camControls">
+                    <button class="btn-cam primary" id="btnActivate" onclick="activateCam()">
+                        <i data-lucide="video" style="width: 16px; height: 16px;"></i>
+                        Activar Cámara
+                    </button>
+                    <button class="btn-cam ghost" id="btnCapture" onclick="captureface()" disabled>
+                        <i data-lucide="camera" style="width: 16px; height: 16px;"></i>
+                        <span id="btnRegCaptureText">Capturar Rostro</span>
+                    </button>
+                </div>
+
+                <!-- Éxito en Captura -->
+                <div class="face-success" id="faceSuccess">
+                    <div class="ok-circle">
+                        <i data-lucide="check-circle-2" style="width: 36px; height: 36px;"></i>
+                    </div>
+                    <div class="ok-label" style="font-size:16px;font-weight:700;color:var(--text-heading);">Face ID Registrado con Éxito</div>
+                    <div class="ok-sub" style="font-size:13px;color:var(--text-muted);">Tu rostro se ha vinculado a tu nueva cuenta.</div>
+                </div>
+
+                <div class="err-msg" id="err2"></div>
+
+                <div class="btn-row" style="margin-top:14px;">
+                    <button class="btn-back" onclick="goStep1()">
+                        <i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i>
+                        Volver
+                    </button>
+                    <button class="btn-next" id="btnStep2Next" onclick="goStep3()">
+                        <span>Completar Registro</span>
+                        <i data-lucide="check" style="width: 16px; height: 16px;"></i>
+                    </button>
+                </div>
+
+                <div class="skip-link">
+                    <a onclick="skipFace()">Omitir este paso y finalizar →</a>
+                </div>
+            </div>
+
+            <!-- PASO 3: CONFIRMACIÓN DE REGISTRO -->
+            <div class="step-panel" id="panel3">
+                <div class="confirm-success">
+                    <div class="ok-circle" style="width:84px;height:84px;margin-bottom:16px;">
+                        <i data-lucide="party-popper" style="width:42px;height:42px;color:var(--emerald);"></i>
+                    </div>
+                    <h2>¡Cuenta Creada Exitosamente!</h2>
+                    <p id="confirmMsg">Tu cuenta de usuario ha sido registrada en el sistema de Pharmony.</p>
+                    
+                    <button class="btn-next" style="width:100%;max-width:320px;" onclick="window.location.href='/login/'">
+                        <i data-lucide="log-in" style="width: 16px; height: 16px;"></i>
+                        Iniciar Sesión
+                    </button>
+                </div>
+
+                <!-- Resumen de Registro -->
+                <div style="background:var(--surface-0);border:1px solid var(--surface-2);border-radius:var(--radius-lg);padding:20px;margin-top:16px;">
+                    <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Resumen de tu cuenta</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                        <div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Nombre</div>
+                            <div style="font-size:13.5px;font-weight:700;color:var(--text-heading);" id="sumName">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Correo</div>
+                            <div style="font-size:13.5px;font-weight:700;color:var(--text-heading);" id="sumEmail">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Teléfono</div>
+                            <div style="font-size:13.5px;font-weight:700;color:var(--text-heading);" id="sumTel">—</div>
+                        </div>
+                        <div>
+                            <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">Face ID</div>
+                            <div id="sumFace" style="font-size:13.5px;font-weight:700;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-footer">
+            <i data-lucide="shield-check" style="width: 14px; height: 14px; color: var(--emerald);"></i>
+            <span>Conexión segura &middot; Pharmony 2026</span>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-let pwShow={}, faceRegistered=false, camStream=null, capturedFaceBase64=null;
-
-function tpw(id,btn){
-  pwShow[id]=!pwShow[id];
-  document.getElementById(id).type=pwShow[id]?'text':'password';
-  btn.textContent=pwShow[id]?'🙈':'👁';
-}
-
-function setStep(n){
-  [1,2,3].forEach(i=>{
-    const si=document.getElementById('si'+i);
-    const sn=document.getElementById('sn'+i);
-    si.className='step-item'+(i<n?' done':i===n?' active':'');
-    sn.textContent=i<n?'✓':i;
-    if(i<3){
-      document.getElementById('sl'+i).className='step-line'+(i<n?' done':'');
-    }
-  });
-  document.querySelectorAll('.step-panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('panel'+n).classList.add('active');
-  document.querySelector('.right-scroll').scrollTo({top:0,behavior:'smooth'});
-}
-
-function goStep1(){
-  stopCam();
-  setStep(1);
-}
-
-function goStep2(){
-  const nombre=document.getElementById('p1_nombre').value.trim();
-  const apellido=document.getElementById('p1_apellido').value.trim();
-  const email=document.getElementById('p1_email').value.trim();
-  const pw=document.getElementById('p1_pw').value;
-  const pw2=document.getElementById('p1_pw2').value;
-  const err=document.getElementById('err1');
-  if(!nombre||!apellido){err.textContent='⚠ Ingresa tu nombre completo.';return;}
-  if(!email||!email.includes('@')){err.textContent='⚠ Ingresa un correo electrónico válido.';return;}
-  const pwRegex=/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-  if(!pwRegex.test(pw)){err.textContent='⚠ La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial.';return;}
-  if(pw!==pw2){err.textContent='⚠ Las contraseñas no coinciden.';return;}
-  err.textContent='';
-  setStep(2);
-}
-
-async function goStep3(){
-  stopCam();
-  
-  const nombre=document.getElementById('p1_nombre').value.trim();
-  const apellido=document.getElementById('p1_apellido').value.trim();
-  const email=document.getElementById('p1_email').value.trim();
-  const pw=document.getElementById('p1_pw').value;
-  const tel=document.getElementById('p1_tel').value.trim();
-  
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  const err=document.getElementById('err2');
-  
-  try {
-    const response = await fetch('/registro/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify({
-        nombre: nombre,
-        apellido: apellido,
-        email: email,
-        password: pw,
-        telefono: tel,
-        face_registered: faceRegistered,
-        face_image: capturedFaceBase64
-      })
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.lucide) {
+            lucide.createIcons();
+        }
     });
-    
-    const result = await response.json();
-    
-    if (result.success) {
-      document.getElementById('sumName').textContent = nombre + ' ' + apellido;
-      document.getElementById('sumEmail').textContent = email;
-      document.getElementById('sumTel').textContent = tel || 'No proporcionado';
-      
-      const faceEl = document.getElementById('sumFace');
-      if (faceRegistered) {
-        faceEl.innerHTML = '<span style="color:var(--grn);display:flex;align-items:center;gap:5px;">✓ Activado</span>';
-        document.getElementById('confirmMsg').textContent = 'Tu cuenta ha sido creada exitosamente con Face ID activado. Ya puedes acceder al panel de Pharmony.';
-      } else {
-        faceEl.innerHTML = '<span style="color:var(--g400);">No configurado</span>';
-        document.getElementById('confirmMsg').textContent = 'Tu cuenta ha sido creada exitosamente. Puedes activar Face ID más tarde desde la configuración de tu perfil.';
-      }
-      err.textContent = '';
-      setStep(3);
-    } else {
-      err.textContent = '⚠ ' + (result.error || 'Ocurrió un error al registrar.');
+
+    let pwShow = {}, faceRegistered = false, camStream = null, capturedFaceBase64 = null;
+
+    function tpw(id, btn) {
+        pwShow[id] = !pwShow[id];
+        const input = document.getElementById(id);
+        input.type = pwShow[id] ? 'text' : 'password';
+        const icon = btn.querySelector('i') || btn;
+        if (icon) {
+            icon.setAttribute('data-lucide', pwShow[id] ? 'eye-off' : 'eye');
+            if (window.lucide) lucide.createIcons();
+        }
     }
-  } catch(e) {
-    err.textContent = '⚠ Error de red. Inténtalo de nuevo.';
-    console.error(e);
-  }
-}
 
-function skipFace(){
-  faceRegistered=false;
-  stopCam();
-  goStep3();
-}
+    function setStep(n) {
+        [1, 2, 3].forEach(i => {
+            const si = document.getElementById('si' + i);
+            const sn = document.getElementById('sn' + i);
+            si.className = 'step-item' + (i < n ? ' done' : i === n ? ' active' : '');
+            sn.textContent = i < n ? '✓' : i;
+            if (i < 3) {
+                document.getElementById('sl' + i).className = 'step-line' + (i < n ? ' done' : '');
+            }
+        });
+        document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('panel' + n).classList.add('active');
+        document.querySelector('.right-scroll').scrollTo({ top: 0, behavior: 'smooth' });
 
-async function activateCam(){
-  document.getElementById('err2').textContent='';
-  try{
-    camStream=await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720,facingMode:'user'}});
-    const video=document.getElementById('videoEl');
-    video.srcObject=camStream;
-    video.style.display='block';
-    document.getElementById('camIdle').style.display='none';
-    document.getElementById('faceFrame').classList.add('visible');
-    document.getElementById('btnActivate').disabled=true;
-    document.getElementById('btnActivate').style.opacity='.45';
-    document.getElementById('btnCapture').disabled=false;
-    setCamStatus('Posiciona tu rostro dentro del óvalo y haz clic en "Capturar"',false);
-  } catch(e){
-    document.getElementById('err2').textContent='⚠ No se pudo acceder a la cámara. Verifica los permisos del navegador.';
-  }
-}
+        if (window.lucide) lucide.createIcons();
+        if (window.Motion && Motion.animate) {
+            Motion.animate('#panel' + n, { opacity: [0, 1], y: [10, 0] }, { duration: 0.3 });
+        }
+    }
 
-async function captureface(){
-  if(!camStream) return;
-  
-  const video = document.getElementById('videoEl');
-  const canvas = document.createElement('canvas');
-  canvas.width = video.videoWidth || 640;
-  canvas.height = video.videoHeight || 480;
-  
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  
-  capturedFaceBase64 = canvas.toDataURL('image/jpeg', 0.9);
-  
-  setCamStatus('Analizando rostro...', false);
-  document.getElementById('btnCapture').disabled = true;
-  document.getElementById('scanLine').style.animationDuration = '0.7s';
-  
-  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  try {
-    const response = await fetch('/api/validar-rostro/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': csrftoken
-      },
-      body: JSON.stringify({ image: capturedFaceBase64 })
-    });
-    const result = await response.json();
-    
-    if (result.success) {
-      setTimeout(() => {
+    function setRegFaceLiveErr(msg) {
+        const el = document.getElementById('regFaceLiveErr');
+        const txt = document.getElementById('regFaceLiveErrText');
+        if (el && txt) {
+            if (msg) {
+                txt.textContent = msg;
+                el.style.display = 'flex';
+                if (window.lucide) lucide.createIcons();
+                if (window.Motion && Motion.animate) {
+                    Motion.animate(el, { opacity: [0, 1], y: [-6, 0] }, { duration: 0.25 });
+                }
+            } else {
+                el.style.display = 'none';
+            }
+        }
+    }
+
+    function goStep1() {
         stopCam();
-        document.getElementById('faceFrame').classList.remove('visible');
-        document.getElementById('camArea').style.display = 'none';
-        document.getElementById('camStatus').style.display = 'none';
-        document.getElementById('camControls').style.display = 'none';
-        document.getElementById('faceSuccess').classList.add('visible');
-        faceRegistered = true;
-        document.getElementById('err2').textContent = '';
-      }, 1000);
-    } else {
-      setCamStatus('Posiciona tu rostro dentro del óvalo y haz clic en "Capturar"', false);
-      document.getElementById('btnCapture').disabled = false;
-      document.getElementById('scanLine').style.animationDuration = '2.2s';
-      document.getElementById('err2').textContent = '⚠ ' + (result.error || 'Error al validar el rostro.');
-      capturedFaceBase64 = null;
-      faceRegistered = false;
+        setStep(1);
     }
-  } catch (error) {
-    setCamStatus('Posiciona tu rostro dentro del óvalo y haz clic en "Capturar"', false);
-    document.getElementById('btnCapture').disabled = false;
-    document.getElementById('scanLine').style.animationDuration = '2.2s';
-    document.getElementById('err2').textContent = '⚠ Error de red. Verifica tu conexión.';
-    capturedFaceBase64 = null;
-    faceRegistered = false;
-  }
-}
 
-function stopCam(){
-  if(camStream){
-    camStream.getTracks().forEach(t=>t.stop());
-    camStream=null;
-  }
-  const video=document.getElementById('videoEl');
-  if(video) video.srcObject=null;
-}
+    function goStep2() {
+        const nombre = document.getElementById('p1_nombre').value.trim();
+        const apellido = document.getElementById('p1_apellido').value.trim();
+        const email = document.getElementById('p1_email').value.trim();
+        const pw = document.getElementById('p1_pw').value;
+        const pw2 = document.getElementById('p1_pw2').value;
+        const err = document.getElementById('err1');
 
-function setCamStatus(txt, anim){
-  const el=document.getElementById('camStatus');
-  el.textContent=txt;
-  el.className='cam-status'+(anim===false?' static':'');
-}
+        if (!nombre || !apellido) { err.textContent = '⚠ Ingresa tu nombre y apellido completo.'; return; }
+        if (!email || !email.includes('@')) { err.textContent = '⚠ Ingresa un correo electrónico válido.'; return; }
+        if (pw.length < 6) { err.textContent = '⚠ La contraseña debe tener al menos 6 caracteres.'; return; }
+        if (pw !== pw2) { err.textContent = '⚠ Las contraseñas no coinciden.'; return; }
+
+        err.textContent = '';
+        setStep(2);
+    }
+
+    async function goStep3() {
+        stopCam();
+
+        const nombre = document.getElementById('p1_nombre').value.trim();
+        const apellido = document.getElementById('p1_apellido').value.trim();
+        const email = document.getElementById('p1_email').value.trim();
+        const pw = document.getElementById('p1_pw').value;
+        const tel = document.getElementById('p1_tel').value.trim();
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        const err = document.getElementById('err2');
+
+        try {
+            const response = await fetch('/registro/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    nombre: nombre,
+                    apellido: apellido,
+                    email: email,
+                    password: pw,
+                    telefono: tel,
+                    face_registered: faceRegistered,
+                    face_image: capturedFaceBase64
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('sumName').textContent = nombre + ' ' + apellido;
+                document.getElementById('sumEmail').textContent = email;
+                document.getElementById('sumTel').textContent = tel || 'No proporcionado';
+
+                const faceEl = document.getElementById('sumFace');
+                if (faceRegistered) {
+                    faceEl.innerHTML = '<span style="color:var(--emerald);display:flex;align-items:center;gap:4px;">✓ Activado</span>';
+                    document.getElementById('confirmMsg').textContent = 'Tu cuenta ha sido creada exitosamente con Face ID activado. Ya puedes iniciar sesión en Pharmony.';
+                } else {
+                    faceEl.innerHTML = '<span style="color:var(--text-muted);">No configurado</span>';
+                    document.getElementById('confirmMsg').textContent = 'Tu cuenta ha sido creada exitosamente. Puedes configurar Face ID en cualquier momento desde tu perfil.';
+                }
+                err.textContent = '';
+                setStep(3);
+            } else {
+                err.textContent = '⚠ ' + (result.error || 'Ocurrió un error al registrar.');
+            }
+        } catch (e) {
+            err.textContent = '⚠ Error de conexión con el servidor.';
+            console.error(e);
+        }
+    }
+
+    function skipFace() {
+        faceRegistered = false;
+        stopCam();
+        goStep3();
+    }
+
+    async function activateCam() {
+        document.getElementById('err2').textContent = '';
+        setRegFaceLiveErr('');
+        try {
+            camStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720, facingMode: 'user' } });
+            const video = document.getElementById('videoEl');
+            video.srcObject = camStream;
+            video.style.display = 'block';
+            document.getElementById('camIdle').style.display = 'none';
+            document.getElementById('faceFrame').classList.add('visible');
+            document.getElementById('btnActivate').disabled = true;
+            document.getElementById('btnActivate').style.opacity = '.45';
+            document.getElementById('btnCapture').disabled = false;
+            setCamStatus('Centra tu rostro dentro del óvalo y haz clic en "Capturar Rostro"');
+        } catch (e) {
+            setRegFaceLiveErr('No se pudo acceder a la cámara. Verifica los permisos del navegador.');
+        }
+    }
+
+    async function captureface() {
+        if (!camStream) return;
+
+        const video = document.getElementById('videoEl');
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        capturedFaceBase64 = canvas.toDataURL('image/jpeg', 0.9);
+
+        setCamStatus('Validando rostro...');
+        setRegFaceLiveErr('');
+        const btnCapture = document.getElementById('btnCapture');
+        btnCapture.disabled = true;
+        document.getElementById('scanLine').style.animationDuration = '0.7s';
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        try {
+            const response = await fetch('/api/validar-rostro/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({ image: capturedFaceBase64 })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                setTimeout(() => {
+                    stopCam();
+                    document.getElementById('faceFrame').classList.remove('visible');
+                    document.getElementById('camArea').style.display = 'none';
+                    document.getElementById('camStatus').style.display = 'none';
+                    document.getElementById('camControls').style.display = 'none';
+                    document.getElementById('faceSuccess').classList.add('visible');
+                    faceRegistered = true;
+                    setRegFaceLiveErr('');
+                    if (window.lucide) lucide.createIcons();
+                }, 800);
+            } else {
+                setCamStatus('Posiciona tu rostro dentro del marco y vuelve a intentarlo');
+                btnCapture.disabled = false;
+                document.getElementById('scanLine').style.animationDuration = '2.2s';
+                setRegFaceLiveErr(result.error || 'No se detectó un rostro claro. Asegúrate de tener buena iluminación y mirar al frente.');
+                const btnText = document.getElementById('btnRegCaptureText');
+                if (btnText) btnText.textContent = 'Reintentar Captura';
+                capturedFaceBase64 = null;
+                faceRegistered = false;
+            }
+        } catch (error) {
+            setCamStatus('Posiciona tu rostro dentro del marco y vuelve a intentarlo');
+            btnCapture.disabled = false;
+            document.getElementById('scanLine').style.animationDuration = '2.2s';
+            setRegFaceLiveErr('Error de red al procesar la imagen. Inténtalo de nuevo.');
+            const btnText = document.getElementById('btnRegCaptureText');
+            if (btnText) btnText.textContent = 'Reintentar Captura';
+            capturedFaceBase64 = null;
+            faceRegistered = false;
+        }
+    }
+
+    function stopCam() {
+        if (camStream) {
+            camStream.getTracks().forEach(t => t.stop());
+            camStream = null;
+        }
+        const video = document.getElementById('videoEl');
+        if (video) video.srcObject = null;
+    }
+
+    function setCamStatus(txt) {
+        const el = document.getElementById('camStatus');
+        if (el) el.textContent = txt;
+    }
 </script>
 </body>
 </html>

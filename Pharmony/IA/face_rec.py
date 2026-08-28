@@ -57,14 +57,31 @@ def decode_base64_image(base64_str):
         raise ValueError(f"Failed to decode base64 image: {str(e)}")
 
 
+try:
+    cv2.setNumThreads(4)
+except Exception:
+    pass
+
+
 def extract_face_embedding(img):
     detector = get_detector()
     recognizer = get_recognizer()
     
     h, w, _ = img.shape
-    detector.setInputSize((w, h))
     
-    retval, faces = detector.detect(img)
+    max_dim = 640
+    scale = 1.0
+    detect_img = img
+    if max(h, w) > max_dim:
+        scale = max_dim / float(max(h, w))
+        new_w = int(w * scale)
+        new_h = int(h * scale)
+        detect_img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        detector.setInputSize((new_w, new_h))
+    else:
+        detector.setInputSize((w, h))
+    
+    retval, faces = detector.detect(detect_img)
     
     if faces is None or len(faces) == 0:
         raise ValueError("No se detectó ningún rostro en la imagen. Asegúrate de estar frente a la cámara en un entorno iluminado.")
@@ -73,6 +90,10 @@ def extract_face_embedding(img):
         raise ValueError("Se detectó más de un rostro. Por favor, asegúrate de que solo haya una persona visible.")
     
     face = faces[0]
+    
+    if scale != 1.0:
+        face = face.copy()
+        face /= scale
     
     try:
         aligned_face = recognizer.alignCrop(img, face)

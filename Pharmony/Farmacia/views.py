@@ -10,6 +10,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
+from django.core import signing
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -586,40 +587,128 @@ def login_face(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error de análisis de rostro: {str(e)}'}, status=400)
         
-        matching_user = None
-        best_score = -1.0
+        matching_users = []
         UMBRAL_ESTRICTO = 0.43 
         
-        users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='')
+        users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='').select_related('eps')
         
         for user in users_with_face:
             try:
                 db_embedding = json.loads(user.face_encoding)
                 is_match, score = check_match(query_embedding, db_embedding)
-                if score >= UMBRAL_ESTRICTO and score > best_score:
-                    best_score = score
-                    matching_user = user
+                if score >= UMBRAL_ESTRICTO:
+                    matching_users.append({
+                        'user': user,
+                        'score': float(score)
+                    })
             except Exception:
                 continue
         
-        if matching_user is not None:
-            login(request, matching_user)
-            redirect_url = _redirect_por_rol(matching_user)
-            return JsonResponse({
-                'success': True,
-                'message': 'Autenticación biométrica exitosa.',
-                'redirect_url': redirect_url
-            })
-        else:
+        matching_users.sort(key=lambda x: x['score'], reverse=True)
+        
+        if len(matching_users) == 0:
             return JsonResponse({
                 'success': False,
                 'error': 'Rostro no reconocido en el sistema. Asegúrate de mirar fijamente la cámara.'
             }, status=401)
             
+        elif len(matching_users) == 1:
+            matching_user = matching_users[0]['user']
+            login(request, matching_user)
+            redirect_url = _redirect_por_rol(matching_user)
+            return JsonResponse({
+                'success': True,
+                'multiple_accounts': False,
+                'message': 'Autenticación biométrica exitosa.',
+                'redirect_url': redirect_url
+            })
+            
+        else:
+            # Múltiples cuentas vinculadas al mismo rostro
+            user_ids = [m['user'].id for m in matching_users]
+            auth_token = signing.dumps({'user_ids': user_ids}, salt='face-multi-account')
+            
+            accounts_data = []
+            for item in matching_users:
+                u = item['user']
+                full_name = f"{u.first_name} {u.last_name}".strip()
+                if not full_name:
+                    full_name = u.username
+                
+                f_ini = u.first_name[:1].upper() if u.first_name else ''
+                l_ini = u.last_name[:1].upper() if u.last_name else ''
+                initials = (f_ini + l_ini) if (f_ini or l_ini) else u.username[:2].upper()
+                
+                eps_name = None
+                try:
+                    if u.eps:
+                        eps_name = u.eps.nombre
+                except Exception:
+                    eps_name = None
+                
+                accounts_data.append({
+                    'id': u.id,
+                    'nombre': full_name,
+                    'email': u.email,
+                    'rol': u.rol,
+                    'rol_display': u.get_rol_display(),
+                    'eps': eps_name,
+                    'initials': initials,
+                    'similarity': round(item['score'] * 100, 1)
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'multiple_accounts': True,
+                'token': auth_token,
+                'accounts': accounts_data,
+                'message': f'Se encontraron {len(accounts_data)} cuentas vinculadas a tu biometría.'
+            })
+            
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error interno de autenticación: {str(e)}'}, status=500)
+
+@never_cache
+def login_face_select(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        token = data.get('token')
+        
+        if not user_id or not token:
+            return JsonResponse({'success': False, 'error': 'Datos de selección incompletos.'}, status=400)
+        
+        try:
+            payload = signing.loads(token, salt='face-multi-account', max_age=180)
+        except signing.SignatureExpired:
+            return JsonResponse({'success': False, 'error': 'La sesión de selección expiró. Por favor vuelve a escanear tu rostro.'}, status=401)
+        except signing.BadSignature:
+            return JsonResponse({'success': False, 'error': 'Firma de autenticación inválida.'}, status=401)
+            
+        allowed_user_ids = payload.get('user_ids', [])
+        if user_id not in allowed_user_ids:
+            return JsonResponse({'success': False, 'error': 'Cuenta no autorizada en esta verificación biométrica.'}, status=403)
+            
+        user = Usuario.objects.filter(id=user_id).first()
+        if not user:
+            return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'}, status=404)
+            
+        login(request, user)
+        redirect_url = _redirect_por_rol(user)
+        return JsonResponse({
+            'success': True,
+            'message': 'Autenticación exitosa.',
+            'redirect_url': redirect_url
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Error interno al seleccionar cuenta: {str(e)}'}, status=500)
 
 @never_cache
 def iniciar_sesion(request):

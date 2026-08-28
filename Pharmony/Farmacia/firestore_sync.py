@@ -12,10 +12,6 @@ def get_firestore_client():
 
 
 def sync_medicamento_usuario_firestore(med_user):
-    """
-    Sincroniza la asignación de medicamento de un usuario a Firestore.
-    Colección: 'medicamentos_usuario' y subcolección en 'usuarios'.
-    """
     db = get_firestore_client()
     if not db:
         return None
@@ -58,9 +54,6 @@ def sync_medicamento_usuario_firestore(med_user):
 
 
 def eliminar_medicamento_usuario_firestore(usuario_id, medicamento_id, firebase_uid=None):
-    """
-    Elimina o inactiva la asignación de medicamento en Firestore.
-    """
     db = get_firestore_client()
     if not db:
         return
@@ -76,10 +69,6 @@ def eliminar_medicamento_usuario_firestore(usuario_id, medicamento_id, firebase_
 
 
 def sync_derecho_peticion_firestore(peticion):
-    """
-    Sincroniza el Derecho de Petición con Firestore para seguimiento en tiempo real.
-    Colección: 'derechos_peticion'
-    """
     db = get_firestore_client()
     if not db:
         return None

@@ -2,6 +2,7 @@ import json
 import re
 import uuid
 import unicodedata
+import threading
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -20,60 +21,41 @@ def normalizar_texto(texto):
 
 
 def buscar_coincidencia_medicamento(nombre_med):
-    """
-    Busca coincidencias inteligentes entre el nombre detectado por la IA
-    y el catálogo de medicamentos existente.
-    """
     norm_query = normalizar_texto(nombre_med)
     if not norm_query:
         return None, []
 
-    # Extraer tokens significativos (palabras >= 3 caracteres sin ser solo números)
+    coincidencias_exactas = list(Medicamento.objects.filter(
+        Q(nombre_comercial__iexact=nombre_med) | Q(nombre_generico__iexact=nombre_med)
+    )[:5])
+    if coincidencias_exactas:
+        return coincidencias_exactas[0], coincidencias_exactas
+
+    coincidencias_cont = list(Medicamento.objects.filter(
+        Q(nombre_comercial__icontains=norm_query) | Q(nombre_generico__icontains=norm_query)
+    )[:5])
+    if coincidencias_cont:
+        return coincidencias_cont[0], coincidencias_cont
+
     tokens = [t for t in re.split(r'[\s,.-]+', norm_query) if len(t) >= 3 and not t.isdigit()]
-
-    todos = list(Medicamento.objects.all())
-    
-    # 1. Búsqueda exacta o contenida normalizada
-    for med in todos:
-        nc = normalizar_texto(med.nombre_comercial)
-        ng = normalizar_texto(med.nombre_generico)
-        if norm_query == nc or norm_query == ng:
-            return med, [med]
-        if nc and (nc in norm_query or norm_query in nc):
-            return med, [med]
-        if ng and (ng in norm_query or norm_query in ng):
-            return med, [med]
-
-    # 2. Búsqueda por tokens de palabras
-    coincidencias = []
-    for med in todos:
-        nc = normalizar_texto(med.nombre_comercial)
-        ng = normalizar_texto(med.nombre_generico)
-        for token in tokens:
-            if token in nc or token in ng:
-                coincidencias.append(med)
-                break
-
-    if coincidencias:
-        return coincidencias[0], coincidencias
+    if tokens:
+        query_tokens = Q()
+        for token in tokens[:4]:
+            query_tokens |= Q(nombre_comercial__icontains=token) | Q(nombre_generico__icontains=token)
+        
+        coincidencias_tok = list(Medicamento.objects.filter(query_tokens)[:5])
+        if coincidencias_tok:
+            return coincidencias_tok[0], coincidencias_tok
 
     return None, []
 
 
 def escaner_ui_view(request):
-    """
-    Renderiza la vista principal para subir y escanear documentos médicos.
-    """
     return render(request, 'DocsIA/escaner.html')
 
 
 @csrf_exempt
 def escanear_documento_api(request):
-    """
-    API Endpoint para procesar el documento subido, enviar a Google AI Studio y buscar en el inventario.
-    Si el usuario está autenticado, asigna automáticamente los medicamentos identificados a su tratamiento.
-    Si el medicamento no existe en el catálogo, lo registra automáticamente para garantizar que aparezca en el Dashboard.
-    """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido. Usa POST.'}, status=405)
 
@@ -83,7 +65,6 @@ def escanear_documento_api(request):
     archivo = request.FILES['documento']
     mime_type = archivo.content_type or 'application/octet-stream'
 
-    # Autodetectar tipo MIME si es genérico
     if mime_type == 'application/octet-stream':
         nombre_lower = archivo.name.lower()
         if nombre_lower.endswith('.pdf'):
@@ -107,10 +88,8 @@ def escanear_documento_api(request):
             if not nombre_med:
                 continue
 
-            # Buscar coincidencias flexibles
             coincidencia_principal, coincidencias_qs = buscar_coincidencia_medicamento(nombre_med)
             
-            # Si no existe en el catálogo, lo creamos automáticamente para que el paciente lo tenga en su perfil
             if not coincidencia_principal:
                 codigo_cum_auto = f"IA-{uuid.uuid4().hex[:6].upper()}"
                 coincidencia_principal = Medicamento.objects.create(
@@ -127,7 +106,6 @@ def escanear_documento_api(request):
                 )
                 coincidencias_qs = [coincidencia_principal]
 
-            # Asignación al perfil del paciente autenticado
             fue_asignado = False
             if request.user.is_authenticated and coincidencia_principal:
                 dosis_val = (item.posologia_indicaciones or '')[:150]
@@ -142,8 +120,7 @@ def escanear_documento_api(request):
                         'activo': True
                     }
                 )
-                # Sincronizar en tiempo real con Firebase Firestore
-                sync_medicamento_usuario_firestore(med_user)
+                threading.Thread(target=sync_medicamento_usuario_firestore, args=(med_user,), daemon=True).start()
                 fue_asignado = True
                 asignados_automaticamente.append({
                     'id': coincidencia_principal.id,
@@ -197,12 +174,8 @@ def escanear_documento_api(request):
         }, status=500)
 
 
-
 @csrf_exempt
 def asignar_medicamento_usuario_api(request):
-    """
-    Endpoint para asignar manualmente o confirmar la asignación de un medicamento detectado al perfil del usuario.
-    """
     if request.method != 'POST':
         return JsonResponse({'success': False, 'error': 'Método no permitido.'}, status=405)
 
@@ -229,7 +202,7 @@ def asignar_medicamento_usuario_api(request):
                 'activo': True
             }
         )
-        sync_medicamento_usuario_firestore(med_user)
+        threading.Thread(target=sync_medicamento_usuario_firestore, args=(med_user,), daemon=True).start()
 
         return JsonResponse({
             'success': True,
