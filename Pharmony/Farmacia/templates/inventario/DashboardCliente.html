@@ -1151,24 +1151,18 @@
             <span>DocsIA: Escáner de Fórmulas</span>
         </a>
 
-        <span class="nav-group-label">Usuario</span>
+        <span class="nav-group-label">Pedidos & Turnos</span>
         <a class="nav-item" href="{% url 'turnos:mis_turnos' %}">
             <i data-lucide="ticket" style="width: 16px; height: 16px;"></i>
             <span>Mis turnos</span>
         </a>
         <a class="nav-item" href="{% url 'pedidos:mis_pedidos' %}">
-            <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
-                <rect x="2" y="4" width="14" height="11" rx="1.5"/>
-                <path d="M6 4V3a3 3 0 0 1 6 0v1M2 8h14M7 11h4"/>
-            </svg>
-            Mis pedidos
+            <i data-lucide="package" style="width: 16px; height: 16px;"></i>
+            <span>Mis pedidos</span>
         </a>
         <a class="nav-item" href="{% url 'pedidos:seguimiento_publico' %}">
-            <svg class="nav-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4">
-                <circle cx="7.5" cy="7.5" r="5"/>
-                <path d="M11 11l4.5 4.5M7.5 5v2.5h2.5"/>
-            </svg>
-            Rastrear pedido
+            <i data-lucide="search" style="width: 16px; height: 16px;"></i>
+            <span>Rastrear pedido</span>
         </a>
         <a class="nav-item" href="{% url 'mi_cuenta' %}">
             <i data-lucide="user" style="width: 16px; height: 16px;"></i>
@@ -1245,9 +1239,6 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-    <!-- Hero Search -->
-=======
     {% if messages %}
     <div id="messagesContainer" style="max-width:1100px;margin:18px 28px 0;display:flex;flex-direction:column;gap:10px;transition:opacity 0.5s ease, transform 0.5s ease;">
         {% for message in messages %}
@@ -1271,8 +1262,6 @@
         }, 5000);
     </script>
     {% endif %}
-
->>>>>>> origin/SantiagoTest
     <section class="hero-search">
         <div class="hero-shape hero-shape-1"></div>
         <div class="hero-shape hero-shape-2"></div>
@@ -1456,17 +1445,10 @@
                         </div>
                     </div>
                     <p>Toca un punto para ver detalles y stock disponible</p>
-<<<<<<< HEAD
                     <div class="map-legend">
-                        <div class="leg"><div class="leg-dot" style="background:var(--emerald);"></div>Disponible</div>
-                        <div class="leg"><div class="leg-dot" style="background:var(--amber);"></div>Stock bajo</div>
-                        <div class="leg"><div class="leg-dot" style="background:var(--rose);"></div>Agotado</div>
-=======
-                        <div class="map-legend">
-                        <div class="leg"><div class="leg-dot" style="background:var(--grn);"></div>Abierta ahora</div>
-                        <div class="leg"><div class="leg-dot" style="background:var(--red);"></div>Cerrada</div>
+                        <div class="leg"><div class="leg-dot" style="background:var(--emerald);"></div>Abierta ahora</div>
+                        <div class="leg"><div class="leg-dot" style="background:var(--rose);"></div>Cerrada</div>
                         <div class="leg"><div class="leg-dot" style="background:#94a3b8;"></div>Sin horario</div>
->>>>>>> origin/SantiagoTest
                     </div>
                 </div>
                 <div class="map-container-wrap">
@@ -1549,9 +1531,8 @@
             zoomControl: true,
             scrollWheelZoom: false
         });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap &copy; CARTO',
-            subdomains: 'abcd',
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri &mdash; OpenStreetMap &amp; contributors',
             minZoom: 5,
             maxZoom: 19,
             bounds: colombiaBounds
