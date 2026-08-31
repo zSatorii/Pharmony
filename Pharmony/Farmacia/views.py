@@ -877,10 +877,30 @@ def generar_derecho_peticion(request):
     user = request.user
     datos_actualizados = False
     
-    post_cedula = data.get('numero_documento')
-    if post_cedula and post_cedula != user.cedula:
-        user.cedula = post_cedula
-        datos_actualizados = True
+    # Validar y procesar número de documento
+    post_cedula = data.get('numero_documento', '').strip()
+    
+    # Validar que sea solo numérico
+    if post_cedula and not post_cedula.isdigit():
+        return HttpResponse(
+            "Error: El número de documento debe contener solo dígitos numéricos. "
+            "Por favor, verifica e intenta de nuevo.",
+            status=400
+        )
+    
+    # Verificar que el documento no esté vacío al guardar
+    if post_cedula:
+        if post_cedula != user.cedula:
+            user.cedula = post_cedula
+            datos_actualizados = True
+    else:
+        # Si no proporciona documento en POST, verificar que al menos tenga uno configurado
+        if not user.cedula or user.cedula.strip() == '':
+            return HttpResponse(
+                "Error: Debes configurar tu número de documento en tu perfil antes de solicitar un Derecho de Petición. "
+                "Por favor, ve a 'Mi Cuenta' y añade tu número de documento.",
+                status=400
+            )
         
     post_direccion = data.get('direccion')
     if post_direccion and post_direccion != user.direccion:
