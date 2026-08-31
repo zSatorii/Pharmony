@@ -104,6 +104,14 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 10px;
+        }
+
+        .sidebar-logo:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .sidebar-logo-mark {
@@ -688,7 +696,7 @@
 
 <!-- ── SIDEBAR ELEGANTE ── -->
 <aside class="sidebar">
-    <div class="sidebar-logo">
+    <a href="{% url 'dashboard_cliente' %}" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: all 0.2s ease;">
         <div class="sidebar-logo-mark" aria-hidden="true">
             <i data-lucide="shield-plus" style="width: 20px; height: 20px;"></i>
         </div>
@@ -696,7 +704,7 @@
             <div class="name">Pharmony</div>
             <div class="tagline">DocsIA</div>
         </div>
-    </div>
+    </a>
 
     <nav class="nav">
         <span class="nav-group-label">Consulta</span>
