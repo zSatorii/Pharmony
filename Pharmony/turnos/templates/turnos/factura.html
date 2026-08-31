@@ -7,7 +7,8 @@
 <style>
     :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--grn:#22c55e;--grnp:#f0fdf4;--red:#ef4444;--redp:#fef2f2;--bp:#dbeafe;}
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 16px;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;display:flex;flex-direction:column;}
+    .factura-wrapper{display:flex;align-items:center;justify-content:center;padding:40px 16px;flex:1;}
     .invoice{background:var(--w);width:100%;max-width:620px;border-radius:22px;box-shadow:0 20px 50px rgba(13,71,201,0.14);overflow:hidden;}
     .invoice-head{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:32px;display:flex;justify-content:space-between;align-items:flex-start;}
     .invoice-head .brand{font-family:'Quicksand',sans-serif;font-size:22px;letter-spacing:2px;}
@@ -38,7 +39,14 @@
 </style>
 </head>
 <body>
-<div class="invoice">
+<div style="background:linear-gradient(135deg,#0a3a8c 0%,#0d47c9 100%);color:#fff;padding:16px 28px;display:flex;align-items:center;gap:12px;">
+    <a href="{% url 'dashboard_cliente' %}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-decoration:none;font-size:18px;transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);cursor:pointer;flex-shrink:0;font-weight:600;" title="Volver al Dashboard" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='scale(1.08)'" onmouseout="this.style.background='rgba(255,255,255,0.12)';this.style.transform='scale(1)'">
+        ←
+    </a>
+    <span>PHARMONY — Factura de Turno</span>
+</div>
+<div class="factura-wrapper">
+    <div class="invoice">
     <div class="invoice-head">
         <div class="brand">PHARMONY<small>Factura de turno de dispensación</small></div>
         <div class="num">N.° de turno<b>{{ turno.codigo_ticket }}</b></div>
