@@ -10,7 +10,8 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
     .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;}
-    .topbar .brand{font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;}
+    .topbar .brand{font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    .topbar a:hover .brand{transform:translateX(3px);opacity:0.9;}
     .topbar-actions{display:flex;gap:8px;}
     .btn-top{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:9px;padding:8px 14px;font-size:13px;text-decoration:none;}
     .btn-top svg{width:14px;height:14px;}
@@ -53,7 +54,9 @@
 </head>
 <body>
 <div class="topbar">
-    <span class="brand">PHARMONY · EPS</span>
+    <a href="{% url 'dashboard_eps' %}" style="text-decoration:none;color:inherit;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+        <span class="brand">PHARMONY · EPS</span>
+    </a>
     <div class="topbar-actions">
         <a class="btn-top" href="{% url 'dashboard_eps' %}">
             <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 15l-5-5 5-5" stroke-linecap="round" stroke-linejoin="round"/></svg>

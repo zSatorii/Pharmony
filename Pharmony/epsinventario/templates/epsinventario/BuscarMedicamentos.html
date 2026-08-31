@@ -28,7 +28,10 @@
 </head>
 <body>
     <div class="header">
-        <span class="logo-name">PHARMONY</span>
+        <div style="display:flex;align-items:center;gap:12px;flex:1;">
+            <a href="{% url 'dashboard_cliente' %}" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-decoration:none;font-size:18px;transition:all 0.2s ease;" title="Volver al Dashboard" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">←</a>
+            <span class="logo-name">PHARMONY</span>
+        </div>
         <a class="btn-logout" href="{% url 'logout' %}">Cerrar sesión</a>
     </div>
     <div class="container">
