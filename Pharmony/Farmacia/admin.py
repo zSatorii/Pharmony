@@ -11,16 +11,51 @@ from .firestore_sync import (
     sync_derecho_peticion_firestore
 )
 
+from .forms import UsuarioAdminCreationForm, UsuarioAdminChangeForm
+
+
 class UsuarioAdmin(UserAdmin):
     model = Usuario
-    fieldsets = UserAdmin.fieldsets + (
-        ('Información Pharmony', {'fields': ('telefono', 'cedula', 'direccion', 'firebase_uid', 'face_encoding', 'rol', 'eps')}),
+    add_form = UsuarioAdminCreationForm
+    form = UsuarioAdminChangeForm
+
+    fieldsets = (
+        (None, {'fields': ('username', 'password')}),
+        ('Información Personal (Obligatoria)', {'fields': ('first_name', 'last_name', 'email', 'cedula', 'telefono', 'direccion')}),
+        ('Asignación Institucional (Obligatoria)', {'fields': ('rol', 'eps')}),
+        ('Biometría y Firebase (Opcional)', {
+            'classes': ('collapse',),
+            'fields': ('firebase_uid', 'face_encoding'),
+        }),
+        ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),
     )
-    add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Información Inicial', {'fields': ('first_name', 'last_name', 'email', 'telefono', 'cedula', 'direccion', 'firebase_uid', 'face_encoding', 'rol', 'eps')}),
+
+    add_fieldsets = (
+        ('Crear Nuevo Usuario — Datos Obligatorios', {
+            'classes': ('wide',),
+            'fields': (
+                'username',
+                'first_name',
+                'last_name',
+                'email',
+                'cedula',
+                'telefono',
+                'direccion',
+                'rol',
+                'eps',
+                'password1',
+                'password2',
+            ),
+        }),
+        ('Campos Opcionales', {
+            'classes': ('collapse',),
+            'fields': ('firebase_uid', 'face_encoding'),
+        }),
     )
-    list_display = ['email', 'username', 'full_name', 'cedula', 'rol_badge', 'is_staff_badge']
-    list_filter = ['rol', 'is_staff', 'is_superuser', 'is_active']
+
+    list_display = ['email', 'username', 'full_name', 'cedula', 'telefono', 'rol_badge', 'eps', 'is_staff_badge']
+    list_filter = ['rol', 'eps', 'is_staff', 'is_superuser', 'is_active']
     search_fields = ['email', 'username', 'first_name', 'last_name', 'cedula']
     ordering = ['email']
 

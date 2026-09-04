@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from Farmacia.views import cerrar_sesion, iniciar_sesion, login_face, registrar_usuario, validar_rostro
+from Farmacia.views import cerrar_sesion, iniciar_sesion, login_face, login_face_select, registrar_usuario, validar_rostro
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -11,6 +11,7 @@ urlpatterns = [
     path('logout/', cerrar_sesion, name='logout'),
     path('api/validar-rostro/', validar_rostro, name='validar_rostro'),
     path('api/login-face/', login_face, name='login_face'),
+    path('api/login-face-select/', login_face_select, name='login_face_select'),
     path('api/', include('Farmacia.urls')),
     path('', include('epsinventario.urls')),
     path('docs-ia/', include('DocsIA.urls')),

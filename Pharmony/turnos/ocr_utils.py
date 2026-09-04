@@ -1,11 +1,15 @@
 import re
 import io
 
-import pytesseract
+try:
+    import pytesseract
+except ImportError:
+    pytesseract = None
 from PIL import Image
 
 # Si Tesseract no quedó en el PATH, descomenta y ajusta esta línea:
-# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# if pytesseract:
+#     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 try:
     from pdf2image import convert_from_bytes
@@ -17,6 +21,8 @@ except ImportError:
 
 
 def _extraer_texto_de_imagen(imagen_bytes):
+    if pytesseract is None:
+        return ''
     imagen = Image.open(io.BytesIO(imagen_bytes))
     return pytesseract.image_to_string(imagen, lang='spa')
 

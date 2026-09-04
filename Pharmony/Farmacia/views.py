@@ -11,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core import signing
 from django.http import FileResponse, HttpResponse, HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -149,8 +150,8 @@ def dashboard_inventario(request):
                         'requiere_formula': bool(data.get('requiere_formula', False)),
                     }
                 )
-            if firestore_ids:
-                Medicamento.objects.exclude(id__in=firestore_ids).delete()
+            # Sincroniza desde Firestore sin eliminar medicamentos registrados localmente
+            pass
         except Exception:
             pass
 
@@ -330,12 +331,18 @@ def dashboard_cliente(request):
         for p in DerechoPeticion.objects.filter(usuario=request.user, estado__in=['radicado', 'en_tramite']).select_related('medicamento')
     }
 
+    from .derecho_peticion_cooldown import verificar_cooldown_derecho_peticion
+
     for med in medicamentos:
         med.disponibilidad = disponibilidad_por_medicamento.get(med.id, {
             'cantidad_total': 0, 'sedes_count': 0, 'estado': 'agotado'
         })
         med.tiene_peticion_activa = med.id in peticiones_activas
         med.peticion_activa = peticiones_activas.get(med.id)
+        med.cooldown_dp = verificar_cooldown_derecho_peticion(request.user, med)
+        med.en_cooldown_dp = med.cooldown_dp['en_cooldown']
+        med.cooldown_dp_fecha = med.cooldown_dp['fecha_disponible']
+        med.cooldown_dp_dias_restantes = med.cooldown_dp['dias_restantes']
         med.asignacion_usuario = mis_meds_dict.get(med.id)
         med.es_mi_medicamento = med.id in mis_meds_dict
 
@@ -596,40 +603,128 @@ def login_face(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': f'Error de análisis de rostro: {str(e)}'}, status=400)
         
-        matching_user = None
-        best_score = -1.0
+        matching_users = []
         UMBRAL_ESTRICTO = 0.43 
         
-        users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='')
+        users_with_face = Usuario.objects.filter(face_encoding__isnull=False).exclude(face_encoding='').select_related('eps')
         
         for user in users_with_face:
             try:
                 db_embedding = json.loads(user.face_encoding)
                 is_match, score = check_match(query_embedding, db_embedding)
-                if score >= UMBRAL_ESTRICTO and score > best_score:
-                    best_score = score
-                    matching_user = user
+                if score >= UMBRAL_ESTRICTO:
+                    matching_users.append({
+                        'user': user,
+                        'score': float(score)
+                    })
             except Exception:
                 continue
         
-        if matching_user is not None:
-            login(request, matching_user)
-            redirect_url = _redirect_por_rol(matching_user)
-            return JsonResponse({
-                'success': True,
-                'message': 'Autenticación biométrica exitosa.',
-                'redirect_url': redirect_url
-            })
-        else:
+        matching_users.sort(key=lambda x: x['score'], reverse=True)
+        
+        if len(matching_users) == 0:
             return JsonResponse({
                 'success': False,
                 'error': 'Rostro no reconocido en el sistema. Asegúrate de mirar fijamente la cámara.'
             }, status=401)
             
+        elif len(matching_users) == 1:
+            matching_user = matching_users[0]['user']
+            login(request, matching_user)
+            redirect_url = _redirect_por_rol(matching_user)
+            return JsonResponse({
+                'success': True,
+                'multiple_accounts': False,
+                'message': 'Autenticación biométrica exitosa.',
+                'redirect_url': redirect_url
+            })
+            
+        else:
+            # Múltiples cuentas vinculadas al mismo rostro
+            user_ids = [m['user'].id for m in matching_users]
+            auth_token = signing.dumps({'user_ids': user_ids}, salt='face-multi-account')
+            
+            accounts_data = []
+            for item in matching_users:
+                u = item['user']
+                full_name = f"{u.first_name} {u.last_name}".strip()
+                if not full_name:
+                    full_name = u.username
+                
+                f_ini = u.first_name[:1].upper() if u.first_name else ''
+                l_ini = u.last_name[:1].upper() if u.last_name else ''
+                initials = (f_ini + l_ini) if (f_ini or l_ini) else u.username[:2].upper()
+                
+                eps_name = None
+                try:
+                    if u.eps:
+                        eps_name = u.eps.nombre
+                except Exception:
+                    eps_name = None
+                
+                accounts_data.append({
+                    'id': u.id,
+                    'nombre': full_name,
+                    'email': u.email,
+                    'rol': u.rol,
+                    'rol_display': u.get_rol_display(),
+                    'eps': eps_name,
+                    'initials': initials,
+                    'similarity': round(item['score'] * 100, 1)
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'multiple_accounts': True,
+                'token': auth_token,
+                'accounts': accounts_data,
+                'message': f'Se encontraron {len(accounts_data)} cuentas vinculadas a tu biometría.'
+            })
+            
     except json.JSONDecodeError:
         return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Error interno de autenticación: {str(e)}'}, status=500)
+
+@never_cache
+def login_face_select(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    try:
+        data = json.loads(request.body)
+        user_id = data.get('user_id')
+        token = data.get('token')
+        
+        if not user_id or not token:
+            return JsonResponse({'success': False, 'error': 'Datos de selección incompletos.'}, status=400)
+        
+        try:
+            payload = signing.loads(token, salt='face-multi-account', max_age=180)
+        except signing.SignatureExpired:
+            return JsonResponse({'success': False, 'error': 'La sesión de selección expiró. Por favor vuelve a escanear tu rostro.'}, status=401)
+        except signing.BadSignature:
+            return JsonResponse({'success': False, 'error': 'Firma de autenticación inválida.'}, status=401)
+            
+        allowed_user_ids = payload.get('user_ids', [])
+        if user_id not in allowed_user_ids:
+            return JsonResponse({'success': False, 'error': 'Cuenta no autorizada en esta verificación biométrica.'}, status=403)
+            
+        user = Usuario.objects.filter(id=user_id).first()
+        if not user:
+            return JsonResponse({'success': False, 'error': 'Usuario no encontrado.'}, status=404)
+            
+        login(request, user)
+        redirect_url = _redirect_por_rol(user)
+        return JsonResponse({
+            'success': True,
+            'message': 'Autenticación exitosa.',
+            'redirect_url': redirect_url
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Formato de datos inválido.'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': f'Error interno al seleccionar cuenta: {str(e)}'}, status=500)
 
 @never_cache
 def iniciar_sesion(request):
@@ -783,10 +878,30 @@ def generar_derecho_peticion(request):
     user = request.user
     datos_actualizados = False
     
-    post_cedula = data.get('numero_documento')
-    if post_cedula and post_cedula != user.cedula:
-        user.cedula = post_cedula
-        datos_actualizados = True
+    # Validar y procesar número de documento
+    post_cedula = data.get('numero_documento', '').strip()
+    
+    # Validar que sea solo numérico
+    if post_cedula and not post_cedula.isdigit():
+        return HttpResponse(
+            "Error: El número de documento debe contener solo dígitos numéricos. "
+            "Por favor, verifica e intenta de nuevo.",
+            status=400
+        )
+    
+    # Verificar que el documento no esté vacío al guardar
+    if post_cedula:
+        if post_cedula != user.cedula:
+            user.cedula = post_cedula
+            datos_actualizados = True
+    else:
+        # Si no proporciona documento en POST, verificar que al menos tenga uno configurado
+        if not user.cedula or user.cedula.strip() == '':
+            return HttpResponse(
+                "Error: Debes configurar tu número de documento en tu perfil antes de solicitar un Derecho de Petición. "
+                "Por favor, ve a 'Mi Cuenta' y añade tu número de documento.",
+                status=400
+            )
         
     post_direccion = data.get('direccion')
     if post_direccion and post_direccion != user.direccion:
@@ -834,7 +949,21 @@ def generar_derecho_peticion(request):
     }
     fecha_str = f"{ciudad}, {fecha_actual.day} de {meses[fecha_actual.month]} de {fecha_actual.year}"
 
-    # Control de duplicidad: Verificar si ya tiene un derecho de petición activo
+    from .derecho_peticion_cooldown import (
+        verificar_cooldown_derecho_peticion,
+        verificar_limite_descargas,
+        registrar_descarga,
+        DIAS_COOLDOWN_DERECHO_PETICION
+    )
+
+    # 1. Verificar límite diario de descargas para proteger el servidor
+    puede_descargar, msg_limite = verificar_limite_descargas(user.id, medicamento.id)
+    if not puede_descargar:
+        return HttpResponse(msg_limite, status=429)
+
+    # 2. Control de duplicidad y término legal (15 días de cooldown)
+    cooldown_info = verificar_cooldown_derecho_peticion(user, medicamento)
+    
     peticion_existente = DerechoPeticion.objects.filter(
         usuario=user,
         medicamento=medicamento,
@@ -850,8 +979,11 @@ def generar_derecho_peticion(request):
             estado='radicado'
         )
         sync_derecho_peticion_firestore(peticion)
+        cooldown_info = verificar_cooldown_derecho_peticion(user, medicamento)
     else:
         peticion = peticion_existente
+
+    registrar_descarga(user.id, medicamento.id)
     
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(
@@ -885,7 +1017,13 @@ def generar_derecho_peticion(request):
     )
     
     story = [
-        Paragraph(f"<b>RADICADO OFICIAL:</b> {peticion.numero_radicado}<br/><b>ESTADO DEL TRÁMITE:</b> {peticion.get_estado_display().upper()}<br/><b>FECHA DE EXPEDICIÓN:</b> {fecha_str}", style_normal),
+        Paragraph(
+            f"<b>RADICADO OFICIAL:</b> {peticion.numero_radicado}<br/>"
+            f"<b>ESTADO DEL TRÁMITE:</b> {peticion.get_estado_display().upper()}<br/>"
+            f"<b>TÉRMINO LEGAL DE ATENCIÓN:</b> {DIAS_COOLDOWN_DERECHO_PETICION} DÍAS HÁBILES (VENCE: {cooldown_info.get('fecha_disponible') or fecha_str})<br/>"
+            f"<b>FECHA DE EXPEDICIÓN:</b> {fecha_str}",
+            style_normal
+        ),
         Spacer(1, 15),
         Paragraph(f"<b>Señores:</b><br/><b>{eps_nombre.upper()}</b><br/>Oficina de Atención al Usuario / Representante Legal<br/>E. S. D.", style_normal),
         Spacer(1, 15),

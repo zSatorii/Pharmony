@@ -117,7 +117,7 @@
 
         {% if sedes %}
         <div class="quick-banner">
-            <h2 style="margin-bottom:6px;">🚀 Agregar medicamentos rápidamente</h2>
+            <h2 style="margin-bottom:6px;">Agregar medicamentos rápidamente</h2>
             <p style="color:var(--g600); font-size:14px; margin-bottom:16px;">Elige una sede para ir directo a su inventario.</p>
             <form class="quick-form" onsubmit="return irAInventario(event)">
                 <select id="select-sede">
@@ -134,7 +134,7 @@
         <div class="grid-2">
             {% if is_admin %}
             <div class="card">
-                <h2>🏢 EPS registradas</h2>
+                <h2>EPS registradas</h2>
                 <table>
                     <thead><tr><th>Nombre</th><th>NIT</th><th>Estado</th><th></th></tr></thead>
                     <tbody>
@@ -191,7 +191,7 @@
             {% endif %}
 
             <div class="card" {% if not is_admin %}style="grid-column: span 2;"{% endif %}>
-                <h2>📍 {% if is_admin %}Sedes registradas{% else %}Mis sedes{% endif %}</h2>
+                <h2>{% if is_admin %}Sedes registradas{% else %}Mis sedes{% endif %}</h2>
                 <table>
                     <thead><tr><th>Nombre</th><th>Ciudad</th>{% if is_admin %}<th>EPS</th>{% endif %}<th></th></tr></thead>
                     <tbody>

@@ -176,4 +176,68 @@ class DerechoPeticionTestCase(TestCase):
         self.assertEqual(self.user.cedula, '999999')
         self.assertEqual(self.user.direccion, 'Avenida Siempre Viva 123')
         self.assertEqual(self.user.telefono, '3159998877')
-        self.assertEqual(self.user.email, 'carlos@example.com')
+        self.assertEqual(self.user.email, 'carlos@example.com')
+
+    def test_cooldown_15_dias_derecho_peticion(self):
+        from Farmacia.derecho_peticion_cooldown import verificar_cooldown_derecho_peticion
+        
+        # 1. Antes de radicar, no hay cooldown
+        info_antes = verificar_cooldown_derecho_peticion(self.user, self.medicamento)
+        self.assertFalse(info_antes['en_cooldown'])
+
+        # 2. Radicar petición
+        self.client.login(username='testuser', password='testpassword')
+        url = reverse('generar_derecho_peticion')
+        resp = self.client.post(url, {'medicamento_id': self.medicamento.id})
+        self.assertEqual(resp.status_code, 200)
+
+        # 3. Tras radicar, está en cooldown de 15 días legales
+        info_despues = verificar_cooldown_derecho_peticion(self.user, self.medicamento)
+        self.assertTrue(info_despues['en_cooldown'])
+        self.assertGreaterEqual(info_despues['dias_restantes'], 1)
+        self.assertIsNotNone(info_despues['fecha_disponible'])
+        self.assertIn('plazo legal', info_despues['mensaje'].lower())
+
+    def test_admin_usuario_required_fields(self):
+        from Farmacia.forms import UsuarioAdminCreationForm
+        from epsinventario.models import Eps
+
+        eps = Eps.objects.create(nombre='EPS Prueba', nit='900123456-1', ciudad='Bogotá', estado=True)
+
+        # Formulario vacío (debe fallar en todos los campos obligatorios)
+        form_vacio = UsuarioAdminCreationForm(data={})
+        self.assertFalse(form_vacio.is_valid())
+        self.assertIn('username', form_vacio.errors)
+        self.assertIn('first_name', form_vacio.errors)
+        self.assertIn('last_name', form_vacio.errors)
+        self.assertIn('email', form_vacio.errors)
+        self.assertIn('cedula', form_vacio.errors)
+        self.assertIn('telefono', form_vacio.errors)
+        self.assertIn('direccion', form_vacio.errors)
+        self.assertIn('rol', form_vacio.errors)
+        self.assertIn('eps', form_vacio.errors)
+        # firebase_uid y face_encoding NO deben dar error por estar vacíos
+        self.assertNotIn('firebase_uid', form_vacio.errors)
+        self.assertNotIn('face_encoding', form_vacio.errors)
+
+        # Formulario completo válido sin firebase_uid ni face_encoding
+        form_valido = UsuarioAdminCreationForm(data={
+            'username': 'nuevo_paciente',
+            'first_name': 'Maria',
+            'last_name': 'Rodriguez',
+            'email': 'maria.rodriguez@example.com',
+            'cedula': '1030405060',
+            'telefono': '3109876543',
+            'direccion': 'Carrera 7 # 45-20',
+            'rol': 'cliente',
+            'eps': eps.id,
+            'password1': 'AdminPassword123!',
+            'password2': 'AdminPassword123!',
+        })
+        self.assertTrue(form_valido.is_valid(), form_valido.errors)
+        usuario_creado = form_valido.save()
+        self.assertEqual(usuario_creado.first_name, 'Maria')
+        self.assertEqual(usuario_creado.cedula, '1030405060')
+        self.assertEqual(usuario_creado.eps, eps)
+        self.assertIsNone(usuario_creado.firebase_uid)
+        self.assertIsNone(usuario_creado.face_encoding)
