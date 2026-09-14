@@ -1,8 +1,19 @@
+import logging
 from firebase_admin import firestore
 
-db = firestore.client()
+logger = logging.getLogger(__name__)
+
+def get_db():
+    try:
+        return firestore.client()
+    except Exception as e:
+        logger.warning(f"No se pudo conectar a Firestore en turnos: {e}")
+        return None
 
 def sync_turno_a_firestore(turno):
+    db = get_db()
+    if not db:
+        return None
     doc_ref = db.collection('turnos').document(turno.codigo_ticket)
     doc_ref.set({
         'codigo_ticket': turno.codigo_ticket,
@@ -28,6 +39,9 @@ def sync_turno_a_firestore(turno):
 
 
 def sync_mensaje_a_firestore(turno, remitente, contenido, archivo_url=None):
+    db = get_db()
+    if not db:
+        return
     nombre_mostrar = f"{remitente.first_name} {remitente.last_name}".strip() or remitente.username
     db.collection('turnos').document(turno.codigo_ticket).collection('mensajes').add({
         'remitente_id': remitente.id,
@@ -39,6 +53,9 @@ def sync_mensaje_a_firestore(turno, remitente, contenido, archivo_url=None):
     })
 
 def sync_auxiliar_sede_a_firestore(auxiliar_sede):
+    db = get_db()
+    if not db:
+        return
     db.collection('auxiliares_sede').document(f"{auxiliar_sede.usuario_id}_{auxiliar_sede.sede_id}").set({
         'usuario_id': auxiliar_sede.usuario_id,
         'usuario_username': auxiliar_sede.usuario.username,
@@ -49,4 +66,7 @@ def sync_auxiliar_sede_a_firestore(auxiliar_sede):
 
 
 def eliminar_auxiliar_sede_de_firestore(usuario_id, sede_id):
+    db = get_db()
+    if not db:
+        return
     db.collection('auxiliares_sede').document(f"{usuario_id}_{sede_id}").delete()

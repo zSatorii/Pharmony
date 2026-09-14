@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 
 import dotenv
@@ -147,29 +148,40 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 AUTH_USER_MODEL = 'Farmacia.Usuario'
 
+FIREBASE_CREDENTIALS_JSON = os.getenv('FIREBASE_CREDENTIALS_JSON')
 FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH') or os.getenv('FIREBASE_KEYS_PATH') or 'ServiceAccountKey.json'
 
-if FIREBASE_CREDENTIALS_PATH:
-    candidate_paths = [
-        Path(FIREBASE_CREDENTIALS_PATH),
-        BASE_DIR / FIREBASE_CREDENTIALS_PATH,
-        BASE_DIR.parent / FIREBASE_CREDENTIALS_PATH,
-        Path('/etc/secrets') / FIREBASE_CREDENTIALS_PATH,
-        Path('/etc/secrets/ServiceAccountKey.json'),
-    ]
-    key_path = None
-    for p in candidate_paths:
-        if p.exists():
-            key_path = p
-            break
-        
-    if key_path:
+if not firebase_admin._apps:
+    # 1. Intentar desde variable de entorno JSON (útil en Render si se pega el JSON directo)
+    if FIREBASE_CREDENTIALS_JSON:
         try:
-            if not firebase_admin._apps:
+            cred_dict = json.loads(FIREBASE_CREDENTIALS_JSON)
+            cred = credentials.Certificate(cred_dict)
+            firebase_admin.initialize_app(cred)
+        except Exception as e:
+            print(f"Aviso al inicializar Firebase desde FIREBASE_CREDENTIALS_JSON: {e}")
+
+    # 2. Intentar desde archivo (Secret File en /etc/secrets/ o archivo local)
+    if not firebase_admin._apps and FIREBASE_CREDENTIALS_PATH:
+        candidate_paths = [
+            Path(FIREBASE_CREDENTIALS_PATH),
+            BASE_DIR / FIREBASE_CREDENTIALS_PATH,
+            BASE_DIR.parent / FIREBASE_CREDENTIALS_PATH,
+            Path('/etc/secrets') / FIREBASE_CREDENTIALS_PATH,
+            Path('/etc/secrets/ServiceAccountKey.json'),
+        ]
+        key_path = None
+        for p in candidate_paths:
+            if p.exists():
+                key_path = p
+                break
+            
+        if key_path:
+            try:
                 cred = credentials.Certificate(str(key_path))
                 firebase_admin.initialize_app(cred)
-        except Exception:
-            pass
+            except Exception as e:
+                print(f"Aviso al inicializar Firebase desde archivo: {e}")
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
