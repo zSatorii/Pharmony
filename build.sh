@@ -5,4 +5,5 @@ if [ -d "Pharmony" ]; then
   cd Pharmony
 fi
 
+python manage.py createsuperuser --noinput || true
 ./build.sh
