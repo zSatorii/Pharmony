@@ -1,11 +1,12 @@
 from django.contrib import admin
 from django.urls import include, path
 
-from Farmacia.views import cerrar_sesion, iniciar_sesion, login_face, login_face_select, registrar_usuario, validar_rostro
+from Farmacia.views import cerrar_sesion, dashboard_redirect, iniciar_sesion, login_face, login_face_select, registrar_usuario, validar_rostro
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls')),
+    path('dashboard/', dashboard_redirect, name='dashboard'),
     path('registro/', registrar_usuario, name='registro'),
     path('login/', iniciar_sesion, name='login'),
     path('logout/', cerrar_sesion, name='logout'),

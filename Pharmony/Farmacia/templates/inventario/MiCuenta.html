@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -551,9 +552,7 @@
 <!-- ── SIDEBAR ELEGANTE ── -->
 <aside class="sidebar">
     <a href="{% url 'dashboard_cliente' %}" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 12px;">
-        <div class="sidebar-logo-mark" aria-hidden="true">
-            <i data-lucide="shield-plus" style="width: 20px; height: 20px;"></i>
-        </div>
+        <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width: 38px; height: 38px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.18); flex-shrink: 0;">
         <div class="logo-text">
             <div class="name">Pharmony</div>
             <div class="tagline">Mi Cuenta</div>

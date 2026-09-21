@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -39,16 +40,25 @@
 </style>
 </head>
 <body>
-<div style="background:linear-gradient(135deg,#0a3a8c 0%,#0d47c9 100%);color:#fff;padding:16px 28px;display:flex;align-items:center;gap:12px;">
-    <a href="{% url 'dashboard_cliente' %}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-decoration:none;font-size:18px;transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);cursor:pointer;flex-shrink:0;font-weight:600;" title="Volver al Dashboard" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='scale(1.08)'" onmouseout="this.style.background='rgba(255,255,255,0.12)';this.style.transform='scale(1)'">
-        ←
-    </a>
-    <span>PHARMONY — Factura de Turno</span>
+<div style="background:linear-gradient(135deg,#0a3a8c 0%,#0d47c9 100%);color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 16px rgba(5,32,96,0.15);">
+    <div style="display:flex;align-items:center;gap:14px;">
+        <a href="{% url 'dashboard' %}" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;background:rgba(255,255,255,0.12);border-radius:10px;color:#fff;text-decoration:none;font-size:18px;transition:all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);cursor:pointer;flex-shrink:0;font-weight:600;" title="Volver al Dashboard" onmouseover="this.style.background='rgba(255,255,255,0.2)';this.style.transform='scale(1.08)'" onmouseout="this.style.background='rgba(255,255,255,0.12)';this.style.transform='scale(1)'">
+            ←
+        </a>
+        <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff;" title="Ir al Dashboard">
+            <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <span style="font-family:'Quicksand',sans-serif;font-size:18px;letter-spacing:1.5px;font-weight:700;">PHARMONY — Factura de Turno</span>
+        </a>
+    </div>
+    <a href="{% url 'dashboard' %}" style="color:#fff;text-decoration:none;font-size:13px;font-weight:600;background:rgba(255,255,255,.16);padding:6px 14px;border-radius:20px;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,.26)'" onmouseout="this.style.background='rgba(255,255,255,.16)'">Volver al Dashboard</a>
 </div>
 <div class="factura-wrapper">
     <div class="invoice">
     <div class="invoice-head">
-        <div class="brand">PHARMONY<small>Factura de turno de dispensación</small></div>
+        <div class="brand" style="display:flex;align-items:center;gap:10px;">
+            <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:36px;height:36px;border-radius:50%;object-fit:contain;">
+            <div>PHARMONY<small>Factura de turno de dispensación</small></div>
+        </div>
         <div class="num">N.° de turno<b>{{ turno.codigo_ticket }}</b></div>
     </div>
 

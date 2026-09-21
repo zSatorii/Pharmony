@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -84,10 +85,11 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo-wrap">
-            <span class="logo-name">PHARMONY</span>
+        <a href="{% url 'dashboard' %}" class="logo-wrap" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff;" title="Ir al Dashboard">
+            <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:36px;height:36px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <span class="logo-name" style="font-weight:700;">PHARMONY</span>
             <span class="role-pill">{% if is_admin %}Administrador{% else %}Personal EPS{% endif %}</span>
-        </div>
+        </a>
         <a class="btn-logout" href="{% url 'logout' %}">Cerrar sesión</a>
     </div>
 

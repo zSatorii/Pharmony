@@ -118,6 +118,12 @@ def _redirect_por_rol(user):
     return reverse('dashboard_inventario')
 
 @never_cache
+def dashboard_redirect(request):
+    if request.user.is_authenticated:
+        return redirect(_redirect_por_rol(request.user))
+    return redirect('login')
+
+@never_cache
 @login_required
 def dashboard_inventario(request):
     if request.user.rol in ('cliente', 'eps'):

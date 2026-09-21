@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -120,9 +121,12 @@
 <body>
 
 <aside class="sidebar">
-    <a href="{% url 'dashboard_eps' %}" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer; display: block;">
-        <div class="name">PHARMONY</div>
-        <span class="role">{% if is_admin %}Administrador{% else %}Personal EPS{% endif %}</span>
+    <a href="{% url 'dashboard_eps' %}" class="sidebar-logo" style="text-decoration: none; color: inherit; cursor: pointer; display: flex; align-items: center; gap: 12px;">
+        <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width: 38px; height: 38px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.18); flex-shrink: 0;">
+        <div>
+            <div class="name">PHARMONY</div>
+            <span class="role">{% if is_admin %}Administrador{% else %}Personal EPS{% endif %}</span>
+        </div>
     </a>
     <nav class="nav">
         <a href="#resumen">

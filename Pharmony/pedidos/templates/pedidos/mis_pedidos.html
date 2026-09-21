@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -15,9 +16,14 @@
     }
     *{box-sizing:border-box;margin:0;padding:0;}
     body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
-    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;}
-    .topbar a{color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;}
-    .topbar a:hover{background:rgba(255,255,255,.25);}
+    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 16px rgba(5,32,96,0.15);}
+    .topbar .brand-link{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#fff;padding:4px 10px;border-radius:12px;background:rgba(255,255,255,0.06);transition:all 0.25s cubic-bezier(0.16, 1, 0.3, 1);}
+    .topbar .brand-link:hover{background:rgba(255,255,255,0.16);transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+    .topbar .brand-logo-img{width:36px;height:36px;border-radius:50%;object-fit:contain;background:#ffffff;padding:2px;box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:transform 0.25s ease;}
+    .topbar .brand-link:hover .brand-logo-img{transform:scale(1.08) rotate(4deg);}
+    .topbar .brand-text{font-family:'Quicksand',sans-serif;font-size:19px;font-weight:700;letter-spacing:2px;color:#fff;}
+    .topbar .btn-dash{color:#fff;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;background:rgba(255,255,255,.16);padding:8px 16px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;transition:all 0.2s;}
+    .topbar .btn-dash:hover{background:rgba(255,255,255,.26);transform:translateY(-1px);}
     .wrap{max-width:720px;margin:0 auto;padding:32px 20px 60px;}
     
     .head-section{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;gap:12px;}
@@ -63,8 +69,14 @@
 </head>
 <body>
 <div class="topbar">
-    <span>PHARMONY</span>
-    <a href="{% url 'dashboard_cliente' %}">← Volver al Dashboard</a>
+    <a href="{% url 'dashboard' %}" class="brand-link" title="Ir al Dashboard">
+        <img src="{% static 'img/logo.png' %}" alt="Pharmony" class="brand-logo-img">
+        <span class="brand-text">PHARMONY</span>
+    </a>
+    <a href="{% url 'dashboard' %}" class="btn-dash">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Volver al Dashboard
+    </a>
 </div>
 
 <div class="wrap">

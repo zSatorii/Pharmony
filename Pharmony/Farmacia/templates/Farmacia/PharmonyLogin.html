@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -919,10 +920,8 @@
         </div>
 
         <div class="left-top">
-            <a href="{% url 'home:home' %}" class="logo">
-                <div class="logo-mark">
-                    <i data-lucide="shield-plus" style="width: 24px; height: 24px;"></i>
-                </div>
+            <a href="{% url 'home:home' %}" class="logo" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+                <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width: 44px; height: 44px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
                 <span class="logo-name">Pharmony</span>
             </a>
         </div>

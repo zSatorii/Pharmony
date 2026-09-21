@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1030,15 +1031,13 @@
 <header class="topbar">
     <div class="topbar-inner">
         <div class="topbar-left">
-            <a href="{% url 'dashboard_cliente' %}" class="brand-logo" title="Ir al Panel Principal">
-                <div class="brand-icon-box">
-                    <i data-lucide="cross" style="width: 20px; height: 20px;"></i>
-                </div>
+            <a href="{% url 'dashboard' %}" class="brand-logo" title="Ir al Panel Principal">
+                <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:36px;height:36px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
                 <span class="brand-name">PHARMONY</span>
             </a>
 
             <nav class="breadcrumbs" aria-label="Migas de pan">
-                <a href="{% url 'dashboard_cliente' %}">Panel</a>
+                <a href="{% url 'dashboard' %}">Panel</a>
                 <i data-lucide="chevron-right" style="width: 14px; height: 14px; opacity: 0.5;"></i>
                 <span>Disponibilidad</span>
                 <i data-lucide="chevron-right" style="width: 14px; height: 14px; opacity: 0.5;"></i>

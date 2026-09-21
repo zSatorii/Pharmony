@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,7 +55,8 @@
 </head>
 <body>
 <div class="topbar">
-    <a href="{% url 'dashboard_eps' %}" style="text-decoration:none;color:inherit;cursor:pointer;transition:all 0.2s ease;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+    <a href="{% url 'dashboard_eps' %}" style="text-decoration:none;color:inherit;cursor:pointer;transition:all 0.2s ease;display:inline-flex;align-items:center;gap:10px;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'" title="Ir al Dashboard EPS">
+        <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
         <span class="brand">PHARMONY · EPS</span>
     </a>
     <div class="topbar-actions">

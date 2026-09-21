@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -1276,9 +1277,7 @@
   <!-- ── 1. NAVBAR MODERNA CON GLASSMORPHISM ── -->
   <nav class="navbar" id="navbar">
     <a class="nav-brand" href="{% url 'home:home' %}">
-      <div class="nav-brand-logo">
-        <i data-lucide="shield-plus" style="width: 22px; height: 22px;"></i>
-      </div>
+      <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width: 42px; height: 42px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); transition: transform 0.25s ease;">
       <span class="nav-brand-text">PHARMONY</span>
     </a>
 
@@ -1293,7 +1292,7 @@
 
     <div class="nav-actions">
       {% if user.is_authenticated %}
-      <a class="btn-nav-cta" href="{% url 'login' %}">
+      <a class="btn-nav-cta" href="{% url 'dashboard' %}">
         <i data-lucide="layout-dashboard" style="width: 16px; height: 16px;"></i>
         Mi Panel
       </a>
@@ -1751,9 +1750,7 @@
     <div class="footer-inner">
       <div class="footer-brand">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-          <div class="nav-brand-logo" style="width: 34px; height: 34px;">
-            <i data-lucide="shield-plus" style="width: 18px; height: 18px;"></i>
-          </div>
+          <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width: 36px; height: 36px; border-radius: 50%; background: #ffffff; padding: 2px; object-fit: contain; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
           <span class="logo-text">PHARMONY</span>
         </div>
         <p>

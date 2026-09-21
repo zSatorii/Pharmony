@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -110,7 +111,10 @@
 </head>
 <body>
 <div class="topbar">
-    <span>PHARMONY</span>
+    <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff;" title="Ir al Dashboard">
+        <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+        <span style="font-family:'Quicksand',sans-serif;letter-spacing:2px;font-weight:700;">PHARMONY</span>
+    </a>
     <span class="ticket-id">{{ turno.codigo_ticket }} &middot; Sede {{ turno.sede.nombre }}</span>
 </div>
 

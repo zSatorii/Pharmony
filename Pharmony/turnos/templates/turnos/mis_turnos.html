@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -348,14 +349,12 @@
 <header class="topbar">
     <div class="topbar-inner">
         <div class="topbar-left">
-            <a href="{% url 'dashboard_cliente' %}" class="brand-logo">
-                <div class="brand-icon-box">
-                    <i data-lucide="cross" style="width: 18px; height: 18px;"></i>
-                </div>
+            <a href="{% url 'dashboard' %}" class="brand-logo" title="Ir al Dashboard">
+                <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
                 <span class="brand-name">PHARMONY</span>
             </a>
         </div>
-        <a href="{% url 'dashboard_cliente' %}" class="btn-back-nav">
+        <a href="{% url 'dashboard' %}" class="btn-back-nav">
             <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i>
             <span>Volver al Panel</span>
         </a>

@@ -11,9 +11,12 @@
 
 {% block branding %}
 <h1 id="site-name">
-  <a href="{% url 'admin:index' %}">
-    <span class="brand-mark">PHARMONY</span>
-    <span class="brand-sub">Panel administrativo</span>
+  <a href="{% url 'admin:index' %}" style="display:flex;align-items:center;gap:12px;text-decoration:none;">
+    <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.18);">
+    <div>
+      <span class="brand-mark">PHARMONY</span>
+      <span class="brand-sub">Panel administrativo</span>
+    </div>
   </a>
 </h1>
 {% endblock %}

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,7 +12,10 @@
         <!-- Barra lateral (Sidebar) -->
         <aside class="w-64 bg-slate-800 text-white p-6 flex flex-col justify-between">
             <div>
-                <h1 class="text-2xl font-bold tracking-wider mb-8 text-emerald-400">Pharmony Admin</h1>
+                <a href="{% url 'dashboard' %}" class="flex items-center gap-3 mb-8 text-decoration-none">
+                    <img src="{% static 'img/logo.png' %}" alt="Pharmony" class="w-10 h-10 rounded-full bg-white p-0.5 object-contain shadow">
+                    <h1 class="text-2xl font-bold tracking-wider text-emerald-400">Pharmony Admin</h1>
+                </a>
                 <nav class="space-y-4">
                     <a href="#" class="block py-2.5 px-4 rounded bg-slate-700 text-white font-medium">Inicio / Métricas</a>
                     <a href="#" class="block py-2.5 px-4 rounded text-slate-300 hover:bg-slate-700 hover:text-white transition">Medicamentos</a>
