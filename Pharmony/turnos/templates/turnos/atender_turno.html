@@ -16,9 +16,14 @@
         --purp:#8b5cf6;--purpp:#f5f3ff;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
-    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;}
-    .topbar .ticket-id{font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:5px 14px;border-radius:20px;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;-webkit-font-smoothing:antialiased;}
+    
+    .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+    .topbar-brand{display:flex;align-items:center;gap:12px;font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;font-weight:700;}
+    .btn-back-nav{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;background:rgba(255,255,255,0.15);border-radius:10px;color:#fff;text-decoration:none;font-size:18px;font-weight:700;transition:all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);cursor:pointer;}
+    .btn-back-nav:hover{background:rgba(255,255,255,0.25);transform:scale(1.06);}
+    .topbar .ticket-id{font-family:'DM Sans',sans-serif;font-size:13px;background:rgba(255,255,255,.15);padding:6px 14px;border-radius:20px;white-space:nowrap;}
+
     .wrap{max-width:760px;margin:0 auto;padding:28px 20px 60px;display:flex;flex-direction:column;gap:20px;}
     .card{background:var(--w);border-radius:18px;box-shadow:0 6px 20px rgba(13,71,201,0.08);overflow:hidden;}
     .card-head{background:linear-gradient(135deg,var(--bd) 0%,var(--bdk) 100%);color:#fff;padding:14px 20px;font-family:'Quicksand',sans-serif;font-size:14.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;}
@@ -28,7 +33,7 @@
     .user-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;background:var(--g50);border:1px solid var(--g200);border-radius:14px;padding:16px;}
     .user-field{font-size:12.5px;}
     .user-field-label{color:var(--g400);font-weight:600;text-transform:uppercase;font-size:10px;letter-spacing:0.5px;margin-bottom:3px;}
-    .user-field-val{color:var(--g800);font-weight:600;font-size:13.5px;}
+    .user-field-val{color:var(--g800);font-weight:600;font-size:13.5px;word-break:break-word;}
 
     /* Verificación de Coincidencia */
     .match-banner{margin-top:14px;padding:12px 16px;border-radius:12px;display:flex;align-items:flex-start;gap:12px;font-size:12.5px;line-height:1.45;}
@@ -43,6 +48,7 @@
     .doc-item:hover{border-color:var(--bs);background:var(--bp);}
     .doc-item svg{margin-bottom:6px;}
     .doc-item span{display:block;font-size:12.5px;font-weight:600;color:var(--g800);}
+    .doc-item.disabled{cursor:not-allowed !important;}
 
     /* IA Card & Tabla de Medicamentos */
     .ia-badge{background:rgba(255,255,255,0.2);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;}
@@ -58,12 +64,12 @@
     .med-item-card.agotado{background:#fff8f8;opacity:0.85;}
     
     .med-check-col{display:flex;align-items:center;padding-top:4px;}
-    .med-check-col input[type="checkbox"]{width:18px;height:18px;cursor:pointer;accent-color:var(--bm);}
+    .med-check-col input[type="checkbox"]{width:20px;height:20px;cursor:pointer;accent-color:var(--bm);}
     .med-info-col{flex:1;}
-    .med-title{font-size:14px;font-weight:700;color:var(--g800);}
-    .med-sub{font-size:12px;color:var(--g600);margin-top:2px;}
-    .med-posologia{font-size:11.5px;color:var(--bdk);background:var(--bp);padding:3px 8px;border-radius:6px;display:inline-block;margin-top:6px;}
-    .med-stock-tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;margin-top:4px;}
+    .med-title{font-size:14px;font-weight:700;color:var(--g800);line-height:1.3;}
+    .med-sub{font-size:12px;color:var(--g600);margin-top:3px;}
+    .med-posologia{font-size:11.5px;color:var(--bdk);background:var(--bp);padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;line-height:1.35;}
+    .med-stock-tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:12px;margin-top:5px;}
     .med-stock-tag.in-stock{background:var(--grnp);color:#15803d;}
     .med-stock-tag.out-stock{background:var(--redp);color:var(--red);}
 
@@ -73,7 +79,7 @@
 
     /* Chat */
     .chat-scroll{padding:16px 18px;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;background:var(--g50);}
-    .bubble{max-width:78%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.4;}
+    .bubble{max-width:78%;padding:9px 13px;border-radius:14px;font-size:13.5px;line-height:1.4;word-break:break-word;}
     .bubble.own{align-self:flex-end;background:var(--bm);color:#fff;border-bottom-right-radius:4px;}
     .bubble.other{align-self:flex-start;background:var(--w);border:1px solid var(--g200);color:var(--g800);border-bottom-left-radius:4px;}
     .bubble .autor{font-size:10.5px;font-weight:700;opacity:.7;margin-bottom:2px;display:block;}
@@ -88,11 +94,12 @@
     .archivo-preview{font-size:11.5px;color:var(--bm);padding:0 14px 8px;}
 
     /* Finalizar */
-    .finalizar-form label.radio-lbl{margin-right:20px;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+    .finalizar-radios{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap;}
+    .finalizar-form label.radio-lbl{font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
     .finalizar-form textarea{width:100%;margin:14px 0 10px;padding:12px;border:1.5px solid var(--g200);border-radius:10px;font-family:inherit;min-height:74px;font-size:13.5px;}
-    .btn-confirmar{background:var(--bm);color:#fff;border:none;border-radius:10px;padding:13px 24px;font-size:14.5px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(13,71,201,0.25);}
+    .btn-confirmar{background:var(--bm);color:#fff;border:none;border-radius:12px;padding:14px 24px;font-size:14.5px;font-weight:700;cursor:pointer;width:100%;box-shadow:0 4px 12px rgba(13,71,201,0.25);transition:background .2s;}
     .btn-confirmar:hover{background:var(--bdk);}
-    .btn-rescan{background:#fff;color:var(--purp);border:1px solid #c4b5fd;padding:4px 10px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+    .btn-rescan{background:#fff;color:var(--purp);border:1px solid #c4b5fd;padding:5px 12px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
     .btn-rescan:hover{background:var(--purpp);}
 
     /* Modal Visor */
@@ -101,20 +108,110 @@
     .doc-modal{background:#fff;border-radius:16px;width:100%;max-width:780px;height:85vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
     .doc-modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--g200);}
     .doc-modal-head h3{font-size:14.5px;color:var(--bd);}
-    .doc-modal-close{background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--g600);}
+    .doc-modal-close{background:var(--g100);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:18px;color:var(--g600);display:flex;align-items:center;justify-content:center;}
     .doc-modal-body{flex:1;overflow:auto;background:var(--g50);}
     .doc-modal-body iframe,.doc-modal-body img{width:100%;height:100%;object-fit:contain;border:none;}
-    .doc-modal-fallback{padding:40px;text-align:center;color:var(--g600);}
+    .doc-modal-fallback{padding:40px 20px;text-align:center;color:var(--g600);font-size:13.5px;}
     .doc-modal-docx{padding:32px 40px;background:#fff;line-height:1.6;font-size:14px;color:#1e293b;}
     .doc-modal-docx img{max-width:100%;}
+
+    /* =======================================================
+       DISEÑO RESPONSIVO PARA SMARTPHONES Y TABLETS (< 680px)
+       ======================================================= */
+    @media (max-width: 680px) {
+        .topbar{padding:12px 16px;flex-direction:column;align-items:stretch;gap:8px;}
+        .topbar-brand{justify-content:space-between;font-size:17px;}
+        .topbar .ticket-id{text-align:center;font-size:11.5px;padding:4px 10px;background:rgba(255,255,255,0.2);}
+        
+        .wrap{padding:14px 12px 50px;gap:14px;}
+        .card{border-radius:14px;}
+        .card-head{padding:12px 14px;font-size:13.5px;flex-wrap:wrap;gap:8px;}
+        .card-body{padding:14px 12px;}
+
+        /* Grid de usuario en 1 columna limpia */
+        .user-grid{grid-template-columns:1fr;padding:12px;gap:8px;}
+        .user-field{display:flex;flex-direction:column;border-bottom:1px solid var(--g200);padding-bottom:7px;}
+        .user-field:last-child{border-bottom:none;padding-bottom:0;}
+        .user-field-label{font-size:9.5px;}
+        .user-field-val{font-size:13px;}
+
+        /* Botones de documentos estilo tarjetas táctiles */
+        .doc-list{flex-direction:column;gap:8px;}
+        .doc-item{min-width:100%;padding:12px 14px;display:flex;align-items:center;justify-content:flex-start;gap:12px;text-align:left;}
+        .doc-item svg{margin-bottom:0;flex-shrink:0;}
+        .doc-item span{display:inline;font-size:13px;}
+
+        /* Metadatos IA en tarjeta móvil */
+        .ia-meta-grid{grid-template-columns:1fr;padding:10px 12px;gap:8px;}
+
+        /* Fila de cada medicamento adaptada a móvil */
+        .med-item-card{
+            display:grid;
+            grid-template-columns:auto 1fr;
+            grid-template-areas:
+                "check info"
+                "qty   qty";
+            gap:10px 10px;
+            padding:12px 10px;
+        }
+        .med-check-col{grid-area:check;padding-top:2px;}
+        .med-info-col{grid-area:info;}
+        .med-qty-col{
+            grid-area:qty;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            background:var(--g50);
+            padding:8px 12px;
+            border-radius:8px;
+            border:1px solid var(--g200);
+            min-width:unset;
+            text-align:left;
+        }
+        .med-qty-col label{margin-bottom:0;font-size:12px;color:var(--g600);}
+        .med-qty-col input{width:80px;padding:6px 10px;font-size:14px;}
+
+        /* Opciones de resolución como botones táctiles */
+        .finalizar-radios{flex-direction:column;gap:8px;}
+        .finalizar-form label.radio-lbl{
+            display:flex;
+            align-items:flex-start;
+            padding:10px 12px;
+            background:var(--g50);
+            border:1.5px solid var(--g200);
+            border-radius:10px;
+            font-size:13px;
+            line-height:1.35;
+        }
+        .finalizar-form label.radio-lbl:has(input:checked){
+            border-color:var(--bm);
+            background:var(--bp);
+        }
+        .finalizar-form label.radio-lbl input{margin-top:2px;flex-shrink:0;}
+        .btn-confirmar{padding:14px;font-size:14px;}
+
+        /* Chat móvil */
+        .chat-scroll{max-height:220px;padding:12px 10px;}
+        .bubble{max-width:88%;font-size:13px;}
+        .chat-input-row{padding:8px 10px;gap:6px;}
+        .chat-input-row input[type="text"]{padding:8px 12px;font-size:13.5px;}
+
+        /* Modal visor a pantalla completa */
+        .doc-modal-overlay{padding:8px;}
+        .doc-modal{height:95vh;border-radius:12px;max-width:100%;}
+        .doc-modal-head{padding:10px 14px;}
+        .doc-modal-docx{padding:18px 14px;font-size:13px;}
+    }
 </style>
 </head>
 <body>
-<div class="topbar">
-    <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff;" title="Ir al Dashboard">
-        <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
-        <span style="font-family:'Quicksand',sans-serif;letter-spacing:2px;font-weight:700;">PHARMONY</span>
-    </a>
+    <div class="topbar-brand">
+        <a href="{% url 'turnos:cola_turnos' turno.sede.id %}" class="btn-back-nav" title="Volver a la cola">←</a>
+        <a href="{% url 'dashboard' %}" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff;" title="Ir al Dashboard">
+            <img src="{% static 'img/logo.png' %}" alt="Pharmony" style="width:34px;height:34px;border-radius:50%;background:#ffffff;padding:2px;object-fit:contain;box-shadow:0 2px 8px rgba(0,0,0,0.15);">
+            <span style="font-family:'Quicksand',sans-serif;letter-spacing:2px;font-weight:700;">PHARMONY</span>
+        </a>
+    </div>
     <span class="ticket-id">{{ turno.codigo_ticket }} &middot; Sede {{ turno.sede.nombre }}</span>
 </div>
 

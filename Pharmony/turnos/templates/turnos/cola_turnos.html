@@ -3,15 +3,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pharmony — Cola de turnos</title>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
     :root{--bd:#052060;--bdk:#0a3a8c;--bm:#0d47c9;--bs:#93c5fd;--bp:#dbeafe;--w:#fff;--g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g800:#1e293b;--red:#ef4444;--redp:#fef2f2;}
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;}
+    body{background:var(--g100);font-family:'DM Sans',sans-serif;color:var(--g800);min-height:100vh;-webkit-font-smoothing:antialiased;}
     .topbar{background:linear-gradient(135deg,var(--bdk) 0%,var(--bm) 100%);color:#fff;padding:16px 28px;display:flex;justify-content:space-between;align-items:center;}
-    .topbar .brand{font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;}
-    .topbar .sede{font-size:12.5px;opacity:.75;margin-top:2px;}
+    .topbar .brand{font-family:'Quicksand',sans-serif;font-size:19px;letter-spacing:2px;font-weight:700;}
+    .topbar .sede{font-size:12.5px;opacity:.85;margin-top:2px;}
     .wrap{max-width:600px;margin:0 auto;padding:28px 20px 60px;}
     .card{background:var(--w);border-radius:18px;box-shadow:0 6px 20px rgba(13,71,201,0.08);overflow:hidden;margin-bottom:20px;}
     .card-head{background:linear-gradient(135deg,var(--bd) 0%,var(--bdk) 100%);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;font-family:'Quicksand',sans-serif;font-weight:600;font-size:15px;}
@@ -20,16 +21,30 @@
     .turno-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:12px;font-size:13.5px;}
     .turno-item:nth-child(odd){background:var(--g50);}
     .turno-item .codigo{font-weight:700;color:var(--bm);}
-    .turno-item .med{color:var(--g600);}
-    .pos{background:var(--bp);color:var(--bm);font-weight:700;font-size:11.5px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;}
-    .vacio{text-align:center;padding:32px;color:var(--g400);font-size:13.5px;}
+    .turno-item .med{color:var(--g600);word-break:break-word;}
+    .pos{background:var(--bp);color:var(--bm);font-weight:700;font-size:11.5px;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;flex-shrink:0;}
+    .vacio{text-align:center;padding:36px 20px;color:var(--g400);font-size:13.5px;}
     .acciones{display:flex;gap:10px;padding:14px 20px 20px;}
-    .btn{flex:1;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;}
+    .btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;text-align:center;transition:all 0.2s ease;}
     .btn-siguiente{background:var(--bm);color:#fff;}
     .btn-siguiente:hover{background:var(--bdk);}
     .btn-siguiente:disabled{background:var(--g200);color:var(--g400);cursor:not-allowed;}
     .btn-cerrar{background:var(--redp);color:var(--red);}
     .btn-cerrar:hover{background:var(--red);color:#fff;}
+
+    @media (max-width: 640px) {
+        .topbar{padding:12px 16px;}
+        .topbar .brand{font-size:17px;}
+        .topbar .sede{font-size:11.5px;}
+        .wrap{padding:14px 12px 50px;}
+        .card{border-radius:14px;}
+        .card-head{padding:12px 16px;font-size:14px;}
+        .turno-item{padding:10px 12px;}
+        .turno-item .codigo{font-size:13px;}
+        .turno-item .med{font-size:12px;}
+        .acciones{flex-direction:column;gap:10px;padding:12px 14px 16px;}
+        .btn{padding:14px;font-size:13.5px;}
+    }
 </style>
 </head>
 <body>

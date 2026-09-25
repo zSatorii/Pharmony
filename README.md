@@ -8,11 +8,14 @@
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg)](LICENSE)
 
 > **Pharmony** es una solución tecnológica integral de salud digital y dispensación farmacéutica para Colombia. Conecta en tiempo real a **Pacientes**, **EPS** y **Farmacias**, integrando lectura inteligente de fórmulas médicas mediante Visión Artificial con **Google Gemini**, turnos virtuales georreferenciados con tickets QR, autenticación biométrica facial y pantallas de sala de espera en alta definición.
+>
+> 📖 **Documentación de Usuario:** Consulta el [Manual de Usuario (Word .docx)](MANUAL_DE_USUARIO.docx) o en formato [Markdown (MANUAL_DE_USUARIO.md)](MANUAL_DE_USUARIO.md).
 
 ---
 
 ## 📑 Tabla de Contenidos
 
+- [Manual de Usuario Oficial](#-manual-de-usuario-oficial)
 - [Características Principales](#-características-principales)
 - [Stack Tecnológico](#-stack-tecnológico)
 - [Arquitectura del Sistema](#-arquitectura-del-sistema)
@@ -41,6 +44,17 @@
 - [Solución de Problemas (Troubleshooting)](#-solución-de-problemas-troubleshooting)
 - [Contribución](#-contribución)
 - [Licencia](#-licencia)
+
+---
+
+## 📖 Manual de Usuario Oficial
+
+El proyecto dispone de un manual operativo completo adaptado a la normatividad de salud colombiana (Ley Estatutaria 1751/2015, Ley 1755/2015, INVIMA), disponible para lectura y descarga:
+
+- 📄 **Documento Microsoft Word (.docx):** [`MANUAL_DE_USUARIO.docx`](MANUAL_DE_USUARIO.docx) — Formato formal con portada, tablas estilizadas, cajas de advertencia y preparado para impresión o exportación a PDF.
+- 📋 **Documento Web / Repositorio (.md):** [`MANUAL_DE_USUARIO.md`](MANUAL_DE_USUARIO.md) — Formato Markdown con diagramas de flujo interactivos Mermaid.
+
+El manual cubre de forma exhaustiva las guías operativas paso a paso para **Pacientes**, **Auxiliares de Farmacia / EPS** y **Administradores del Sistema**.
 
 ---
 
