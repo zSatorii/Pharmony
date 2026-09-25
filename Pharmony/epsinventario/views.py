@@ -59,6 +59,11 @@ def _sync_sede_firestore(instance):
             "telefono": instance.telefono,
             "email": instance.email,
             "estado": instance.estado,
+            "latitud": instance.latitud,
+            "longitud": instance.longitud,
+            "hora_apertura": instance.hora_apertura.strftime("%H:%M:%S") if instance.hora_apertura else "07:00:00",
+            "hora_cierre": instance.hora_cierre.strftime("%H:%M:%S") if instance.hora_cierre else "19:00:00",
+            "atiende_fines_semana": instance.atiende_fines_semana,
         }
         db.collection("sedes").document(str(instance.id)).set(data)
     except Exception:
